@@ -5,8 +5,9 @@ import { ProductService } from '@/src/server/modules/products/productService';
 import { ReviewService } from '@/src/server/modules/reviews/reviewService';
 import { createReviewSchema } from '@/src/server/validators/ecommerce';
 
-export async function GET(req: NextRequest, { params }: { params: { slug: string } }) {
-  const product = await ProductService.getProductBySlug(params.slug);
+export async function GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const product = await ProductService.getProductBySlug(slug);
   if (!product) return apiError('NOT_FOUND', 'Product not found', 404);
 
   const reviews = await ReviewService.getProductReviews(product.id);
@@ -20,11 +21,12 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
   return apiSuccess({ reviews, eligibility });
 }
 
-export async function POST(req: NextRequest, { params }: { params: { slug: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const authUser = await getAuthUser(req);
   if (!authUser) return apiError('UNAUTHORIZED', 'Please log in to continue', 401);
 
-  const product = await ProductService.getProductBySlug(params.slug);
+  const product = await ProductService.getProductBySlug(slug);
   if (!product) return apiError('NOT_FOUND', 'Product not found', 404);
 
   try {

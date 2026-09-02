@@ -6,7 +6,8 @@ import { addressSchema } from '@/src/server/validators/address';
 
 const addressUpdateSchema = addressSchema.partial();
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const authUser = await getAuthUser(req);
   if (!authUser) return apiError('UNAUTHORIZED', 'Please log in to continue', 401);
 
@@ -16,19 +17,20 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     if (!parsed.success) {
       return apiError('VALIDATION_ERROR', parsed.error.issues[0]?.message || 'Invalid input', 422, parsed.error.issues);
     }
-    const address = await AddressService.updateAddress(authUser.userId, Number(params.id), parsed.data);
+    const address = await AddressService.updateAddress(authUser.userId, Number(id), parsed.data);
     return apiSuccess(address);
   } catch (err) {
     return apiError('UPDATE_FAILED', err instanceof Error ? err.message : 'Failed to update address', 400);
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const authUser = await getAuthUser(req);
   if (!authUser) return apiError('UNAUTHORIZED', 'Please log in to continue', 401);
 
   try {
-    const result = await AddressService.deleteAddress(authUser.userId, Number(params.id));
+    const result = await AddressService.deleteAddress(authUser.userId, Number(id));
     return apiSuccess(result);
   } catch (err) {
     return apiError('DELETE_FAILED', err instanceof Error ? err.message : 'Failed to delete address', 400);
