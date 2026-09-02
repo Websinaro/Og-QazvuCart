@@ -221,30 +221,80 @@ export class AdminService {
     // tied to this admin the first time it's needed.
     const seller = await this.getOrCreateAdminSeller(adminUserId);
 
+    // Validate the category up front so a stale/mistyped category id fails
+    // with a clear, actionable message instead of a raw foreign-key error
+    // surfaced from the database driver.
+    const [category] = await db
+      .select({ id: categories.id })
+      .from(categories)
+      .where(eq(categories.id, data.categoryId))
+      .limit(1);
+    if (!category) {
+      throw new Error(
+        `Category #${data.categoryId} does not exist. Refresh the page and pick a category from the list.`
+      );
+    }
+
+    if (!data.basePrice || data.basePrice <= 0) {
+      throw new Error('Original price must be greater than 0.');
+    }
+    if (!data.discountPrice || data.discountPrice <= 0) {
+      throw new Error('Deal price must be greater than 0.');
+    }
+    if (data.discountPrice > data.basePrice) {
+      throw new Error('Deal price cannot be higher than the original price.');
+    }
+
     const slug = `${data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${Date.now()}`;
 
-    const [product] = await db
-      .insert(products)
-      .values({
-        sellerId: seller.id,
-        categoryId: data.categoryId,
-        name: data.name,
-        slug,
-        description: data.description,
-        basePrice: data.basePrice,
-        discountPrice: data.discountPrice,
-        stock: data.stock,
-        brand: data.brand,
-        isDeal: Boolean(data.isDeal),
-        isFeatured: Boolean(data.isFeatured),
-      })
-      .returning({ id: products.id });
+    let product: { id: number };
+    try {
+      [product] = await db
+        .insert(products)
+        .values({
+          sellerId: seller.id,
+          categoryId: data.categoryId,
+          name: data.name,
+          slug,
+          description: data.description,
+          basePrice: data.basePrice,
+          discountPrice: data.discountPrice,
+          stock: data.stock,
+          brand: data.brand,
+          isDeal: Boolean(data.isDeal),
+          isFeatured: Boolean(data.isFeatured),
+        })
+        .returning({ id: products.id });
+    } catch (err) {
+      throw new Error(AdminService.describeDbError(err, 'product'));
+    }
 
     if (data.imageUrl) {
       await db.insert(productImages).values({ productId: product.id, imageUrl: data.imageUrl, isPrimary: true, displayOrder: 1 });
     }
 
     return product;
+  }
+
+  /**
+   * Translates raw PostgreSQL error codes into messages an admin can act
+   * on, instead of leaking driver internals (or a bare "Failed query")
+   * back to the client.
+   */
+  private static describeDbError(err: unknown, entity: string): string {
+    const pgErr = err as { code?: string; constraint?: string; detail?: string } | null;
+    switch (pgErr?.code) {
+      case '23503': // foreign_key_violation
+        return `That ${entity} references something that no longer exists (e.g. a deleted category or seller). Please refresh and try again.`;
+      case '23505': // unique_violation
+        return `A ${entity} with that name/slug already exists. Try a slightly different title.`;
+      case '23502': // not_null_violation
+        return `A required field is missing for this ${entity}.`;
+      case '22P02': // invalid_text_representation (bad type cast)
+        return `One of the values provided is not in the expected format.`;
+      default:
+        return err instanceof Error ? err.message : `Failed to save ${entity}.`;
+    }
   }
 
   static async updateProduct(productId: number, data: Partial<{ discountPrice: number; stock: number; status: string }>) {

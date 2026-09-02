@@ -90,6 +90,12 @@ interface ProductDetailData {
   weight?: string;
   categoryName: string;
   categorySlug: string;
+  seller?: {
+    name: string;
+    slug: string;
+    rating: number;
+    reviewCount: number;
+  };
   basePrice: number;
   discountPrice: number;
   discountPercent: number;
@@ -602,6 +608,26 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 <span className="text-neutral-300">|</span>
                 <span className="text-xs text-neutral-500 font-medium">SKU: {selectedVariant?.sku || `PROD-${product.id}`}</span>
               </div>
+
+              {/* Sold By */}
+              {product.seller?.slug && (
+                <div className="flex items-center gap-2 pt-3 text-xs">
+                  <Store className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                  <span className="text-neutral-500 font-medium">Sold by</span>
+                  <Link
+                    href={`/seller/${product.seller.slug}`}
+                    className="font-bold text-neutral-900 hover:text-[#c9a300] underline decoration-neutral-300 underline-offset-2 transition-colors"
+                  >
+                    {product.seller.name}
+                  </Link>
+                  {product.seller.rating > 0 && (
+                    <span className="flex items-center gap-0.5 text-emerald-700 font-bold">
+                      <Star className="w-3 h-3 fill-emerald-700" />
+                      {product.seller.rating.toFixed(1)}
+                    </span>
+                  )}
+                </div>
+              )}
 
               {/* 3. Original Price, Discount & Discounted Price Box */}
               <div className="py-4 space-y-1.5 bg-neutral-50/70 p-4 rounded-2xl border border-neutral-100 my-4">

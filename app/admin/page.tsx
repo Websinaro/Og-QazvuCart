@@ -102,6 +102,12 @@ interface AdminOrder {
   }>;
 }
 
+interface CategoryOption {
+  id: number;
+  name: string;
+  slug: string;
+}
+
 interface AdminUser {
   id: number;
   username: string;
@@ -128,9 +134,10 @@ export default function AdminDashboardPage() {
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [productSearch, setProductSearch] = useState('');
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+  const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [newProdName, setNewProdName] = useState('');
   const [newProdBrand, setNewProdBrand] = useState('');
-  const [newProdCategoryId, setNewProdCategoryId] = useState(1);
+  const [newProdCategoryId, setNewProdCategoryId] = useState<number | ''>('');
   const [newProdBasePrice, setNewProdBasePrice] = useState(2999);
   const [newProdDiscountPrice, setNewProdDiscountPrice] = useState(1999);
   const [newProdStock, setNewProdStock] = useState(50);
@@ -158,17 +165,22 @@ export default function AdminDashboardPage() {
     if (!isAuthenticated || user?.role !== 'ADMIN') return;
     setIsLoading(true);
     try {
-      const [analyticsRes, productsRes, ordersRes, usersRes] = await Promise.all([
+      const [analyticsRes, productsRes, ordersRes, usersRes, categoriesRes] = await Promise.all([
         authFetch('/api/admin/analytics').then((r) => r.json()),
         authFetch('/api/admin/products').then((r) => r.json()),
         authFetch('/api/admin/orders').then((r) => r.json()),
         authFetch('/api/admin/users').then((r) => r.json()),
+        fetch('/api/categories').then((r) => r.json()),
       ]);
 
       if (analyticsRes.success) setAnalytics(analyticsRes.data);
       if (productsRes.success) setProducts(productsRes.data);
       if (ordersRes.success) setOrders(ordersRes.data);
       if (usersRes.success) setUsers(usersRes.data);
+      if (categoriesRes.success) {
+        setCategories(categoriesRes.data);
+        setNewProdCategoryId((prev) => (prev === '' && categoriesRes.data[0] ? categoriesRes.data[0].id : prev));
+      }
     } catch {
       error('Failed to load admin data');
     } finally {
@@ -177,39 +189,18 @@ export default function AdminDashboardPage() {
   }, [isAuthenticated, user?.role, error]);
 
   useEffect(() => {
-    let isMounted = true;
     if (!isAuthLoading && isAuthenticated && user?.role === 'ADMIN') {
-      const fetchData = async () => {
-        setIsLoading(true);
-        try {
-          const [analyticsRes, productsRes, ordersRes, usersRes] = await Promise.all([
-            authFetch('/api/admin/analytics').then((r) => r.json()),
-            authFetch('/api/admin/products').then((r) => r.json()),
-            authFetch('/api/admin/orders').then((r) => r.json()),
-            authFetch('/api/admin/users').then((r) => r.json()),
-          ]);
-
-          if (!isMounted) return;
-          if (analyticsRes.success) setAnalytics(analyticsRes.data);
-          if (productsRes.success) setProducts(productsRes.data);
-          if (ordersRes.success) setOrders(ordersRes.data);
-          if (usersRes.success) setUsers(usersRes.data);
-        } catch {
-          if (isMounted) error('Failed to load admin data');
-        } finally {
-          if (isMounted) setIsLoading(false);
-        }
-      };
-      fetchData();
+      loadDashboardData();
     }
-    return () => {
-      isMounted = false;
-    };
-  }, [isAuthLoading, isAuthenticated, user?.role, error]);
+  }, [isAuthLoading, isAuthenticated, user?.role, loadDashboardData]);
 
   // Product Actions
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (newProdCategoryId === '') {
+      error('Please select a category');
+      return;
+    }
     try {
       const res = await authFetch('/api/admin/products', {
         method: 'POST',
@@ -1162,16 +1153,19 @@ export default function AdminDashboardPage() {
                 <div>
                   <label className="block text-neutral-700 font-bold mb-1">Category</label>
                   <select
+                    required
                     value={newProdCategoryId}
-                    onChange={(e) => setNewProdCategoryId(Number(e.target.value))}
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900"
+                    onChange={(e) => setNewProdCategoryId(e.target.value ? Number(e.target.value) : '')}
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900 disabled:opacity-50"
+                    disabled={categories.length === 0}
                   >
-                    <option value={1}>Electronics</option>
-                    <option value={2}>Fashion & Apparel</option>
-                    <option value={3}>Home & Kitchen</option>
-                    <option value={4}>Beauty & Personal Care</option>
-                    <option value={5}>Books & Stationary</option>
-                    <option value={6}>Sports & Fitness</option>
+                    {categories.length === 0 && <option value="">No categories available</option>}
+                    {categories.length > 0 && <option value="">Select a category</option>}
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
