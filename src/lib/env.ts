@@ -50,4 +50,4 @@ export const config = {
   demoCustomerPassword: process.env.DEMO_CUSTOMER_PASSWORD || 'Customer@123',
   demoSellerEmail: process.env.DEMO_SELLER_EMAIL || 'seller@primecommerce.com',
   demoSellerPassword: process.env.DEMO_SELLER_PASSWORD || 'Seller@123',
-};
+} as const;
