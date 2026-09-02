@@ -11,10 +11,10 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "node src/db/migrate.mjs",
     "db:seed": "tsx -e \"require('./src/db/seed').seedDatabase().then(() => process.exit(0)).catch((e) => { console.error(e); process.exit(1); })\"",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "admin:create": "tsx src/scripts/create-admin.ts"
   },
   "dependencies": {
-    "@google/genai": "^2.4.0",
     "@hookform/resolvers": "^5.2.1",
     "@types/bcryptjs": "^3.0.0",
     "@types/jsonwebtoken": "^9.0.10",

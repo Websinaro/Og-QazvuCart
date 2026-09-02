@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/src/context/AuthContext';
 import { useToast } from '@/src/context/ToastContext';
-import { X, Mail, Lock, User, Phone, Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
+import { X, Mail, Lock, User, Phone, ArrowRight, ShieldCheck } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -72,21 +72,6 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const fillDemoCustomer = () => {
-    setLoginIdentifier('john@example.com');
-    setLoginPassword('Customer@123');
-  };
-
-  const fillDemoSeller = () => {
-    setLoginIdentifier('seller@primecommerce.com');
-    setLoginPassword('Seller@123');
-  };
-
-  const fillDemoAdmin = () => {
-    setLoginIdentifier('admin@qazvucart.com');
-    setLoginPassword('AdminPassword@123');
   };
 
   return (
@@ -181,39 +166,6 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
                     required
                     className="w-full pl-10 pr-4 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFD21F] focus:border-neutral-900 transition-all text-neutral-900"
                   />
-                </div>
-              </div>
-
-              {/* Demo One-Click Fill Buttons */}
-              <div className="pt-1 space-y-1.5">
-                <p className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider flex items-center gap-1">
-                  <Sparkles className="w-3 h-3 text-amber-500" /> Quick Dev / Demo Credentials
-                </p>
-                <div className="grid grid-cols-3 gap-1.5">
-                  <button
-                    type="button"
-                    onClick={fillDemoCustomer}
-                    className="py-1.5 px-2 text-[11px] font-semibold text-neutral-700 bg-neutral-100 hover:bg-neutral-200 border border-neutral-200 rounded-lg transition-colors text-center"
-                    title="john@example.com / Customer@123"
-                  >
-                    👤 Customer
-                  </button>
-                  <button
-                    type="button"
-                    onClick={fillDemoSeller}
-                    className="py-1.5 px-2 text-[11px] font-semibold text-neutral-700 bg-neutral-100 hover:bg-neutral-200 border border-neutral-200 rounded-lg transition-colors text-center"
-                    title="seller@primecommerce.com / Seller@123"
-                  >
-                    🏪 Seller
-                  </button>
-                  <button
-                    type="button"
-                    onClick={fillDemoAdmin}
-                    className="py-1.5 px-2 text-[11px] font-bold text-amber-900 bg-amber-100/70 hover:bg-amber-200/80 border border-amber-300 rounded-lg transition-colors text-center"
-                    title="admin@qazvucart.com / AdminPassword@123"
-                  >
-                    🛡️ Admin (Dev)
-                  </button>
                 </div>
               </div>
 

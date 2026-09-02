@@ -4,7 +4,7 @@ import { users, addresses, orders, carts, cartItems, wishlists } from '@/src/db/
 import { hashPassword, verifyPassword } from '@/src/lib/password';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '@/src/lib/jwt';
 import { createSession, findActiveSessionByToken, revokeAllSessionsForUser, revokeSessionByToken } from '@/src/lib/sessionService';
-import { config } from '@/src/lib/env';
+
 
 export interface UserResponse {
   id: number;
@@ -48,7 +48,13 @@ export class AuthService {
       throw new Error('This username is already taken. Please choose another.');
     }
 
-    const assignedRole = cleanEmail === config.adminEmail.toLowerCase().trim() ? 'ADMIN' : 'CUSTOMER';
+    // SECURITY: public self-registration can NEVER create anything other
+    // than a CUSTOMER account. Admin accounts are created exclusively via
+    // the offline `npm run admin:create` bootstrap script (see
+    // src/scripts/create-admin.ts), which is not reachable over HTTP.
+    // Previously this compared the submitted email against a
+    // well-known/guessable admin email and silently granted ADMIN — that
+    // was a privilege-escalation vulnerability and has been removed.
     const passwordHash = await hashPassword(data.password);
 
     const [user] = await db
@@ -58,9 +64,9 @@ export class AuthService {
         email: cleanEmail,
         phone: data.phone.trim(),
         passwordHash,
-        role: assignedRole,
+        role: 'CUSTOMER',
         isVerified: true,
-        avatarUrl: `https://picsum.photos/seed/user_${Date.now()}/200/200`,
+        avatarUrl: null,
       })
       .returning();
 

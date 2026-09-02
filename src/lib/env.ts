@@ -44,10 +44,19 @@ export const config = {
   defaultCurrency: 'INR',
   defaultDeliveryFee: 40,
   freeDeliveryThreshold: 999,
-  adminEmail: process.env.ADMIN_EMAIL || 'admin@qazvucart.com',
-  adminPassword: process.env.ADMIN_PASSWORD || 'AdminPassword@123',
-  demoCustomerEmail: process.env.DEMO_CUSTOMER_EMAIL || 'john@example.com',
-  demoCustomerPassword: process.env.DEMO_CUSTOMER_PASSWORD || 'Customer@123',
-  demoSellerEmail: process.env.DEMO_SELLER_EMAIL || 'seller@primecommerce.com',
-  demoSellerPassword: process.env.DEMO_SELLER_PASSWORD || 'Seller@123',
 } as const;
+
+/**
+ * One-time admin bootstrap credentials. Only read by the `admin:create`
+ * CLI script (see src/scripts/create-admin.ts) — never by the running
+ * application, and never with a hardcoded fallback. There is no automatic
+ * demo/seed account creation in production.
+ */
+export const bootstrap = {
+  get adminEmail() {
+    return requireEnv('BOOTSTRAP_ADMIN_EMAIL');
+  },
+  get adminPassword() {
+    return requireEnv('BOOTSTRAP_ADMIN_PASSWORD');
+  },
+};

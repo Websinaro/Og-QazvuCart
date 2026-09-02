@@ -17,7 +17,35 @@ import {
   orderTimeline,
 } from './schema';
 import { hashPassword } from '@/src/lib/password';
-import { config } from '@/src/lib/env';
+
+/**
+ * DEVELOPMENT ONLY.
+ *
+ * This script seeds sample catalog data (categories/products) plus a
+ * throwaway seller + customer account so the storefront has something to
+ * show locally. It is NEVER run automatically (not on `npm install`,
+ * `npm run build`, `npm start`, or as part of `db:migrate`) — it only runs
+ * when a developer explicitly executes `npm run db:seed`.
+ *
+ * It intentionally does NOT create any admin account. Admins are created
+ * exclusively via `npm run admin:create` (see src/scripts/create-admin.ts),
+ * which prompts for credentials interactively and never uses a
+ * predictable/hardcoded password.
+ *
+ * All seed account credentials must be supplied via environment variables —
+ * there are no hardcoded fallback passwords. If you don't set these, run
+ * `npm run db:seed` will simply throw instead of silently creating
+ * well-known accounts.
+ */
+function requireSeedEnv(name: string): string {
+  const value = process.env[name];
+  if (!value || value.trim().length === 0) {
+    throw new Error(
+      `${name} is required to run the DEVELOPMENT-ONLY seed script. Set it in your local .env (never in production).`
+    );
+  }
+  return value;
+}
 
 async function ensureSeedUser(options: {
   desiredUsername: string;
@@ -80,48 +108,36 @@ async function ensureSeedUser(options: {
 }
 
 export async function seedDatabase() {
-  // Ensure configured admin user exists even if database was previously seeded
-  await ensureSeedUser({
-    desiredUsername: 'admin',
-    email: config.adminEmail,
-    phone: '+91 9876599998',
-    password: config.adminPassword,
-    role: 'ADMIN',
-    avatarUrl: 'https://picsum.photos/seed/admin_qazvu/200/200',
-  });
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(
+      'Refusing to run the development seed script with NODE_ENV=production. ' +
+        'This script is for local/dev databases only.'
+    );
+  }
 
   const [existingCategory] = await db.select({ id: categories.id }).from(categories).limit(1);
   if (existingCategory) {
     return;
   }
 
-  console.log('Seeding initial marketplace database...');
+  console.log('Seeding DEVELOPMENT-ONLY marketplace data (not for production use)...');
 
   const customerUserId = await ensureSeedUser({
-    desiredUsername: 'john_doe',
-    email: config.demoCustomerEmail,
+    desiredUsername: 'dev_customer',
+    email: requireSeedEnv('SEED_CUSTOMER_EMAIL'),
     phone: '+91 9876543210',
-    password: config.demoCustomerPassword,
+    password: requireSeedEnv('SEED_CUSTOMER_PASSWORD'),
     role: 'CUSTOMER',
-    avatarUrl: 'https://picsum.photos/seed/user_john/200/200',
+    avatarUrl: '/assets/default-avatar.svg',
   });
 
   const sellerUserId = await ensureSeedUser({
-    desiredUsername: 'prime_electronics',
-    email: config.demoSellerEmail,
+    desiredUsername: 'dev_seller',
+    email: requireSeedEnv('SEED_SELLER_EMAIL'),
     phone: '+91 9876500001',
-    password: config.demoSellerPassword,
+    password: requireSeedEnv('SEED_SELLER_PASSWORD'),
     role: 'SELLER',
-    avatarUrl: 'https://picsum.photos/seed/seller_prime/200/200',
-  });
-
-  await ensureSeedUser({
-    desiredUsername: 'admin_system',
-    email: 'admin@marketx.com',
-    phone: '+91 9876599999',
-    password: 'Admin@123',
-    role: 'ADMIN',
-    avatarUrl: 'https://picsum.photos/seed/admin_sys/200/200',
+    avatarUrl: '/assets/default-avatar.svg',
   });
 
   let sellerId: number;

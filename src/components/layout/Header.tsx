@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/src/context/AuthContext';
@@ -42,6 +42,20 @@ export function Header() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuTriggerRef = useRef<HTMLButtonElement>(null);
+
+  // Escape closes the profile dropdown and returns focus to its trigger.
+  useEffect(() => {
+    if (!isUserMenuOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsUserMenuOpen(false);
+        userMenuTriggerRef.current?.focus();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [isUserMenuOpen]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Lock background scroll while the mobile drawer is open so the page
@@ -197,7 +211,11 @@ export function Header() {
               <div className="relative">
                 {isAuthenticated && user ? (
                   <button
+                    ref={userMenuTriggerRef}
                     onClick={() => setIsUserMenuOpen((prev) => !prev)}
+                    aria-haspopup="menu"
+                    aria-expanded={isUserMenuOpen}
+                    aria-label="Open account menu"
                     className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-2 rounded-xl hover:bg-neutral-100 text-neutral-900 transition-colors"
                   >
                     <div className="w-8 h-8 rounded-full bg-neutral-900 text-[#FFD21F] font-bold text-xs flex items-center justify-center shrink-0">
@@ -228,7 +246,11 @@ export function Header() {
                       className="fixed inset-0 z-30"
                       onClick={() => setIsUserMenuOpen(false)}
                     />
-                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-neutral-200 py-2 z-40 animate-fade-in text-xs font-medium">
+                    <div
+                      role="menu"
+                      aria-label="Account menu"
+                      className="absolute right-0 mt-2 w-72 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-neutral-200 py-2 z-50 animate-fade-in text-xs font-medium"
+                    >
                       {isAuthenticated && user && (
                         <div className="px-4 py-3 border-b border-neutral-100 bg-neutral-50/50">
                           <p className="font-bold text-neutral-950 text-sm truncate">{user.username}</p>

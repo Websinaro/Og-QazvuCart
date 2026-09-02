@@ -135,12 +135,17 @@ export default function AdminDashboardPage() {
   const [productSearch, setProductSearch] = useState('');
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
   const [categories, setCategories] = useState<CategoryOption[]>([]);
+  const [categoriesStatus, setCategoriesStatus] = useState<'loading' | 'error' | 'empty' | 'ready'>('loading');
   const [newProdName, setNewProdName] = useState('');
   const [newProdBrand, setNewProdBrand] = useState('');
   const [newProdCategoryId, setNewProdCategoryId] = useState<number | ''>('');
-  const [newProdBasePrice, setNewProdBasePrice] = useState(2999);
-  const [newProdDiscountPrice, setNewProdDiscountPrice] = useState(1999);
-  const [newProdStock, setNewProdStock] = useState(50);
+  // Numeric fields are kept as raw strings while the user is editing so
+  // backspacing/clearing/typing works normally (Number(e.target.value) on
+  // every keystroke breaks that). They're parsed and validated only on
+  // submit — see handleCreateProduct.
+  const [newProdBasePrice, setNewProdBasePrice] = useState('2999');
+  const [newProdDiscountPrice, setNewProdDiscountPrice] = useState('1999');
+  const [newProdStock, setNewProdStock] = useState('50');
   const [newProdDescription, setNewProdDescription] = useState('');
   const [newProdImage, setNewProdImage] = useState('');
   const [newProdIsDeal, setNewProdIsDeal] = useState(false);
@@ -148,8 +153,8 @@ export default function AdminDashboardPage() {
 
   // Inline editing product
   const [editingProductId, setEditingProductId] = useState<number | null>(null);
-  const [editPrice, setEditPrice] = useState(0);
-  const [editStock, setEditStock] = useState(0);
+  const [editPrice, setEditPrice] = useState('0');
+  const [editStock, setEditStock] = useState('0');
 
   // Orders
   const [orders, setOrders] = useState<AdminOrder[]>([]);
@@ -179,14 +184,37 @@ export default function AdminDashboardPage() {
       if (usersRes.success) setUsers(usersRes.data);
       if (categoriesRes.success) {
         setCategories(categoriesRes.data);
+        setCategoriesStatus(categoriesRes.data.length === 0 ? 'empty' : 'ready');
         setNewProdCategoryId((prev) => (prev === '' && categoriesRes.data[0] ? categoriesRes.data[0].id : prev));
+      } else {
+        // The category request reached the server but it reported failure
+        // (e.g. DB error) — this is NOT the same as "no categories exist".
+        setCategoriesStatus('error');
       }
     } catch {
       error('Failed to load admin data');
+      setCategoriesStatus('error');
     } finally {
       setIsLoading(false);
     }
   }, [isAuthenticated, user?.role, error]);
+
+  const retryLoadCategories = useCallback(async () => {
+    setCategoriesStatus('loading');
+    try {
+      const res = await fetch('/api/categories');
+      const json = await res.json();
+      if (json.success) {
+        setCategories(json.data);
+        setCategoriesStatus(json.data.length === 0 ? 'empty' : 'ready');
+        setNewProdCategoryId((prev) => (prev === '' && json.data[0] ? json.data[0].id : prev));
+      } else {
+        setCategoriesStatus('error');
+      }
+    } catch {
+      setCategoriesStatus('error');
+    }
+  }, []);
 
   useEffect(() => {
     if (!isAuthLoading && isAuthenticated && user?.role === 'ADMIN') {
@@ -205,6 +233,28 @@ export default function AdminDashboardPage() {
       error('Please select a category');
       return;
     }
+
+    const basePrice = Number(newProdBasePrice);
+    const discountPrice = Number(newProdDiscountPrice);
+    const stock = Number(newProdStock);
+
+    if (newProdBasePrice.trim() === '' || Number.isNaN(basePrice) || basePrice <= 0) {
+      error('Original price must be a number greater than 0');
+      return;
+    }
+    if (newProdDiscountPrice.trim() === '' || Number.isNaN(discountPrice) || discountPrice <= 0) {
+      error('Deal price must be a number greater than 0');
+      return;
+    }
+    if (discountPrice > basePrice) {
+      error('Deal price cannot be higher than the original price');
+      return;
+    }
+    if (newProdStock.trim() === '' || Number.isNaN(stock) || stock < 0 || !Number.isInteger(stock)) {
+      error('Stock must be a whole number, 0 or greater');
+      return;
+    }
+
     try {
       const res = await authFetch('/api/admin/products', {
         method: 'POST',
@@ -213,9 +263,9 @@ export default function AdminDashboardPage() {
           name: newProdName,
           brand: newProdBrand,
           categoryId: Number(newProdCategoryId),
-          basePrice: Number(newProdBasePrice),
-          discountPrice: Number(newProdDiscountPrice),
-          stock: Number(newProdStock),
+          basePrice,
+          discountPrice,
+          stock,
           description: newProdDescription,
           imageUrl: newProdImage || undefined,
           isDeal: newProdIsDeal,
@@ -240,13 +290,23 @@ export default function AdminDashboardPage() {
   };
 
   const handleSaveProductEdit = async (productId: number) => {
+    const parsedPrice = Number(editPrice);
+    const parsedStock = Number(editStock);
+    if (editPrice.trim() === '' || Number.isNaN(parsedPrice) || parsedPrice <= 0) {
+      error('Price must be a number greater than 0');
+      return;
+    }
+    if (editStock.trim() === '' || Number.isNaN(parsedStock) || parsedStock < 0 || !Number.isInteger(parsedStock)) {
+      error('Stock must be a whole number, 0 or greater');
+      return;
+    }
     try {
       const res = await authFetch(`/api/admin/products/${productId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          discountPrice: editPrice,
-          stock: editStock,
+          discountPrice: parsedPrice,
+          stock: parsedStock,
         }),
       });
       const json = await res.json();
@@ -774,9 +834,13 @@ export default function AdminDashboardPage() {
                             {isEditing ? (
                               <div className="space-y-1">
                                 <input
-                                  type="number"
+                                  type="text"
+                                  inputMode="decimal"
                                   value={editPrice}
-                                  onChange={(e) => setEditPrice(Number(e.target.value))}
+                                  onChange={(e) => {
+                                    const v = e.target.value;
+                                    if (v === '' || /^\d*\.?\d*$/.test(v)) setEditPrice(v);
+                                  }}
                                   className="w-24 px-2 py-1 bg-white border border-neutral-300 rounded text-xs font-bold"
                                 />
                               </div>
@@ -794,9 +858,13 @@ export default function AdminDashboardPage() {
                           <td className="py-3.5 px-3">
                             {isEditing ? (
                               <input
-                                type="number"
+                                type="text"
+                                inputMode="numeric"
                                 value={editStock}
-                                onChange={(e) => setEditStock(Number(e.target.value))}
+                                onChange={(e) => {
+                                  const v = e.target.value;
+                                  if (v === '' || /^\d*$/.test(v)) setEditStock(v);
+                                }}
                                 className="w-20 px-2 py-1 bg-white border border-neutral-300 rounded text-xs font-bold"
                               />
                             ) : (
@@ -849,8 +917,8 @@ export default function AdminDashboardPage() {
                                 <button
                                   onClick={() => {
                                     setEditingProductId(prod.id);
-                                    setEditPrice(prod.discountPrice);
-                                    setEditStock(prod.stock);
+                                    setEditPrice(String(prod.discountPrice));
+                                    setEditStock(String(prod.stock));
                                   }}
                                   className="p-1.5 text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100 rounded-lg transition-colors"
                                   title="Quick edit stock & price"
@@ -1156,39 +1224,71 @@ export default function AdminDashboardPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="block text-neutral-700 font-bold mb-1">Category</label>
-                  <select
-                    required
-                    value={newProdCategoryId}
-                    onChange={(e) => setNewProdCategoryId(e.target.value ? Number(e.target.value) : '')}
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900 disabled:opacity-50"
-                    disabled={categories.length === 0}
-                  >
-                    {categories.length === 0 && <option value="">No categories available</option>}
-                    {categories.length > 0 && <option value="">Select a category</option>}
-                    {categories.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
+                  {categoriesStatus === 'loading' && (
+                    <div className="w-full px-3 py-2 border border-neutral-300 rounded-xl bg-neutral-50 text-neutral-400 text-sm">
+                      Loading categories…
+                    </div>
+                  )}
+                  {categoriesStatus === 'error' && (
+                    <div className="space-y-1.5">
+                      <div className="w-full px-3 py-2 border border-red-300 bg-red-50 rounded-xl text-red-700 text-sm font-semibold">
+                        Couldn&apos;t load categories
+                      </div>
+                      <button
+                        type="button"
+                        onClick={retryLoadCategories}
+                        className="text-xs font-bold text-neutral-900 underline underline-offset-2"
+                      >
+                        Retry
+                      </button>
+                    </div>
+                  )}
+                  {categoriesStatus === 'empty' && (
+                    <div className="w-full px-3 py-2 border border-neutral-300 bg-neutral-50 rounded-xl text-neutral-500 text-sm">
+                      No categories created yet
+                    </div>
+                  )}
+                  {categoriesStatus === 'ready' && (
+                    <select
+                      required
+                      value={newProdCategoryId}
+                      onChange={(e) => setNewProdCategoryId(e.target.value ? Number(e.target.value) : '')}
+                      className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900"
+                    >
+                      <option value="">Select a category</option>
+                      {categories.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
                 <div>
                   <label className="block text-neutral-700 font-bold mb-1">Original Price (₹) *</label>
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="decimal"
                     required
                     value={newProdBasePrice}
-                    onChange={(e) => setNewProdBasePrice(Number(e.target.value))}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (v === '' || /^\d*\.?\d*$/.test(v)) setNewProdBasePrice(v);
+                    }}
                     className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900"
                   />
                 </div>
                 <div>
                   <label className="block text-neutral-700 font-bold mb-1">Deal Price (₹) *</label>
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="decimal"
                     required
                     value={newProdDiscountPrice}
-                    onChange={(e) => setNewProdDiscountPrice(Number(e.target.value))}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (v === '' || /^\d*\.?\d*$/.test(v)) setNewProdDiscountPrice(v);
+                    }}
                     className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900"
                   />
                 </div>
@@ -1198,10 +1298,14 @@ export default function AdminDashboardPage() {
                 <div>
                   <label className="block text-neutral-700 font-bold mb-1">Initial Stock Units *</label>
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
                     required
                     value={newProdStock}
-                    onChange={(e) => setNewProdStock(Number(e.target.value))}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (v === '' || /^\d*$/.test(v)) setNewProdStock(v);
+                    }}
                     className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900"
                   />
                 </div>
