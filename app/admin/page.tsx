@@ -190,6 +190,10 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     if (!isAuthLoading && isAuthenticated && user?.role === 'ADMIN') {
+      // Fetching on mount and setting state asynchronously (inside
+      // loadDashboardData's own try/finally) is the intended pattern here;
+      // this isn't a synchronous setState-in-render loop.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       loadDashboardData();
     }
   }, [isAuthLoading, isAuthenticated, user?.role, loadDashboardData]);
