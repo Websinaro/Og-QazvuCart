@@ -1,5 +1,8 @@
 import { and, eq, sql } from 'drizzle-orm';
+import type { PgTransaction, PgQueryResultHKT } from 'drizzle-orm/pg-core';
+import type { ExtractTablesWithRelations } from 'drizzle-orm';
 import { db } from '@/src/db';
+import * as schema from '@/src/db/schema';
 import {
   orders,
   orderItems,
@@ -40,6 +43,12 @@ interface PreparedItem {
 }
 
 class OutOfStockError extends Error {}
+
+// Both the pooled `db` instance and a `db.transaction((tx) => ...)` handle
+// share the same query-builder surface (select/insert/update/delete), so
+// helpers that may run either inside or outside a transaction accept this
+// union rather than being locked to one concrete type.
+type DbClient = typeof db | PgTransaction<PgQueryResultHKT, typeof schema, ExtractTablesWithRelations<typeof schema>>;
 
 export class OrderService {
   /**
@@ -320,7 +329,7 @@ export class OrderService {
     return this.getOrderByIdWithTx(db, userId, orderId);
   }
 
-  private static async getOrderByIdWithTx(txOrDb: typeof db, userId: number, orderId: number | string) {
+  private static async getOrderByIdWithTx(txOrDb: DbClient, userId: number, orderId: number | string) {
     const isNum = !isNaN(Number(orderId));
 
     const [order] = await txOrDb
