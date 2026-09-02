@@ -165,23 +165,61 @@ export class AdminService {
     );
   }
 
-  static async createProduct(data: {
-    name: string;
-    brand: string;
-    categoryId: number;
-    basePrice: number;
-    discountPrice: number;
-    stock: number;
-    description: string;
-    imageUrl?: string;
-    isDeal?: boolean;
-    isFeatured?: boolean;
-  }) {
-    // Admin-created products are attributed to the platform's first
-    // available seller account (a real marketplace would let the admin
-    // pick, but the current UI doesn't collect that field).
-    const [seller] = await db.select({ id: sellers.id }).from(sellers).limit(1);
-    if (!seller) throw new Error('No seller account exists to attribute this product to');
+  /**
+   * Gets (or lazily creates) a platform-owned seller record attributed to
+   * the given admin user, so admins can list products without first going
+   * through seller onboarding. This is idempotent: repeated calls for the
+   * same admin reuse the same store.
+   */
+  private static async getOrCreateAdminSeller(adminUserId: number) {
+    const [existingByUser] = await db.select({ id: sellers.id }).from(sellers).where(eq(sellers.userId, adminUserId)).limit(1);
+    if (existingByUser) return existingByUser;
+
+    const storeName = 'QazvuCart Official Store';
+    const slug = `qazvucart-official-${adminUserId}-${Date.now()}`;
+
+    try {
+      const [created] = await db
+        .insert(sellers)
+        .values({
+          userId: adminUserId,
+          storeName,
+          slug,
+          rating: '5.0',
+          reviewCount: 0,
+          isVerified: true,
+        })
+        .returning({ id: sellers.id });
+
+      return created;
+    } catch {
+      // Another concurrent request created the seller first (unique
+      // constraint on sellers.userId) - just re-read it.
+      const [retry] = await db.select({ id: sellers.id }).from(sellers).where(eq(sellers.userId, adminUserId)).limit(1);
+      if (retry) return retry;
+      throw new Error('Failed to provision a store for this admin account');
+    }
+  }
+
+  static async createProduct(
+    adminUserId: number,
+    data: {
+      name: string;
+      brand: string;
+      categoryId: number;
+      basePrice: number;
+      discountPrice: number;
+      stock: number;
+      description: string;
+      imageUrl?: string;
+      isDeal?: boolean;
+      isFeatured?: boolean;
+    }
+  ) {
+    // Admin-created products don't require a separate seller signup: we
+    // attribute them to a platform-owned seller record, auto-creating one
+    // tied to this admin the first time it's needed.
+    const seller = await this.getOrCreateAdminSeller(adminUserId);
 
     const slug = `${data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${Date.now()}`;
 

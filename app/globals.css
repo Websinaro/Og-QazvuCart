@@ -2,10 +2,39 @@
 @import "tw-animate-css";
 
 @layer base {
+  html {
+    /* Prevent any element from ever creating horizontal scroll/"shake" on
+       narrow viewports, and stop iOS Safari's elastic bounce in the X
+       direction (the usual cause of a page that visibly wobbles side to
+       side on mobile even when nothing is actually wider than the screen). */
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
+    width: 100%;
+  }
+
   body {
     background-color: #FFFDF5;
     color: #111111;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
+    width: 100%;
+    max-width: 100vw;
+  }
+
+  /* Belt-and-suspenders: nothing should be allowed to force the document
+     wider than the viewport (long unbroken strings, stray fixed widths,
+     etc.) on small screens. */
+  * {
+    max-width: 100%;
+  }
+
+  img,
+  svg,
+  video,
+  canvas {
+    max-width: 100%;
+    height: auto;
   }
 }
 

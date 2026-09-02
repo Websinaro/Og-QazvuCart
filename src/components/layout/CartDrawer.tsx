@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '@/src/context/CartContext';
@@ -11,6 +11,18 @@ import { formatINR } from '@/src/lib/date';
 export function CartDrawer() {
   const { cart, isCartDrawerOpen, closeCartDrawer, updateQuantity, removeItem, isLoading } = useCart();
   const { success, error } = useToast();
+
+  // Lock background scroll while the drawer is open, same rationale as the
+  // mobile nav drawer - avoids the page shifting behind the fixed overlay.
+  useEffect(() => {
+    if (isCartDrawerOpen) {
+      const previousOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = previousOverflow;
+      };
+    }
+  }, [isCartDrawerOpen]);
 
   if (!isCartDrawerOpen) return null;
 

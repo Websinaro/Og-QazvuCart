@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     if (!body.name || !body.brand || !body.categoryId || !body.description) {
       return apiError('VALIDATION_ERROR', 'name, brand, categoryId, and description are required', 422);
     }
-    const product = await AdminService.createProduct({
+    const product = await AdminService.createProduct(authUser.userId, {
       name: body.name,
       brand: body.brand,
       categoryId: Number(body.categoryId),
