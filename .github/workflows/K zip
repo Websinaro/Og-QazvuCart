@@ -1,0 +1,43 @@
+name: Unzip and Sync
+on:
+  push:
+    paths:
+      - 'k.zip' # Runs only when the zip file is updated
+  workflow_dispatch:      # Allows you to run it manually
+
+jobs:
+  unzip-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract Zip
+        run: |
+          # Define variables
+          ZIP_FILE="k.zip"
+          
+          echo "📂 Extracting $ZIP_FILE..."
+          unzip -o $ZIP_FILE -d .
+          
+          # Optional: Remove the zip after extraction so it's not in the repo twice
+          # rm $ZIP_FILE 
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add .
+          
+          # Only commit if there are actually changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto-unzip: $(date +'%Y-%m-%d %H:%M:%S')"
+            git push
+          fi
