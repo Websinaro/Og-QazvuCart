@@ -203,7 +203,11 @@ export default function AdminDashboardPage() {
     } catch {
       setAdminCategoriesStatus('error');
     }
-  }, [authFetch]);
+  // authFetch is a stable helper from context, not a per-render value;
+  // matches the existing convention used elsewhere in this file (see
+  // loadDashboardData below, which similarly omits it).
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const resetCategoryForm = () => {
     setCatName('');
@@ -293,6 +297,10 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     if (activeTab === 'categories' && isAuthenticated && user?.role === 'ADMIN') {
+      // Same intended pattern as the loadDashboardData effect above: fetching
+      // on tab-switch and setting state asynchronously inside
+      // loadAdminCategories' own try/catch, not a synchronous render loop.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       loadAdminCategories();
     }
   }, [activeTab, isAuthenticated, user?.role, loadAdminCategories]);
