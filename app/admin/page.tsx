@@ -108,6 +108,18 @@ interface CategoryOption {
   slug: string;
 }
 
+interface AdminCategory {
+  id: number;
+  name: string;
+  slug: string;
+  icon: string;
+  imageUrl: string;
+  description: string | null;
+  displayOrder: number;
+  isActive: boolean;
+  productCount: number;
+}
+
 interface AdminUser {
   id: number;
   username: string;
@@ -124,7 +136,7 @@ export default function AdminDashboardPage() {
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { success, error } = useToast();
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'users'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'users' | 'categories'>('overview');
   const [isLoading, setIsLoading] = useState(true);
 
   // Analytics
@@ -164,6 +176,127 @@ export default function AdminDashboardPage() {
   // Users
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [userSearch, setUserSearch] = useState('');
+
+  // Category management (full admin CRUD — separate from the `categories`
+  // dropdown-options list above, which only contains active categories).
+  const [adminCategories, setAdminCategories] = useState<AdminCategory[]>([]);
+  const [adminCategoriesStatus, setAdminCategoriesStatus] = useState<'loading' | 'error' | 'empty' | 'ready'>('loading');
+  const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
+  const [editingCategoryId, setEditingCategoryId] = useState<number | null>(null);
+  const [catName, setCatName] = useState('');
+  const [catIcon, setCatIcon] = useState('Grid3x3');
+  const [catImageUrl, setCatImageUrl] = useState('');
+  const [catDescription, setCatDescription] = useState('');
+  const [catDisplayOrder, setCatDisplayOrder] = useState('0');
+
+  const loadAdminCategories = useCallback(async () => {
+    setAdminCategoriesStatus('loading');
+    try {
+      const res = await authFetch('/api/admin/categories');
+      const json = await res.json();
+      if (json.success) {
+        setAdminCategories(json.data);
+        setAdminCategoriesStatus(json.data.length === 0 ? 'empty' : 'ready');
+      } else {
+        setAdminCategoriesStatus('error');
+      }
+    } catch {
+      setAdminCategoriesStatus('error');
+    }
+  }, [authFetch]);
+
+  const resetCategoryForm = () => {
+    setCatName('');
+    setCatIcon('Grid3x3');
+    setCatImageUrl('');
+    setCatDescription('');
+    setCatDisplayOrder('0');
+    setEditingCategoryId(null);
+  };
+
+  const handleCreateCategory = async () => {
+    if (!catName.trim()) {
+      error('Category name is required');
+      return;
+    }
+    const displayOrder = Number(catDisplayOrder);
+    if (catDisplayOrder.trim() !== '' && (Number.isNaN(displayOrder) || !Number.isInteger(displayOrder))) {
+      error('Display order must be a whole number');
+      return;
+    }
+    try {
+      const res = await authFetch('/api/admin/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: catName,
+          icon: catIcon || 'Grid3x3',
+          imageUrl: catImageUrl,
+          description: catDescription,
+          displayOrder: Number.isNaN(displayOrder) ? 0 : displayOrder,
+        }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        success('Category created');
+        setIsAddCategoryOpen(false);
+        resetCategoryForm();
+        loadAdminCategories();
+        loadDashboardData();
+      } else {
+        error(json.error?.message || 'Failed to create category');
+      }
+    } catch {
+      error('Failed to create category');
+    }
+  };
+
+  const handleUpdateCategory = async (categoryId: number, patch: Record<string, unknown>) => {
+    try {
+      const res = await authFetch(`/api/admin/categories/${categoryId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patch),
+      });
+      const json = await res.json();
+      if (json.success) {
+        success('Category updated');
+        setEditingCategoryId(null);
+        loadAdminCategories();
+        loadDashboardData();
+      } else {
+        error(json.error?.message || 'Failed to update category');
+      }
+    } catch {
+      error('Failed to update category');
+    }
+  };
+
+  const handleDeleteCategory = async (categoryId: number, name: string) => {
+    if (!window.confirm(`Delete or archive "${name}"? If products use this category it will be archived (hidden) instead of deleted.`)) {
+      return;
+    }
+    try {
+      const res = await authFetch(`/api/admin/categories/${categoryId}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (json.success) {
+        success(json.data.deleted ? 'Category deleted' : 'Category archived (still used by existing products)');
+        loadAdminCategories();
+        loadDashboardData();
+      } else {
+        error(json.error?.message || 'Failed to delete category');
+      }
+    } catch {
+      error('Failed to delete category');
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'categories' && isAuthenticated && user?.role === 'ADMIN') {
+      loadAdminCategories();
+    }
+  }, [activeTab, isAuthenticated, user?.role, loadAdminCategories]);
+
 
   // Load Data
   const loadDashboardData = useCallback(async () => {
@@ -511,6 +644,16 @@ export default function AdminDashboardPage() {
             }`}
           >
             <Package className="w-4 h-4" /> Products Catalog ({products.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('categories')}
+            className={`flex items-center gap-2 py-3 px-4 text-xs font-bold border-b-2 transition-all whitespace-nowrap ${
+              activeTab === 'categories'
+                ? 'border-[#FFD21F] text-[#FFD21F]'
+                : 'border-transparent text-neutral-400 hover:text-neutral-200 hover:border-neutral-700'
+            }`}
+          >
+            <LayoutDashboard className="w-4 h-4" /> Categories ({adminCategories.length})
           </button>
           <button
             onClick={() => setActiveTab('orders')}
@@ -946,6 +1089,246 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
+        {/* TAB: CATEGORY MANAGEMENT */}
+        {activeTab === 'categories' && (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <h2 className="text-lg font-extrabold text-neutral-900">Category Management</h2>
+              <button
+                onClick={() => {
+                  resetCategoryForm();
+                  setIsAddCategoryOpen(true);
+                }}
+                className="flex items-center justify-center gap-1.5 py-2 px-3.5 bg-[#111111] hover:bg-neutral-800 text-white font-bold rounded-xl transition-all shadow-sm text-xs"
+              >
+                <Plus className="w-4 h-4" /> Add Category
+              </button>
+            </div>
+
+            {adminCategoriesStatus === 'loading' && (
+              <div className="bg-white rounded-2xl border border-neutral-200 p-8 text-center text-sm text-neutral-500">
+                Loading categories…
+              </div>
+            )}
+
+            {adminCategoriesStatus === 'error' && (
+              <div className="bg-red-50 border border-red-200 rounded-2xl p-8 text-center space-y-2">
+                <p className="text-sm font-bold text-red-700">Couldn&apos;t load categories</p>
+                <button onClick={loadAdminCategories} className="text-xs font-bold underline text-red-800">
+                  Retry
+                </button>
+              </div>
+            )}
+
+            {adminCategoriesStatus === 'empty' && (
+              <div className="bg-white rounded-2xl border border-dashed border-neutral-300 p-10 text-center space-y-2">
+                <p className="text-sm font-bold text-neutral-700">No categories created yet</p>
+                <p className="text-xs text-neutral-500">
+                  Sellers and admins need at least one active category before products can be listed.
+                </p>
+                <button
+                  onClick={() => {
+                    resetCategoryForm();
+                    setIsAddCategoryOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 mt-2 py-2 px-4 bg-[#FFD21F] text-neutral-950 font-extrabold rounded-xl text-xs"
+                >
+                  <Plus className="w-4 h-4" /> Create Category
+                </button>
+              </div>
+            )}
+
+            {adminCategoriesStatus === 'ready' && (
+              <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead className="bg-neutral-50 border-b border-neutral-200">
+                      <tr className="text-left text-neutral-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 font-bold">Category</th>
+                        <th className="px-4 py-3 font-bold">Slug</th>
+                        <th className="px-4 py-3 font-bold">Order</th>
+                        <th className="px-4 py-3 font-bold">Products</th>
+                        <th className="px-4 py-3 font-bold">Status</th>
+                        <th className="px-4 py-3 font-bold text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-neutral-100">
+                      {adminCategories.map((cat) => (
+                        <tr key={cat.id} className="hover:bg-neutral-50">
+                          {editingCategoryId === cat.id ? (
+                            <>
+                              <td className="px-4 py-3">
+                                <input
+                                  defaultValue={cat.name}
+                                  id={`cat-name-${cat.id}`}
+                                  className="w-full px-2 py-1 border border-neutral-300 rounded font-bold"
+                                />
+                              </td>
+                              <td className="px-4 py-3 text-neutral-400">{cat.slug}</td>
+                              <td className="px-4 py-3">
+                                <input
+                                  defaultValue={cat.displayOrder}
+                                  id={`cat-order-${cat.id}`}
+                                  inputMode="numeric"
+                                  className="w-16 px-2 py-1 border border-neutral-300 rounded"
+                                />
+                              </td>
+                              <td className="px-4 py-3 text-neutral-500">{cat.productCount}</td>
+                              <td className="px-4 py-3 text-neutral-400">—</td>
+                              <td className="px-4 py-3 text-right space-x-2">
+                                <button
+                                  onClick={() => {
+                                    const nameEl = document.getElementById(`cat-name-${cat.id}`) as HTMLInputElement | null;
+                                    const orderEl = document.getElementById(`cat-order-${cat.id}`) as HTMLInputElement | null;
+                                    const nextOrder = Number(orderEl?.value ?? cat.displayOrder);
+                                    handleUpdateCategory(cat.id, {
+                                      name: nameEl?.value?.trim() || cat.name,
+                                      displayOrder: Number.isNaN(nextOrder) ? cat.displayOrder : nextOrder,
+                                    });
+                                  }}
+                                  className="text-emerald-700 font-bold hover:underline"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  onClick={() => setEditingCategoryId(null)}
+                                  className="text-neutral-500 font-bold hover:underline"
+                                >
+                                  Cancel
+                                </button>
+                              </td>
+                            </>
+                          ) : (
+                            <>
+                              <td className="px-4 py-3 font-bold text-neutral-900">{cat.name}</td>
+                              <td className="px-4 py-3 text-neutral-400">{cat.slug}</td>
+                              <td className="px-4 py-3 text-neutral-500">{cat.displayOrder}</td>
+                              <td className="px-4 py-3 text-neutral-500">{cat.productCount}</td>
+                              <td className="px-4 py-3">
+                                <button
+                                  onClick={() => handleUpdateCategory(cat.id, { isActive: !cat.isActive })}
+                                  className={`px-2 py-1 rounded-full text-[10px] font-extrabold uppercase ${
+                                    cat.isActive
+                                      ? 'bg-emerald-100 text-emerald-700'
+                                      : 'bg-neutral-200 text-neutral-500'
+                                  }`}
+                                  title="Click to toggle active/inactive"
+                                >
+                                  {cat.isActive ? 'Active' : 'Inactive'}
+                                </button>
+                              </td>
+                              <td className="px-4 py-3 text-right space-x-3">
+                                <button
+                                  onClick={() => setEditingCategoryId(cat.id)}
+                                  className="text-neutral-700 font-bold hover:underline"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteCategory(cat.id, cat.name)}
+                                  className="text-red-600 font-bold hover:underline"
+                                >
+                                  {cat.productCount > 0 ? 'Archive' : 'Delete'}
+                                </button>
+                              </td>
+                            </>
+                          )}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {isAddCategoryOpen && (
+              <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setIsAddCategoryOpen(false)}>
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl"
+                >
+                  <div className="flex items-center justify-between px-5 py-4 bg-[#111111] rounded-t-2xl sticky top-0">
+                    <h3 className="text-white font-extrabold flex items-center gap-2">
+                      <Plus className="w-4 h-4 text-[#FFD21F]" /> Add New Category
+                    </h3>
+                    <button onClick={() => setIsAddCategoryOpen(false)} className="text-neutral-400 hover:text-white">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <div className="p-5 space-y-3 text-xs">
+                    <div>
+                      <label className="block text-neutral-700 font-bold mb-1">Category Name *</label>
+                      <input
+                        value={catName}
+                        onChange={(e) => setCatName(e.target.value)}
+                        placeholder="e.g. Home Audio"
+                        className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-neutral-700 font-bold mb-1">Icon (lucide-react name)</label>
+                      <input
+                        value={catIcon}
+                        onChange={(e) => setCatIcon(e.target.value)}
+                        placeholder="e.g. Headphones"
+                        className="w-full px-3 py-2 border border-neutral-300 rounded-xl text-neutral-900"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-neutral-700 font-bold mb-1">Category Image URL</label>
+                      <input
+                        value={catImageUrl}
+                        onChange={(e) => setCatImageUrl(e.target.value)}
+                        placeholder="https://res.cloudinary.com/..."
+                        className="w-full px-3 py-2 border border-neutral-300 rounded-xl text-neutral-900"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-neutral-700 font-bold mb-1">Description</label>
+                      <textarea
+                        value={catDescription}
+                        onChange={(e) => setCatDescription(e.target.value)}
+                        rows={2}
+                        className="w-full px-3 py-2 border border-neutral-300 rounded-xl text-neutral-900"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-neutral-700 font-bold mb-1">Display Order</label>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={catDisplayOrder}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          if (v === '' || /^-?\d*$/.test(v)) setCatDisplayOrder(v);
+                        }}
+                        className="w-full px-3 py-2 border border-neutral-300 rounded-xl text-neutral-900"
+                      />
+                    </div>
+                    <p className="text-[11px] text-neutral-400">
+                      Slug is generated automatically from the name and must be unique.
+                    </p>
+                  </div>
+                  <div className="flex gap-2 p-5 pt-0 sticky bottom-0 bg-white">
+                    <button
+                      onClick={() => setIsAddCategoryOpen(false)}
+                      className="flex-1 py-2.5 border border-neutral-300 rounded-xl font-bold text-neutral-700"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleCreateCategory}
+                      className="flex-1 py-2.5 bg-[#FFD21F] rounded-xl font-extrabold text-neutral-950"
+                    >
+                      Create Category
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* TAB 3: ORDERS & FULFILLMENT */}
         {activeTab === 'orders' && (
           <div className="space-y-4">
@@ -964,7 +1347,7 @@ export default function AdminDashboardPage() {
 
               {/* Status Tabs */}
               <div className="flex items-center gap-1 overflow-x-auto text-xs font-bold">
-                {['ALL', 'PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'].map((st) => (
+                {['ALL', 'PENDING_PAYMENT', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'].map((st) => (
                   <button
                     key={st}
                     onClick={() => setOrderStatusFilter(st)}

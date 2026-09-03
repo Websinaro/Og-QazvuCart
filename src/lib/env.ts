@@ -26,12 +26,25 @@ export const env = {
   get JWT_REFRESH_SECRET() {
     return requireEnv('JWT_REFRESH_SECRET');
   },
-  // Reserved for signing/verifying payment provider webhooks & payment
-  // intents. Not exercised by the current (simulated) checkout flow, but
-  // required upfront so a real payment integration never ships with a
-  // hardcoded fallback secret.
-  get PAYMENT_SECRET() {
-    return requireEnv('PAYMENT_SECRET');
+};
+
+/**
+ * Razorpay TEST MODE credentials. Lazy getters so importing this module
+ * never fails just because payments aren't configured yet in local dev —
+ * only routes that actually create/verify a payment will throw, and only
+ * at the moment they're invoked. The key SECRET and WEBHOOK secret must
+ * never reach the browser; only `keyId` is ever sent to the client (see
+ * app/api/payments/razorpay/create-order/route.ts).
+ */
+export const razorpayEnv = {
+  get keyId() {
+    return requireEnv('RAZORPAY_KEY_ID');
+  },
+  get keySecret() {
+    return requireEnv('RAZORPAY_KEY_SECRET');
+  },
+  get webhookSecret() {
+    return requireEnv('RAZORPAY_WEBHOOK_SECRET');
   },
 };
 

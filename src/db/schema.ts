@@ -56,6 +56,7 @@ export const addresses = pgTable('addresses', {
   state: varchar('state', { length: 100 }).notNull(),
   postalCode: varchar('postal_code', { length: 20 }).notNull(),
   country: varchar('country', { length: 100 }).default('India').notNull(),
+  type: varchar('type', { length: 10 }).default('HOME').notNull(),
   isDefault: boolean('is_default').default(false).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
@@ -75,6 +76,9 @@ export const categories = pgTable('categories', {
   imageUrl: text('image_url').notNull(),
   description: text('description'),
   displayOrder: integer('display_order').default(0).notNull(),
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
 export const sellers = pgTable('sellers', {
@@ -195,6 +199,7 @@ export const wishlists = pgTable('wishlists', {
 // keeps future additions to the list a simple migration instead of a type
 // alteration, while still rejecting invalid values at the database layer.
 export const ORDER_STATUSES = [
+  'PENDING_PAYMENT',
   'PROCESSING',
   'CONFIRMED',
   'PACKED',
@@ -210,15 +215,16 @@ export const orders = pgTable('orders', {
   id: serial('id').primaryKey(),
   orderNumber: varchar('order_number', { length: 50 }).notNull().unique(),
   userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  status: varchar('status', { length: 30 }).default('PROCESSING').notNull(),
+  status: varchar('status', { length: 30 }).default('PENDING_PAYMENT').notNull(),
   subtotal: integer('subtotal').notNull(),
   discount: integer('discount').default(0).notNull(),
   deliveryFee: integer('delivery_fee').default(40).notNull(),
   total: integer('total').notNull(),
   shippingAddressSnapshot: jsonb('shipping_address_snapshot').notNull(),
   paymentMethod: varchar('payment_method', { length: 20 }).default('CARD').notNull(),
-  paymentStatus: varchar('payment_status', { length: 20 }).default('PAID').notNull(),
+  paymentStatus: varchar('payment_status', { length: 20 }).default('CREATED').notNull(),
   estimatedDeliveryDate: varchar('estimated_delivery_date', { length: 100 }).notNull(),
+  paymentReservationExpiresAt: timestamp('payment_reservation_expires_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
@@ -251,6 +257,38 @@ export const orderTimeline = pgTable('order_timeline', {
   occurredAt: timestamp('occurred_at', { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   orderIdx: index('order_timeline_order_id_idx').on(table.orderId),
+}));
+
+// =========================================================================
+// PAYMENTS
+// =========================================================================
+
+export const PAYMENT_STATUSES = ['CREATED', 'PENDING', 'AUTHORIZED', 'PAID', 'FAILED', 'CANCELLED', 'REFUNDED'] as const;
+export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
+
+export const payments = pgTable('payments', {
+  id: serial('id').primaryKey(),
+  orderId: integer('order_id').notNull().references(() => orders.id, { onDelete: 'cascade' }),
+  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  provider: varchar('provider', { length: 20 }).default('RAZORPAY').notNull(),
+  providerOrderId: varchar('provider_order_id', { length: 100 }),
+  providerPaymentId: varchar('provider_payment_id', { length: 100 }),
+  providerSignature: varchar('provider_signature', { length: 255 }),
+  amount: integer('amount').notNull(),
+  currency: varchar('currency', { length: 10 }).default('INR').notNull(),
+  status: varchar('status', { length: 20 }).default('CREATED').notNull(),
+  method: varchar('method', { length: 20 }),
+  failureCode: varchar('failure_code', { length: 50 }),
+  failureReason: text('failure_reason'),
+  idempotencyKey: varchar('idempotency_key', { length: 100 }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  orderIdx: index('payments_order_id_idx').on(table.orderId),
+  userIdx: index('payments_user_id_idx').on(table.userId),
+  providerOrderIdx: uniqueIndex('payments_provider_order_id_idx').on(table.providerOrderId),
+  providerPaymentIdx: uniqueIndex('payments_provider_payment_id_idx').on(table.providerPaymentId),
+  idempotencyIdx: uniqueIndex('payments_idempotency_key_idx').on(table.idempotencyKey),
 }));
 
 // =========================================================================

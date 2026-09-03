@@ -11,6 +11,7 @@ export interface AddressData {
   state: string;
   postalCode: string;
   country?: string;
+  type?: 'HOME' | 'WORK' | 'OTHER';
   isDefault?: boolean;
 }
 
@@ -45,6 +46,7 @@ export class AddressService {
         state: data.state.trim(),
         postalCode: data.postalCode.trim(),
         country: data.country?.trim() || 'India',
+        type: data.type || 'HOME',
         isDefault: makeDefault,
       })
       .returning({ id: addresses.id });
@@ -80,6 +82,7 @@ export class AddressService {
     if (data.state !== undefined) updates.state = data.state.trim();
     if (data.postalCode !== undefined) updates.postalCode = data.postalCode.trim();
     if (data.country !== undefined) updates.country = data.country.trim();
+    if (data.type !== undefined) updates.type = data.type;
     if (data.isDefault !== undefined) updates.isDefault = data.isDefault;
 
     await db.update(addresses).set(updates).where(and(eq(addresses.id, addressId), eq(addresses.userId, userId)));

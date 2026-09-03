@@ -9,5 +9,6 @@ export const addressSchema = z.object({
   state: z.string().min(2, 'State required').max(100),
   postalCode: z.string().min(4, 'Valid postal code required').max(20),
   country: z.string().default('India'),
+  type: z.enum(['HOME', 'WORK', 'OTHER']).default('HOME'),
   isDefault: z.boolean().optional().default(false),
 });

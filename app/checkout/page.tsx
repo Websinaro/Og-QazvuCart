@@ -27,11 +27,12 @@ import { formatINR } from '@/src/lib/date';
 interface Address {
   id: number;
   fullName: string;
-  phone: string;
-  street: string;
+  phoneNumber: string;
+  houseBuilding: string;
+  streetArea: string;
   city: string;
   state: string;
-  pincode: string;
+  postalCode: string;
   country: string;
   isDefault: boolean;
   type: 'HOME' | 'WORK' | 'OTHER';
@@ -61,6 +62,7 @@ export default function CheckoutPage() {
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [newFullName, setNewFullName] = useState('');
   const [newPhone, setNewPhone] = useState('');
+  const [newHouseBuilding, setNewHouseBuilding] = useState('');
   const [newStreet, setNewStreet] = useState('');
   const [newCity, setNewCity] = useState('Bengaluru');
   const [newState, setNewState] = useState('Karnataka');
@@ -127,11 +129,12 @@ export default function CheckoutPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           fullName: newFullName,
-          phone: newPhone,
-          street: newStreet,
+          phoneNumber: newPhone,
+          houseBuilding: newHouseBuilding,
+          streetArea: newStreet,
           city: newCity,
           state: newState,
-          pincode: newPincode,
+          postalCode: newPincode,
           country: 'India',
           type: newType,
           isDefault: isDefaultAddr,
@@ -148,6 +151,20 @@ export default function CheckoutPage() {
       const errObj = err as Error;
       error(errObj.message || 'Error saving address');
     }
+  };
+
+  const loadRazorpayScript = (): Promise<boolean> => {
+    return new Promise((resolve) => {
+      if (typeof window !== 'undefined' && (window as unknown as { Razorpay?: unknown }).Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
   };
 
   const handlePlaceOrder = async () => {
@@ -170,9 +187,84 @@ export default function CheckoutPage() {
       const json = await res.json();
       if (!json.success) throw new Error(json.error?.message || 'Failed to place order');
 
-      setPlacedOrder(json.data);
+      const createdOrder = json.data;
+
+      // Cash on Delivery needs no gateway — the order is already CONFIRMED
+      // server-side (see OrderService.createOrder).
+      if (paymentMethod === 'COD') {
+        setPlacedOrder(createdOrder);
+        await refreshCart();
+        success('Order placed successfully! 🚀');
+        return;
+      }
+
+      // Every other method requires an actual verified Razorpay TEST
+      // payment before the order is confirmed. The order currently sits
+      // in PENDING_PAYMENT — we never show a success screen until the
+      // backend has independently verified payment (see
+      // /api/payments/razorpay/verify).
+      const scriptLoaded = await loadRazorpayScript();
+      if (!scriptLoaded) {
+        throw new Error('Could not load the payment gateway. Please check your connection and try again.');
+      }
+
+      const createPaymentRes = await authFetch('/api/payments/razorpay/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: createdOrder.id }),
+      });
+      const createPaymentJson = await createPaymentRes.json();
+      if (!createPaymentJson.success) {
+        throw new Error(createPaymentJson.error?.message || 'Payment service unavailable');
+      }
+      const { razorpayOrderId, amount, currency, razorpayKeyId } = createPaymentJson.data;
+
+      await new Promise<void>((resolve, reject) => {
+        const RazorpayCtor = (window as unknown as { Razorpay: new (opts: Record<string, unknown>) => { open: () => void } }).Razorpay;
+        const rzp = new RazorpayCtor({
+          key: razorpayKeyId,
+          amount,
+          currency,
+          name: 'QazvuCart',
+          description: `Order ${createdOrder.orderNumber}`,
+          order_id: razorpayOrderId,
+          prefill: { name: selectedAddress?.fullName, contact: selectedAddress?.phoneNumber },
+          theme: { color: '#FFD21F' },
+          handler: async (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
+            try {
+              const verifyRes = await authFetch('/api/payments/razorpay/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  orderId: createdOrder.id,
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                }),
+              });
+              const verifyJson = await verifyRes.json();
+              if (!verifyJson.success) {
+                reject(new Error(verifyJson.error?.message || 'Payment verification failed'));
+                return;
+              }
+              resolve();
+            } catch {
+              reject(new Error('Payment verification failed. If money was deducted, it will be reconciled automatically — check your Orders page shortly.'));
+            }
+          },
+          modal: {
+            ondismiss: () => reject(new Error('Payment cancelled')),
+          },
+        });
+        rzp.open();
+      });
+
+      // Re-fetch the order now that it's server-confirmed as paid.
+      const finalRes = await authFetch(`/api/orders/${createdOrder.id}`);
+      const finalJson = await finalRes.json();
+      setPlacedOrder(finalJson.success ? finalJson.data : createdOrder);
       await refreshCart();
-      success('Order placed successfully! 🚀');
+      success('Payment successful! Order confirmed. 🚀');
     } catch (err: unknown) {
       const errObj = err as Error;
       error(errObj.message || 'Could not complete order');
@@ -354,10 +446,10 @@ export default function CheckoutPage() {
                           </div>
                         </div>
                         <p className="text-xs text-neutral-600 leading-relaxed">
-                          {addr.street}, {addr.city}, {addr.state} - {addr.pincode}
+                          {addr.houseBuilding}, {addr.streetArea}, {addr.city}, {addr.state} - {addr.postalCode}
                         </p>
                         <p className="text-xs font-medium text-neutral-700 mt-2">
-                          Phone: <strong>{addr.phone}</strong>
+                          Phone: <strong>{addr.phoneNumber}</strong>
                         </p>
                       </div>
 
@@ -581,7 +673,7 @@ export default function CheckoutPage() {
               {selectedAddress && (
                 <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-200 text-[11px]">
                   <p className="font-bold text-neutral-800">Delivering to:</p>
-                  <p className="text-neutral-600 truncate">{selectedAddress.fullName}, {selectedAddress.city} ({selectedAddress.pincode})</p>
+                  <p className="text-neutral-600 truncate">{selectedAddress.fullName}, {selectedAddress.city} ({selectedAddress.postalCode})</p>
                 </div>
               )}
 
@@ -641,12 +733,24 @@ export default function CheckoutPage() {
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-neutral-700 uppercase mb-1">Street / House / Suite</label>
+                <label className="block text-[11px] font-bold text-neutral-700 uppercase mb-1">House / Building / Flat No.</label>
+                <input
+                  type="text"
+                  value={newHouseBuilding}
+                  onChange={(e) => setNewHouseBuilding(e.target.value)}
+                  placeholder="Flat 402, Sunshine Heights"
+                  required
+                  className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-neutral-700 uppercase mb-1">Street / Area</label>
                 <input
                   type="text"
                   value={newStreet}
                   onChange={(e) => setNewStreet(e.target.value)}
-                  placeholder="Flat 402, Green Palm Residency, Indiranagar"
+                  placeholder="MG Road, Indiranagar"
                   required
                   className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-xl"
                 />

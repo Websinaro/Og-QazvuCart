@@ -5,6 +5,7 @@ import { OrderStatus } from '@/src/db/schema';
  * so e.g. DELIVERED -> PROCESSING is always invalid regardless of caller.
  */
 const ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
+  PENDING_PAYMENT: ['PROCESSING', 'CANCELLED', 'CONFIRMED'],
   PROCESSING: ['CONFIRMED', 'CANCELLED'],
   CONFIRMED: ['PACKED', 'CANCELLED'],
   PACKED: ['SHIPPED', 'CANCELLED'],

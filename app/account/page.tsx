@@ -76,11 +76,12 @@ interface OrderRecord {
 interface AddressRecord {
   id: number;
   fullName: string;
-  phone: string;
-  street: string;
+  phoneNumber: string;
+  houseBuilding: string;
+  streetArea: string;
   city: string;
   state: string;
-  pincode: string;
+  postalCode: string;
   country: string;
   isDefault: boolean;
   type: 'HOME' | 'WORK' | 'OTHER';
@@ -127,6 +128,7 @@ function AccountDashboardContent() {
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [addrFullName, setAddrFullName] = useState('');
   const [addrPhone, setAddrPhone] = useState('');
+  const [addrHouseBuilding, setAddrHouseBuilding] = useState('');
   const [addrStreet, setAddrStreet] = useState('');
   const [addrCity, setAddrCity] = useState('Bengaluru');
   const [addrState, setAddrState] = useState('Karnataka');
@@ -255,11 +257,12 @@ function AccountDashboardContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           fullName: addrFullName,
-          phone: addrPhone,
-          street: addrStreet,
+          phoneNumber: addrPhone,
+          houseBuilding: addrHouseBuilding,
+          streetArea: addrStreet,
           city: addrCity,
           state: addrState,
-          pincode: addrPincode,
+          postalCode: addrPincode,
           country: 'India',
           type: addrType,
           isDefault: addrIsDefault,
@@ -807,10 +810,10 @@ function AccountDashboardContent() {
                           </div>
                         </div>
                         <p className="text-xs text-neutral-600 leading-relaxed">
-                          {addr.street}, {addr.city}, {addr.state} - {addr.pincode}
+                          {addr.houseBuilding}, {addr.streetArea}, {addr.city}, {addr.state} - {addr.postalCode}
                         </p>
                         <p className="text-xs font-medium text-neutral-700 mt-2">
-                          Phone: <strong>{addr.phone}</strong>
+                          Phone: <strong>{addr.phoneNumber}</strong>
                         </p>
                       </div>
 
@@ -1083,7 +1086,17 @@ function AccountDashboardContent() {
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-bold text-neutral-700 uppercase mb-1">Street Address</label>
+                <label className="block text-[11px] font-bold text-neutral-700 uppercase mb-1">House / Building / Flat No.</label>
+                <input
+                  type="text"
+                  value={addrHouseBuilding}
+                  onChange={(e) => setAddrHouseBuilding(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 text-xs border rounded-xl"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-neutral-700 uppercase mb-1">Street / Area</label>
                 <input
                   type="text"
                   value={addrStreet}

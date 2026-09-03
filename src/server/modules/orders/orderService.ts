@@ -228,10 +228,22 @@ export class OrderService {
       const deliveryFee = subtotal >= 999 ? 0 : Math.max(...itemsToOrder.map((i) => i.deliveryFee), 40);
       const total = subtotal + deliveryFee;
 
-      const deliveryEstimate = getDeliveryEstimate(maxEstimatedDays, deliveryFee);
       const orderNumber = `ORD-${Math.floor(100000 + Math.random() * 900000)}`;
       const paymentMethod = params.paymentMethod || 'CARD';
-      const paymentStatus = paymentMethod === 'COD' ? 'PENDING' : 'PAID';
+
+      // COD needs no payment gateway, so it can be confirmed immediately.
+      // Every other method must go through Razorpay: the order starts in
+      // PENDING_PAYMENT / paymentStatus CREATED and is only ever flipped to
+      // CONFIRMED/PAID by a server-verified Razorpay signature or webhook
+      // (see PaymentService.verifyPayment / handleWebhook) — never by the
+      // frontend simply reporting success.
+      const isCod = paymentMethod === 'COD';
+      const initialStatus = isCod ? 'CONFIRMED' : 'PENDING_PAYMENT';
+      const initialPaymentStatus = isCod ? 'PENDING' : 'CREATED';
+      // Stock was already reserved (decremented) above at creation time, so
+      // an abandoned PENDING_PAYMENT reservation must expire and be
+      // released back to stock — see OrderService.releaseExpiredReservations.
+      const reservationExpiresAt = isCod ? null : new Date(Date.now() + 15 * 60 * 1000);
 
       // 5. Create order --------------------------------------------------------
       const [order] = await tx
@@ -239,15 +251,16 @@ export class OrderService {
         .values({
           orderNumber,
           userId,
-          status: 'CONFIRMED',
+          status: initialStatus,
           subtotal,
           discount: 0,
           deliveryFee,
           total,
           shippingAddressSnapshot: addressSnapshot,
           paymentMethod,
-          paymentStatus,
+          paymentStatus: initialPaymentStatus,
           estimatedDeliveryDate: deliveryEstimate.dateString,
+          paymentReservationExpiresAt: reservationExpiresAt,
         })
         .returning({ id: orders.id });
 
@@ -269,10 +282,15 @@ export class OrderService {
       );
 
       // 7. Initial timeline --------------------------------------------------
-      await tx.insert(orderTimeline).values([
-        { orderId, status: 'PLACED', title: 'Order Placed', description: 'Your order was successfully submitted.', completed: true },
-        { orderId, status: 'CONFIRMED', title: 'Payment Confirmed', description: 'Payment verified and sent to seller for packing.', completed: true },
-      ]);
+      const timelineEvents = isCod
+        ? [
+            { orderId, status: 'PLACED', title: 'Order Placed', description: 'Your order was successfully submitted.', completed: true },
+            { orderId, status: 'CONFIRMED', title: 'Order Confirmed', description: 'Cash on Delivery order confirmed and sent to seller for packing.', completed: true },
+          ]
+        : [
+            { orderId, status: 'PLACED', title: 'Order Placed', description: 'Awaiting payment confirmation.', completed: true },
+          ];
+      await tx.insert(orderTimeline).values(timelineEvents);
 
       // 8. Clear cart (only for cart-based checkout) --------------------------
       if (!params.directBuyItem) {
@@ -284,6 +302,119 @@ export class OrderService {
 
       return this.getOrderByIdWithTx(tx, userId, orderId);
     });
+  }
+
+  /**
+   * Called only by PaymentService after a Razorpay signature has been
+   * verified server-side (either the browser-return verify endpoint or the
+   * webhook — both funnel through here so the transition logic lives in
+   * exactly one place). Idempotent: if the order is already CONFIRMED/PAID
+   * this is a safe no-op, so a replayed webhook can never double-apply
+   * side effects.
+   */
+  static async markOrderPaid(orderId: number) {
+    return db.transaction(async (tx) => {
+      const [order] = await tx.select({ id: orders.id, status: orders.status, paymentStatus: orders.paymentStatus }).from(orders).where(eq(orders.id, orderId)).limit(1);
+      if (!order) throw new Error('Order not found');
+
+      if (order.paymentStatus === 'PAID') {
+        // Already processed by an earlier webhook/verify call.
+        return { alreadyProcessed: true };
+      }
+
+      await tx
+        .update(orders)
+        .set({ status: 'CONFIRMED', paymentStatus: 'PAID', paymentReservationExpiresAt: null, updatedAt: new Date() })
+        .where(eq(orders.id, orderId));
+
+      await tx.insert(orderTimeline).values({
+        orderId,
+        status: 'CONFIRMED',
+        title: 'Payment Confirmed',
+        description: 'Payment verified with Razorpay. Order sent to seller for packing.',
+        completed: true,
+      });
+
+      return { alreadyProcessed: false };
+    });
+  }
+
+  /**
+   * Called when Razorpay reports a failed/cancelled payment. Releases the
+   * stock reservation taken at order-creation time and marks the order
+   * CANCELLED so it doesn't sit around forever as PENDING_PAYMENT.
+   */
+  static async markOrderPaymentFailed(orderId: number, reason?: string) {
+    return db.transaction(async (tx) => {
+      const [order] = await tx.select({ id: orders.id, status: orders.status, paymentStatus: orders.paymentStatus }).from(orders).where(eq(orders.id, orderId)).limit(1);
+      if (!order) throw new Error('Order not found');
+
+      if (order.status === 'CANCELLED' || order.paymentStatus === 'PAID') {
+        return { alreadyProcessed: true };
+      }
+
+      await tx
+        .update(orders)
+        .set({ status: 'CANCELLED', paymentStatus: 'FAILED', paymentReservationExpiresAt: null, updatedAt: new Date() })
+        .where(eq(orders.id, orderId));
+
+      const items = await tx
+        .select({ productId: orderItems.productId, variantId: orderItems.variantId, quantity: orderItems.quantity })
+        .from(orderItems)
+        .where(eq(orderItems.orderId, orderId));
+
+      for (const item of items) {
+        await tx.update(products).set({ stock: sql`${products.stock} + ${item.quantity}` }).where(eq(products.id, item.productId));
+        if (item.variantId) {
+          await tx
+            .update(productVariants)
+            .set({ stockCount: sql`${productVariants.stockCount} + ${item.quantity}` })
+            .where(eq(productVariants.id, item.variantId));
+        }
+      }
+
+      await tx.insert(orderTimeline).values({
+        orderId,
+        status: 'CANCELLED',
+        title: 'Payment Failed',
+        description: reason ? `Payment failed: ${reason}` : 'Payment failed or was cancelled.',
+        completed: true,
+      });
+
+      return { alreadyProcessed: false };
+    });
+  }
+
+  /**
+   * Housekeeping: PENDING_PAYMENT orders whose reservation window has
+   * elapsed with no successful payment get their stock released and are
+   * marked CANCELLED, the same as an explicit failure. This codebase has
+   * no background worker/cron process, so nothing calls this
+   * automatically today — wire it to a scheduled task (e.g. a Render Cron
+   * Job hitting an authenticated internal route) if abandoned-checkout
+   * cleanup matters for your deployment.
+   */
+  static async releaseExpiredReservations() {
+    const expired = await db
+      .select({ id: orders.id })
+      .from(orders)
+      .where(and(eq(orders.status, 'PENDING_PAYMENT'), sql`${orders.paymentReservationExpiresAt} < NOW()`));
+
+    for (const o of expired) {
+      await this.markOrderPaymentFailed(o.id, 'Payment reservation expired');
+    }
+
+    return { released: expired.length };
+  }
+
+  /** Ownership-checked fetch used by the payment routes before creating/verifying a Razorpay order. */
+  static async getOrderForPayment(userId: number, orderId: number) {
+    const [order] = await db
+      .select()
+      .from(orders)
+      .where(and(eq(orders.id, orderId), eq(orders.userId, userId)))
+      .limit(1);
+    return order || null;
   }
 
   static async getUserOrders(userId: number, statusFilter?: string) {
@@ -369,7 +500,7 @@ export class OrderService {
 
     const allStages = [
       { key: 'PLACED', title: 'Order Placed', desc: 'Order confirmed and verified' },
-      { key: 'CONFIRMED', title: 'Payment Confirmed', desc: 'Payment received successfully' },
+      { key: 'CONFIRMED', title: 'Payment Confirmed', desc: order.paymentMethod === 'COD' ? 'Cash on Delivery confirmed' : 'Payment received successfully' },
       { key: 'PACKED', title: 'Packed', desc: 'Seller packed the parcel' },
       { key: 'SHIPPED', title: 'Shipped', desc: 'Handed over to delivery carrier' },
       { key: 'OUT_FOR_DELIVERY', title: 'Out for Delivery', desc: 'Courier out for delivery today' },
