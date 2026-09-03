@@ -227,6 +227,7 @@ export class OrderService {
       const maxEstimatedDays = Math.max(...itemsToOrder.map((i) => i.estimatedDays), 2);
       const deliveryFee = subtotal >= 999 ? 0 : Math.max(...itemsToOrder.map((i) => i.deliveryFee), 40);
       const total = subtotal + deliveryFee;
+      const deliveryEstimate = getDeliveryEstimate(maxEstimatedDays, deliveryFee);
 
       const orderNumber = `ORD-${Math.floor(100000 + Math.random() * 900000)}`;
       const paymentMethod = params.paymentMethod || 'CARD';
