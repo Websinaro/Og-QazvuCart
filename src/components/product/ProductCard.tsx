@@ -251,7 +251,7 @@ export function ProductCard({
       </div>
 
       {isQuickViewOpen && (
-        <QuickViewModal slug={slug} onClose={() => setIsQuickViewOpen(false)} />
+        <QuickViewModal key={slug} slug={slug} onClose={() => setIsQuickViewOpen(false)} />
       )}
     </div>
   );

@@ -44,7 +44,6 @@ export function QuickViewModal({
 
   useEffect(() => {
     let cancelled = false;
-    setStatus('loading');
     fetch(`/api/products/${slug}`)
       .then((r) => r.json())
       .then((json) => {
