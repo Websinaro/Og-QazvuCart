@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ProductCard, ProductCardProps } from '@/src/components/product/ProductCard';
+import { ProductGridSkeleton } from '@/src/components/product/ProductCardSkeleton';
 import {
   SlidersHorizontal,
   X,
@@ -471,7 +472,8 @@ function ProductsCatalogContent() {
           {/* Right Product Grid & Pagination */}
           <div className="lg:col-span-3">
             {isLoading ? (
-              <div
+              <ProductGridSkeleton
+                count={8}
                 className={
                   gridCols === 4
                     ? 'grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4'
@@ -479,18 +481,7 @@ function ProductsCatalogContent() {
                     ? 'grid grid-cols-1 sm:grid-cols-2 gap-4'
                     : 'grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-3.5 sm:gap-5'
                 }
-              >
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-                  <div key={n} className="bg-white rounded-2xl p-4 border border-neutral-200 animate-pulse h-80 flex flex-col justify-between">
-                    <div className="w-full h-44 bg-neutral-200 rounded-xl" />
-                    <div className="space-y-2 mt-3">
-                      <div className="h-3.5 bg-neutral-200 rounded w-3/4" />
-                      <div className="h-3.5 bg-neutral-200 rounded w-1/2" />
-                      <div className="h-8 bg-neutral-200 rounded-xl mt-3" />
-                    </div>
-                  </div>
-                ))}
-              </div>
+              />
             ) : products.length === 0 ? (
               <div className="bg-white rounded-3xl p-12 text-center border border-neutral-200 shadow-sm max-w-lg mx-auto my-8">
                 <div className="w-16 h-16 bg-amber-50 text-amber-700 rounded-full flex items-center justify-center mx-auto mb-4">

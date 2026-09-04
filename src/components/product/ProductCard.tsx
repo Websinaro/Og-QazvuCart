@@ -1,13 +1,16 @@
 'use client';
 
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { motion, AnimatePresence } from 'motion/react';
 import { useCart } from '@/src/context/CartContext';
 import { useWishlist } from '@/src/context/WishlistContext';
 import { useToast } from '@/src/context/ToastContext';
-import { Heart, Star, ShoppingBag, Truck } from 'lucide-react';
+import { Heart, Star, ShoppingBag, Truck, Eye, Check } from 'lucide-react';
 import { formatINR } from '@/src/lib/date';
+import { flyToCart } from '@/src/lib/flyToCart';
+import { QuickViewModal } from '@/src/components/product/QuickViewModal';
 
 export interface ProductCardProps {
   id: number;
@@ -49,6 +52,9 @@ export function ProductCard({
   const { addToCart, isLoading } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { success, error } = useToast();
+  const imageRef = useRef<HTMLDivElement>(null);
+  const [justAdded, setJustAdded] = useState(false);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
 
   const isFav = isInWishlist(id);
 
@@ -69,7 +75,10 @@ export function ProductCard({
     if (!inStock) return;
     try {
       await addToCart(id, null, 1);
+      if (imageRef.current) flyToCart(imageRef.current, validImage);
       success(`Added ${name} to cart`);
+      setJustAdded(true);
+      setTimeout(() => setJustAdded(false), 1600);
     } catch (err: unknown) {
       const errObj = err as Error;
       error(errObj.message || 'Please sign in to add to cart');
@@ -84,7 +93,7 @@ export function ProductCard({
   return (
     <div className="group relative bg-white rounded-2xl border border-neutral-200/80 hover:border-neutral-900 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden h-full">
       {/* Top Media & Badges */}
-      <div className="relative aspect-square w-full bg-neutral-50 overflow-hidden shrink-0">
+      <div ref={imageRef} className="relative aspect-square w-full bg-neutral-50 overflow-hidden shrink-0">
         <Link href={`/products/${slug}`} className="block w-full h-full">
           <Image
             src={validImage}
@@ -111,16 +120,37 @@ export function ProductCard({
         </div>
 
         {/* Wishlist Button */}
-        <button
+        <motion.button
           onClick={handleWishlistToggle}
-          className={`absolute top-2.5 right-2.5 z-10 p-1.5 sm:p-2 rounded-full backdrop-blur-md transition-all shadow-sm ${
+          whileTap={{ scale: 0.8 }}
+          className={`absolute top-2.5 right-2.5 z-10 p-1.5 sm:p-2 rounded-full backdrop-blur-md transition-colors shadow-sm ${
             isFav
               ? 'bg-red-50 text-red-600 border border-red-200'
               : 'bg-white/80 hover:bg-white text-neutral-600 hover:text-red-600 border border-neutral-200/60'
           }`}
           aria-label="Add to Wishlist"
         >
-          <Heart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isFav ? 'fill-red-600' : ''}`} />
+          <motion.span
+            key={isFav ? 'fav' : 'not-fav'}
+            initial={{ scale: 0.5, rotate: isFav ? -20 : 0 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 14 }}
+            className="block"
+          >
+            <Heart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isFav ? 'fill-red-600' : ''}`} />
+          </motion.span>
+        </motion.button>
+
+        {/* Quick View — appears on hover (desktop) / always tappable (touch) */}
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setIsQuickViewOpen(true);
+          }}
+          className="absolute bottom-2.5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 px-3 py-1.5 bg-neutral-950/90 text-white text-[10px] sm:text-[11px] font-bold rounded-full shadow-lg opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 sm:transition-all sm:duration-300 max-sm:opacity-100 max-sm:translate-y-0 cursor-pointer"
+        >
+          <Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> Quick View
         </button>
 
         {/* Out of Stock Overlay */}
@@ -187,13 +217,42 @@ export function ProductCard({
           <button
             onClick={handleQuickAdd}
             disabled={!inStock || isLoading}
-            className="w-full py-2 sm:py-2.5 px-3 bg-[#FFD21F] hover:bg-[#ebc21a] text-neutral-950 font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed group/btn cursor-pointer"
+            className={`w-full py-2 sm:py-2.5 px-3 font-bold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed group/btn cursor-pointer ${
+              justAdded ? 'bg-emerald-500 text-white' : 'bg-[#FFD21F] hover:bg-[#ebc21a] text-neutral-950'
+            }`}
           >
-            <ShoppingBag className="w-3.5 h-3.5" />
-            <span>{inStock ? 'Add to Cart' : 'Out of Stock'}</span>
+            <AnimatePresence mode="wait" initial={false}>
+              {justAdded ? (
+                <motion.span
+                  key="added"
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  className="flex items-center gap-1.5"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  Added ✓
+                </motion.span>
+              ) : (
+                <motion.span
+                  key="add"
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  className="flex items-center gap-1.5"
+                >
+                  <ShoppingBag className="w-3.5 h-3.5" />
+                  {inStock ? 'Add to Cart' : 'Out of Stock'}
+                </motion.span>
+              )}
+            </AnimatePresence>
           </button>
         </div>
       </div>
+
+      {isQuickViewOpen && (
+        <QuickViewModal slug={slug} onClose={() => setIsQuickViewOpen(false)} />
+      )}
     </div>
   );
 }

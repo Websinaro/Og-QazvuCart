@@ -348,7 +348,7 @@ export function Header() {
                 className="flex items-center gap-2.5 p-2 sm:px-3.5 sm:py-2 bg-neutral-950 hover:bg-neutral-800 text-white rounded-xl shadow-sm transition-all"
                 aria-label="Open Shopping Cart"
               >
-                <div className="relative">
+                <div className="relative" id="header-cart-icon">
                   <ShoppingBag className="w-5 h-5 text-[#FFD21F]" />
                   {cart.totalItems > 0 && (
                     <span className="absolute -top-2 -right-2 bg-red-600 text-white font-black text-[10px] w-4 h-4 rounded-full flex items-center justify-center border border-neutral-950 shadow-xs">

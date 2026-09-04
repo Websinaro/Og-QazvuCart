@@ -8,6 +8,7 @@ import { useAuth } from '@/src/context/AuthContext';
 import { useToast } from '@/src/context/ToastContext';
 import { authFetch } from '@/src/lib/api';
 import { formatINR } from '@/src/lib/date';
+import { uploadImageToCloudinary, CloudinaryConfigError } from '@/src/lib/cloudinary';
 import {
   Shield,
   LayoutDashboard,
@@ -31,6 +32,8 @@ import {
   Edit2,
   X,
   Sparkles,
+  ImagePlus,
+  Loader2,
 } from 'lucide-react';
 
 interface AnalyticsData {
@@ -160,6 +163,8 @@ export default function AdminDashboardPage() {
   const [newProdStock, setNewProdStock] = useState('50');
   const [newProdDescription, setNewProdDescription] = useState('');
   const [newProdImage, setNewProdImage] = useState('');
+  const [newProdImageUploading, setNewProdImageUploading] = useState(false);
+  const [newProdImageUploadProgress, setNewProdImageUploadProgress] = useState(0);
   const [newProdIsDeal, setNewProdIsDeal] = useState(false);
   const [newProdIsFeatured, setNewProdIsFeatured] = useState(false);
 
@@ -366,6 +371,35 @@ export default function AdminDashboardPage() {
       loadDashboardData();
     }
   }, [isAuthLoading, isAuthenticated, user?.role, loadDashboardData]);
+
+  const handleProductImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    // Reset the input so selecting the same file again still fires onChange.
+    e.target.value = '';
+    if (!file) return;
+
+    setNewProdImageUploading(true);
+    setNewProdImageUploadProgress(0);
+    try {
+      const result = await uploadImageToCloudinary(file, {
+        folder: 'qazvucart/products',
+        onProgress: setNewProdImageUploadProgress,
+      });
+      setNewProdImage(result.url);
+      success('Image uploaded');
+    } catch (err) {
+      const message =
+        err instanceof CloudinaryConfigError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : 'Image upload failed';
+      error(message);
+    } finally {
+      setNewProdImageUploading(false);
+      setNewProdImageUploadProgress(0);
+    }
+  };
 
   // Product Actions
   const handleCreateProduct = async (e: React.FormEvent) => {
@@ -1701,13 +1735,44 @@ export default function AdminDashboardPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-neutral-700 font-bold mb-1">Image URL (Optional)</label>
+                  <label className="block text-neutral-700 font-bold mb-1">Product Image (Optional)</label>
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-16 h-16 shrink-0 rounded-xl border border-neutral-300 bg-neutral-50 overflow-hidden flex items-center justify-center">
+                      {newProdImage ? (
+                        <Image src={newProdImage} alt="Product preview" fill className="object-cover" />
+                      ) : (
+                        <ImagePlus className="w-6 h-6 text-neutral-400" />
+                      )}
+                    </div>
+                    <label className="flex-1">
+                      <span className="inline-flex items-center gap-2 px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-700 cursor-pointer hover:bg-neutral-50 w-full justify-center">
+                        {newProdImageUploading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Uploading {newProdImageUploadProgress}%
+                          </>
+                        ) : (
+                          <>
+                            <ImagePlus className="w-4 h-4" />
+                            {newProdImage ? 'Change image' : 'Upload image'}
+                          </>
+                        )}
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
+                        onChange={handleProductImageSelect}
+                        disabled={newProdImageUploading}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
                   <input
                     type="url"
-                    placeholder="https://..."
+                    placeholder="or paste an image URL directly"
                     value={newProdImage}
                     onChange={(e) => setNewProdImage(e.target.value)}
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900"
+                    className="mt-2 w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900 text-sm"
                   />
                 </div>
               </div>

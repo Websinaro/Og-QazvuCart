@@ -1,14 +1,16 @@
 'use client';
 
-import React, { useState, useEffect, use, useMemo } from 'react';
+import React, { useState, useEffect, use, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '@/src/context/AuthContext';
 import { useCart } from '@/src/context/CartContext';
 import { useWishlist } from '@/src/context/WishlistContext';
 import { useToast } from '@/src/context/ToastContext';
 import { authFetch } from '@/src/lib/api';
+import { flyToCart } from '@/src/lib/flyToCart';
 import { ProductCard, ProductCardProps } from '@/src/components/product/ProductCard';
 import {
   Star,
@@ -34,6 +36,7 @@ import {
   ZoomIn,
   PackageCheck,
   AlertCircle,
+  Check,
 } from 'lucide-react';
 import { formatINR } from '@/src/lib/date';
 
@@ -141,6 +144,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
   // Lightbox Modal
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const mainImageRef = useRef<HTMLDivElement>(null);
+  const [justAddedToCart, setJustAddedToCart] = useState(false);
 
   // Pincode Checker State
   const [pincode, setPincode] = useState('');
@@ -267,7 +272,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
     if (!product || !product.inStock || availableStock <= 0) return;
     try {
       await addToCart(product.id, selectedVariant?.id || null, quantity);
+      if (mainImageRef.current) flyToCart(mainImageRef.current, activeMainImage);
       success(`Added ${quantity}x "${product.name}" to your cart`);
+      setJustAddedToCart(true);
+      setTimeout(() => setJustAddedToCart(false), 1600);
     } catch (err: unknown) {
       const errObj = err as Error;
       error(errObj.message || 'Please sign in to add items to cart');
@@ -454,7 +462,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 pb-20">
+    <div className="min-h-screen bg-neutral-50 pb-24 sm:pb-20">
       {/* 1. Breadcrumbs Header */}
       <div className="bg-white border-b border-neutral-200 py-3 text-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
@@ -517,7 +525,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
             )}
 
             {/* Primary Main Image with Zoom Trigger */}
-            <div className="flex-1 relative aspect-square bg-neutral-50 rounded-2xl overflow-hidden border border-neutral-200 group">
+            <div ref={mainImageRef} className="flex-1 relative aspect-square bg-neutral-50 rounded-2xl overflow-hidden border border-neutral-200 group">
               <Image
                 src={activeMainImage}
                 alt={product.name}
@@ -796,15 +804,42 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 )}
               </div>
 
-              {/* Action Buttons */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Action Buttons — hidden on mobile; the sticky bottom bar
+                  covers add-to-cart/buy-now there so it's reachable while
+                  scrolling instead of duplicating buttons on the page. */}
+              <div className="hidden sm:grid sm:grid-cols-2 gap-3">
                 <button
                   onClick={handleAddToCart}
                   disabled={!product.inStock || isCartLoading || availableStock <= 0}
-                  className="py-3.5 px-5 bg-[#FFD21F] hover:bg-[#ebc21a] text-neutral-950 font-black text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                  className={`py-3.5 px-5 font-black text-sm rounded-xl shadow-md transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer ${
+                    justAddedToCart ? 'bg-emerald-500 text-white' : 'bg-[#FFD21F] hover:bg-[#ebc21a] text-neutral-950'
+                  }`}
                 >
-                  <ShoppingBag className="w-4 h-4" />
-                  <span>{product.inStock && availableStock > 0 ? 'Add to Cart' : 'Out of Stock'}</span>
+                  <AnimatePresence mode="wait" initial={false}>
+                    {justAddedToCart ? (
+                      <motion.span
+                        key="added"
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        className="flex items-center gap-2"
+                      >
+                        <Check className="w-4 h-4" />
+                        Added to Cart ✓
+                      </motion.span>
+                    ) : (
+                      <motion.span
+                        key="add"
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        className="flex items-center gap-2"
+                      >
+                        <ShoppingBag className="w-4 h-4" />
+                        {product.inStock && availableStock > 0 ? 'Add to Cart' : 'Out of Stock'}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
                 </button>
 
                 <button
@@ -1403,6 +1438,63 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
           </div>
         </div>
       )}
+
+      {/* Sticky mobile add-to-cart bar — mirrors the desktop buttons in the
+          gallery/summary column above, but stays reachable with a thumb
+          no matter how far the person has scrolled down the page. */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden bg-white border-t border-neutral-200 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] px-3 py-2.5 pb-[calc(0.625rem+env(safe-area-inset-bottom))] flex items-center gap-2.5">
+        <div className="min-w-0 shrink-0">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-base font-black text-neutral-950">{formatINR(currentDiscountPrice)}</span>
+            {currentBasePrice > currentDiscountPrice && (
+              <span className="text-[10px] text-neutral-400 line-through font-medium">
+                {formatINR(currentBasePrice)}
+              </span>
+            )}
+          </div>
+          <span className="text-[10px] text-neutral-500 font-medium">
+            {product.inStock && availableStock > 0 ? `${availableStock} in stock` : 'Out of stock'}
+          </span>
+        </div>
+        <button
+          onClick={handleAddToCart}
+          disabled={!product.inStock || isCartLoading || availableStock <= 0}
+          className={`flex-1 py-3 px-3 font-bold text-xs rounded-xl shadow-sm transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer ${
+            justAddedToCart ? 'bg-emerald-500 text-white' : 'bg-white border-2 border-neutral-900 text-neutral-900'
+          }`}
+        >
+          <AnimatePresence mode="wait" initial={false}>
+            {justAddedToCart ? (
+              <motion.span
+                key="added-m"
+                initial={{ opacity: 0, y: 3 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -3 }}
+                className="flex items-center gap-1.5"
+              >
+                <Check className="w-3.5 h-3.5" /> Added ✓
+              </motion.span>
+            ) : (
+              <motion.span
+                key="add-m"
+                initial={{ opacity: 0, y: 3 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -3 }}
+                className="flex items-center gap-1.5"
+              >
+                <ShoppingBag className="w-3.5 h-3.5" /> Add
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </button>
+        <button
+          onClick={handleBuyNow}
+          disabled={!product.inStock || isCartLoading || availableStock <= 0}
+          className="flex-1 py-3 px-3 bg-[#FFD21F] hover:bg-[#ebc21a] text-neutral-950 font-black text-xs rounded-xl shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
+        >
+          Buy Now
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 
 export type ToastType = 'success' | 'error' | 'info';
@@ -47,31 +48,48 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       {children}
       {/* Toast container */}
       <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4">
-        {toasts.map((t) => (
-          <div
-            key={t.id}
-            className={`pointer-events-auto flex items-center justify-between p-4 rounded-xl shadow-xl border text-sm font-medium transition-all transform translate-y-0 ${
-              t.type === 'success'
-                ? 'bg-neutral-900 text-white border-neutral-800'
-                : t.type === 'error'
-                ? 'bg-red-600 text-white border-red-700'
-                : 'bg-neutral-900 text-white border-neutral-800'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              {t.type === 'success' && <CheckCircle2 className="w-5 h-5 text-[#FFD21F] shrink-0" />}
-              {t.type === 'error' && <AlertCircle className="w-5 h-5 text-white shrink-0" />}
-              {t.type === 'info' && <Info className="w-5 h-5 text-[#FFD21F] shrink-0" />}
-              <span>{t.message}</span>
-            </div>
-            <button
-              onClick={() => removeToast(t.id)}
-              className="p-1 hover:bg-white/10 rounded-lg text-white/70 hover:text-white transition-colors"
+        <AnimatePresence initial={false}>
+          {toasts.map((t) => (
+            <motion.div
+              key={t.id}
+              layout
+              initial={{ opacity: 0, y: 24, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 60, scale: 0.9, transition: { duration: 0.2 } }}
+              transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+              className={`pointer-events-auto relative overflow-hidden flex items-center justify-between p-4 rounded-xl shadow-xl border text-sm font-medium ${
+                t.type === 'success'
+                  ? 'bg-neutral-900 text-white border-neutral-800'
+                  : t.type === 'error'
+                  ? 'bg-red-600 text-white border-red-700'
+                  : 'bg-neutral-900 text-white border-neutral-800'
+              }`}
             >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        ))}
+              <div className="flex items-center gap-3">
+                {t.type === 'success' && <CheckCircle2 className="w-5 h-5 text-[#FFD21F] shrink-0" />}
+                {t.type === 'error' && <AlertCircle className="w-5 h-5 text-white shrink-0" />}
+                {t.type === 'info' && <Info className="w-5 h-5 text-[#FFD21F] shrink-0" />}
+                <span>{t.message}</span>
+              </div>
+              <button
+                onClick={() => removeToast(t.id)}
+                className="p-1 hover:bg-white/10 rounded-lg text-white/70 hover:text-white transition-colors shrink-0 ml-2"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              {/* Countdown bar so the person can see how long they have to read/undo */}
+              <motion.div
+                initial={{ scaleX: 1 }}
+                animate={{ scaleX: 0 }}
+                transition={{ duration: 4, ease: 'linear' }}
+                style={{ originX: 0 }}
+                className={`absolute bottom-0 left-0 h-0.5 w-full ${
+                  t.type === 'error' ? 'bg-white/40' : 'bg-[#FFD21F]/50'
+                }`}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </ToastContext.Provider>
   );

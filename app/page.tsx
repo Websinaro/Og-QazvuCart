@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ProductCard, ProductCardProps } from '@/src/components/product/ProductCard';
+import { ProductGridSkeleton } from '@/src/components/product/ProductCardSkeleton';
 import {
   Flame,
   Sparkles,
@@ -283,11 +284,17 @@ export default function HomePage() {
           </div>
 
           {/* Deals Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5 pt-6">
-            {deals.map((product) => (
-              <ProductCard key={product.id} {...product} />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="pt-6">
+              <ProductGridSkeleton count={4} className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5 pt-6">
+              {deals.map((product) => (
+                <ProductCard key={product.id} {...product} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -317,11 +324,15 @@ export default function HomePage() {
         </div>
 
         {/* Product Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5">
-          {featured.map((product) => (
-            <ProductCard key={product.id} {...product} />
-          ))}
-        </div>
+        {isLoading ? (
+          <ProductGridSkeleton count={4} className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5" />
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5">
+            {featured.map((product) => (
+              <ProductCard key={product.id} {...product} />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* 5. Trust Guarantee Banner */}
