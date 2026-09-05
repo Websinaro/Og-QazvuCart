@@ -48,6 +48,27 @@ export const razorpayEnv = {
   },
 };
 
+/**
+ * Firebase Admin SDK credentials — used server-side only, to send Web Push
+ * notifications via FCM (see src/lib/firebaseAdmin.ts). Lazy getters, same
+ * rationale as razorpayEnv: importing this module must never fail just
+ * because push notifications aren't configured yet; only the send path
+ * throws, and only when actually invoked. PRIVATE_KEY commonly arrives
+ * from the hosting provider's env UI with literal "\n" sequences instead
+ * of real newlines, so it's unescaped here rather than at every call site.
+ */
+export const firebaseAdminEnv = {
+  get projectId() {
+    return requireEnv('FIREBASE_PROJECT_ID');
+  },
+  get clientEmail() {
+    return requireEnv('FIREBASE_CLIENT_EMAIL');
+  },
+  get privateKey() {
+    return requireEnv('FIREBASE_PRIVATE_KEY').replace(/\\n/g, '\n');
+  },
+};
+
 export const config = {
   jwtExpiresIn: '15m',
   jwtRefreshExpiresIn: '30d',

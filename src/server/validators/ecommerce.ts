@@ -28,6 +28,7 @@ export const createOrderSchema = z.object({
     variantId: z.number().int().positive().nullable().optional(),
     quantity: z.number().int().min(1).max(20),
   }).optional(),
+  couponCode: z.string().trim().max(30).optional(),
 });
 
 export const createReviewSchema = z.object({

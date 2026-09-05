@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, lte, like, or, sql, SQL } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, lte, like, or, sql, SQL, inArray, notInArray } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { db } from '@/src/db';
 import {
@@ -12,12 +12,17 @@ import {
   questions,
   answers,
   users,
+  orders,
+  orderItems,
 } from '@/src/db/schema';
 import { getDeliveryEstimate } from '@/src/lib/date';
 
 export interface ProductQueryParams {
   q?: string;
   category?: string;
+  categories?: number[];
+  ids?: number[];
+  excludeIds?: number[];
   minPrice?: number;
   maxPrice?: number;
   minRating?: number;
@@ -59,6 +64,18 @@ export class ProductService {
       conditions.push(
         or(eq(categories.slug, params.category), !isNaN(asNumber) ? eq(categories.id, asNumber) : sql`false`)!
       );
+    }
+
+    if (params.categories && params.categories.length > 0) {
+      conditions.push(inArray(products.categoryId, params.categories));
+    }
+
+    if (params.ids && params.ids.length > 0) {
+      conditions.push(inArray(products.id, params.ids));
+    }
+
+    if (params.excludeIds && params.excludeIds.length > 0) {
+      conditions.push(notInArray(products.id, params.excludeIds));
     }
 
     if (params.minPrice !== undefined && !isNaN(params.minPrice)) {
@@ -104,7 +121,21 @@ export class ProductService {
         break;
       case 'relevance':
       default:
-        orderBy = [desc(products.isFeatured), desc(products.rating), desc(products.id)];
+        // When hydrating a specific set of ids (e.g. "recently viewed") and
+        // the caller didn't ask for a different sort, preserve the order
+        // the ids were given in rather than falling back to relevance —
+        // that order usually encodes recency/relevance the caller already
+        // computed (most-recently-viewed first, etc).
+        if (params.ids && params.ids.length > 0) {
+          orderBy = [
+            sql`array_position(ARRAY[${sql.join(
+              params.ids.map((id) => sql`${id}`),
+              sql`, `
+            )}]::int[], ${products.id})`,
+          ];
+        } else {
+          orderBy = [desc(products.isFeatured), desc(products.rating), desc(products.id)];
+        }
         break;
     }
 
@@ -205,6 +236,51 @@ export class ProductService {
         totalPages: Math.ceil(count / limit) || 1,
         hasMore: offset + productList.length < count,
       },
+    };
+  }
+
+  /**
+   * Real trending, not fake urgency: ranks products by units sold in the
+   * trailing `days` window using actual order_items rows. Cold-starts
+   * gracefully — if there isn't enough order history yet (new store, quiet
+   * period), the remainder is backfilled with featured/top-rated products
+   * so the section is never empty, without pretending those are "trending".
+   */
+  static async getTrending(limit = 8, days = 30) {
+    const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+
+    const salesRows = await db
+      .select({
+        productId: orderItems.productId,
+        totalQty: sql<number>`SUM(${orderItems.quantity})::int`,
+      })
+      .from(orderItems)
+      .innerJoin(orders, eq(orderItems.orderId, orders.id))
+      .where(and(gte(orders.createdAt, cutoff), notInArray(orders.status, ['CANCELLED', 'RETURNED'])))
+      .groupBy(orderItems.productId)
+      .orderBy(desc(sql`SUM(${orderItems.quantity})`))
+      .limit(limit);
+
+    let trendingIds = salesRows.map((r) => r.productId);
+    const isFromRealSales = new Set(trendingIds);
+
+    if (trendingIds.length < limit) {
+      const fallback = await this.getProducts({
+        excludeIds: trendingIds.length > 0 ? trendingIds : undefined,
+        isFeatured: undefined,
+        sort: 'rating_desc',
+        limit: limit - trendingIds.length,
+        inStock: true,
+      });
+      trendingIds = [...trendingIds, ...fallback.products.map((p) => p.id)];
+    }
+
+    if (trendingIds.length === 0) return { products: [] as Awaited<ReturnType<typeof this.getProducts>>['products'] };
+
+    const { products: hydrated } = await this.getProducts({ ids: trendingIds, inStock: true, limit });
+
+    return {
+      products: hydrated.map((p) => ({ ...p, isTrending: isFromRealSales.has(p.id) })),
     };
   }
 

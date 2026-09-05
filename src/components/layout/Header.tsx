@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/src/context/AuthContext';
+import { NotificationBell } from '@/src/components/layout/NotificationBell';
 import { useCart } from '@/src/context/CartContext';
 import { useWishlist } from '@/src/context/WishlistContext';
 import { AuthModal } from '@/src/components/auth/AuthModal';
@@ -327,6 +328,9 @@ export function Header() {
                   </>
                 )}
               </div>
+
+              {/* Notifications */}
+              <NotificationBell />
 
               {/* Wishlist Link */}
               <Link

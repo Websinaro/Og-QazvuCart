@@ -225,6 +225,10 @@ export const orders = pgTable('orders', {
   paymentStatus: varchar('payment_status', { length: 20 }).default('CREATED').notNull(),
   estimatedDeliveryDate: varchar('estimated_delivery_date', { length: 100 }).notNull(),
   paymentReservationExpiresAt: timestamp('payment_reservation_expires_at', { withTimezone: true }),
+  // Set only when a coupon was actually applied — `discount` above holds
+  // the resulting amount either way, but this is what makes the discount
+  // traceable to a specific code for support/audit purposes.
+  couponCode: varchar('coupon_code', { length: 30 }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
@@ -331,6 +335,110 @@ export const answers = pgTable('answers', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   questionIdx: index('answers_question_id_idx').on(table.questionId),
+}));
+
+// =========================================================================
+// COUPONS
+// =========================================================================
+
+export const COUPON_TYPES = ['PERCENT', 'FIXED'] as const;
+export type CouponType = (typeof COUPON_TYPES)[number];
+
+export const coupons = pgTable('coupons', {
+  id: serial('id').primaryKey(),
+  code: varchar('code', { length: 30 }).notNull().unique(),
+  description: varchar('description', { length: 255 }),
+  type: varchar('type', { length: 10 }).notNull(),
+  // PERCENT: 1-100. FIXED: a rupee amount, same integer unit as
+  // products.basePrice elsewhere in this schema.
+  value: integer('value').notNull(),
+  minOrderValue: integer('min_order_value').default(0).notNull(),
+  // Caps how much a PERCENT coupon can discount in absolute rupees, so
+  // "20% off" can't turn into an unbounded discount on a huge cart.
+  // Ignored for FIXED coupons.
+  maxDiscountAmount: integer('max_discount_amount'),
+  // Total redemptions allowed across ALL users. Null = unlimited.
+  usageLimit: integer('usage_limit'),
+  // Redemptions allowed per individual user. Defaults to 1 (classic
+  // "one use per customer" promo code behavior).
+  perUserLimit: integer('per_user_limit').default(1).notNull(),
+  usedCount: integer('used_count').default(0).notNull(),
+  isActive: boolean('is_active').default(true).notNull(),
+  expiresAt: timestamp('expires_at', { withTimezone: true }),
+  createdBy: integer('created_by').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+// One row per successful redemption — this is what makes usage_limit and
+// per_user_limit enforceable without a race condition: both checks and
+// the increment happen inside the same order-creation transaction (see
+// CouponService.redeem), and this table is the audit trail for it.
+export const couponRedemptions = pgTable('coupon_redemptions', {
+  id: serial('id').primaryKey(),
+  couponId: integer('coupon_id').notNull().references(() => coupons.id, { onDelete: 'cascade' }),
+  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  orderId: integer('order_id').notNull().references(() => orders.id, { onDelete: 'cascade' }),
+  discountAmount: integer('discount_amount').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  couponUserIdx: index('coupon_redemptions_coupon_user_idx').on(table.couponId, table.userId),
+}));
+
+// =========================================================================
+// NOTIFICATIONS (in-app center + admin broadcast + web push via Firebase)
+// =========================================================================
+
+export const NOTIFICATION_TARGETS = ['ALL', 'CUSTOMERS', 'SELLERS'] as const;
+export type NotificationTarget = (typeof NOTIFICATION_TARGETS)[number];
+
+export const NOTIFICATION_TYPES = ['ADMIN', 'ORDER', 'WISHLIST', 'SYSTEM'] as const;
+export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
+
+// One row per browser/device a user has granted push permission on. A user
+// can have several (phone, laptop, etc) — all get the push. Token is the
+// opaque FCM registration token from the client SDK.
+export const deviceTokens = pgTable('device_tokens', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  token: text('token').notNull().unique(),
+  platform: varchar('platform', { length: 20 }).default('web').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  lastSeenAt: timestamp('last_seen_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index('device_tokens_user_id_idx').on(table.userId),
+}));
+
+// One row per admin broadcast "send" action — the history the admin panel
+// lists, independent of how many individual users ended up receiving it.
+export const adminNotifications = pgTable('admin_notifications', {
+  id: serial('id').primaryKey(),
+  sentBy: integer('sent_by').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  title: varchar('title', { length: 200 }).notNull(),
+  body: text('body').notNull(),
+  link: varchar('link', { length: 500 }),
+  target: varchar('target', { length: 20 }).default('ALL').notNull(),
+  recipientCount: integer('recipient_count').default(0).notNull(),
+  pushDeliveredCount: integer('push_delivered_count').default(0).notNull(),
+  pushFailedCount: integer('push_failed_count').default(0).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+// One row per (user, notification) — powers the in-app notification bell.
+// `type` distinguishes admin broadcasts from notifications the system
+// generates itself (order updates, wishlist price drops, etc) so the same
+// table/UI can serve both without a second schema.
+export const notifications = pgTable('notifications', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  adminNotificationId: integer('admin_notification_id').references(() => adminNotifications.id, { onDelete: 'set null' }),
+  type: varchar('type', { length: 30 }).default('ADMIN').notNull(),
+  title: varchar('title', { length: 200 }).notNull(),
+  body: text('body').notNull(),
+  link: varchar('link', { length: 500 }),
+  isRead: boolean('is_read').default(false).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index('notifications_user_id_idx').on(table.userId, table.createdAt),
 }));
 
 // =========================================================================

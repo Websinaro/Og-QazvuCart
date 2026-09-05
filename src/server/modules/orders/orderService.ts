@@ -12,9 +12,12 @@ import {
   productImages,
   cartItems,
   carts,
+  couponRedemptions,
+  coupons,
 } from '@/src/db/schema';
 import { AddressService } from '../addresses/addressService';
 import { CartService } from '../cart/cartService';
+import { CouponService } from '../coupons/couponService';
 import { getDeliveryEstimate } from '@/src/lib/date';
 import { assertValidTransition, isValidOrderStatus } from '@/src/lib/orderStateMachine';
 
@@ -22,6 +25,7 @@ export interface CreateOrderParams {
   addressId?: number;
   shippingAddressSnapshot?: Record<string, unknown>;
   paymentMethod?: 'UPI' | 'CARD' | 'NETBANKING' | 'COD';
+  couponCode?: string;
   directBuyItem?: {
     productId: number;
     variantId?: number | null;
@@ -51,6 +55,30 @@ class OutOfStockError extends Error {}
 type DbClient = typeof db | PgTransaction<PgQueryResultHKT, typeof schema, ExtractTablesWithRelations<typeof schema>>;
 
 export class OrderService {
+  /**
+   * If this order redeemed a coupon, undoes it: removes the redemption
+   * row and decrements the coupon's used_count, freeing it up again.
+   * Called from every path that cancels/fails an order after creation
+   * (payment failure, expired reservation, user cancellation) — a
+   * customer whose payment fails or who cancels shouldn't lose their
+   * single-use coupon in the process.
+   */
+  private static async releaseCouponRedemption(tx: DbClient, orderId: number) {
+    const [redemption] = await tx
+      .select({ id: couponRedemptions.id, couponId: couponRedemptions.couponId })
+      .from(couponRedemptions)
+      .where(eq(couponRedemptions.orderId, orderId))
+      .limit(1);
+
+    if (!redemption) return;
+
+    await tx.delete(couponRedemptions).where(eq(couponRedemptions.id, redemption.id));
+    await tx
+      .update(coupons)
+      .set({ usedCount: sql`GREATEST(${coupons.usedCount} - 1, 0)` })
+      .where(eq(coupons.id, redemption.couponId));
+  }
+
   /**
    * Places an order inside a single PostgreSQL transaction:
    *   validate cart/products/variants -> price -> reserve inventory
@@ -226,7 +254,23 @@ export class OrderService {
       const subtotal = itemsToOrder.reduce((acc, item) => acc + item.totalPrice, 0);
       const maxEstimatedDays = Math.max(...itemsToOrder.map((i) => i.estimatedDays), 2);
       const deliveryFee = subtotal >= 999 ? 0 : Math.max(...itemsToOrder.map((i) => i.deliveryFee), 40);
-      const total = subtotal + deliveryFee;
+
+      // 4b. Coupon (optional) -------------------------------------------
+      // Re-validated here, inside the same transaction that will record
+      // the redemption, so a coupon can't be double-spent by two
+      // concurrent checkouts racing past a standalone check-then-act.
+      let couponDiscount = 0;
+      let appliedCoupon: Awaited<ReturnType<typeof CouponService.validate>>['coupon'] = undefined;
+      if (params.couponCode) {
+        const result = await CouponService.validate(params.couponCode, userId, subtotal, tx);
+        if (!result.valid) {
+          throw new Error(result.message);
+        }
+        couponDiscount = result.discountAmount;
+        appliedCoupon = result.coupon;
+      }
+
+      const total = subtotal - couponDiscount + deliveryFee;
       const deliveryEstimate = getDeliveryEstimate(maxEstimatedDays, deliveryFee);
 
       const orderNumber = `ORD-${Math.floor(100000 + Math.random() * 900000)}`;
@@ -254,7 +298,7 @@ export class OrderService {
           userId,
           status: initialStatus,
           subtotal,
-          discount: 0,
+          discount: couponDiscount,
           deliveryFee,
           total,
           shippingAddressSnapshot: addressSnapshot,
@@ -262,10 +306,15 @@ export class OrderService {
           paymentStatus: initialPaymentStatus,
           estimatedDeliveryDate: deliveryEstimate.dateString,
           paymentReservationExpiresAt: reservationExpiresAt,
+          couponCode: appliedCoupon?.code || null,
         })
         .returning({ id: orders.id });
 
       const orderId = order.id;
+
+      if (appliedCoupon) {
+        await CouponService.redeem(tx, appliedCoupon.id, userId, orderId, couponDiscount);
+      }
 
       // 6. Order items -----------------------------------------------------
       await tx.insert(orderItems).values(
@@ -359,6 +408,8 @@ export class OrderService {
         .set({ status: 'CANCELLED', paymentStatus: 'FAILED', paymentReservationExpiresAt: null, updatedAt: new Date() })
         .where(eq(orders.id, orderId));
 
+      await this.releaseCouponRedemption(tx, orderId);
+
       const items = await tx
         .select({ productId: orderItems.productId, variantId: orderItems.variantId, quantity: orderItems.quantity })
         .from(orderItems)
@@ -442,6 +493,7 @@ export class OrderService {
         status: o.status,
         subtotal: o.subtotal,
         discount: o.discount,
+        couponCode: o.couponCode,
         deliveryFee: o.deliveryFee,
         total: o.total,
         paymentMethod: o.paymentMethod,
@@ -528,6 +580,7 @@ export class OrderService {
       status: order.status,
       subtotal: order.subtotal,
       discount: order.discount,
+      couponCode: order.couponCode,
       deliveryFee: order.deliveryFee,
       total: order.total,
       shippingAddress: order.shippingAddressSnapshot,
@@ -564,6 +617,8 @@ export class OrderService {
       assertValidTransition(order.status, 'CANCELLED');
 
       await tx.update(orders).set({ status: 'CANCELLED', updatedAt: new Date() }).where(eq(orders.id, orderId));
+
+      await this.releaseCouponRedemption(tx, orderId);
 
       const items = await tx
         .select({ productId: orderItems.productId, variantId: orderItems.variantId, quantity: orderItems.quantity })

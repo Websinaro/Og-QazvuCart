@@ -5,6 +5,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ProductCard, ProductCardProps } from '@/src/components/product/ProductCard';
 import { ProductGridSkeleton } from '@/src/components/product/ProductCardSkeleton';
+import { useDealCountdown } from '@/src/lib/dealCountdown';
+import { RecentlyViewedRail } from '@/src/components/product/RecentlyViewedRail';
+import { TrendingRail } from '@/src/components/product/TrendingRail';
+import { PersonalizedRail } from '@/src/components/product/PersonalizedRail';
 import {
   Flame,
   Sparkles,
@@ -38,20 +42,8 @@ export default function HomePage() {
   const [featured, setFeatured] = useState<ProductCardProps[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Deal countdown state (hours, minutes, seconds)
-  const [timeLeft, setTimeLeft] = useState({ hours: 7, minutes: 42, seconds: 18 });
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
-        if (prev.minutes > 0) return { ...prev, minutes: 59, seconds: 59 };
-        if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        return { hours: 12, minutes: 0, seconds: 0 };
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+  // Deal countdown — counts down to real end-of-day, see useDealCountdown().
+  const timeLeft = useDealCountdown();
 
   useEffect(() => {
     async function loadHomeData() {
@@ -298,6 +290,11 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Picked For You — based on recently-viewed categories, hides itself for first-time visitors */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <PersonalizedRail />
+      </div>
+
       {/* 4. Featured Marketplace Products */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-12">
         <div className="flex items-center justify-between mb-6">
@@ -334,6 +331,16 @@ export default function HomePage() {
           </div>
         )}
       </section>
+
+      {/* Trending Now — real order-volume based ranking */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <TrendingRail />
+      </div>
+
+      {/* Recently Viewed — hides itself if there's no browsing history yet */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <RecentlyViewedRail />
+      </div>
 
       {/* 5. Trust Guarantee Banner */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-14">

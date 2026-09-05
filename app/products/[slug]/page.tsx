@@ -11,6 +11,8 @@ import { useWishlist } from '@/src/context/WishlistContext';
 import { useToast } from '@/src/context/ToastContext';
 import { authFetch } from '@/src/lib/api';
 import { flyToCart } from '@/src/lib/flyToCart';
+import { recordProductView } from '@/src/lib/recentlyViewed';
+import { RecentlyViewedRail } from '@/src/components/product/RecentlyViewedRail';
 import { ProductCard, ProductCardProps } from '@/src/components/product/ProductCard';
 import {
   Star,
@@ -187,6 +189,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
         if (json.success && json.data) {
           const p = json.data;
           setProduct(p);
+          recordProductView({ id: p.id, slug: p.slug || slug, categoryId: p.categoryId });
 
           // Extract first valid image URL
           let firstImage = typeof p.primaryImage === 'string' && p.primaryImage.trim() ? p.primaryImage.trim() : '';
@@ -1288,6 +1291,11 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
           </div>
         </div>
       )}
+
+      {/* Recently Viewed — excludes the product currently being viewed */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <RecentlyViewedRail excludeId={product.id} />
+      </div>
 
       {/* Lightbox / Fullscreen Image Preview Modal */}
       {isLightboxOpen && (

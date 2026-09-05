@@ -21,6 +21,7 @@ import {
   Package,
   X,
   Sparkles,
+  Tag,
 } from 'lucide-react';
 import { formatINR } from '@/src/lib/date';
 
@@ -75,6 +76,12 @@ export default function CheckoutPage() {
   const [isProcessingOrder, setIsProcessingOrder] = useState(false);
   const [placedOrder, setPlacedOrder] = useState<PlacedOrderData | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  // Coupon
+  const [couponInput, setCouponInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountAmount: number } | null>(null);
+  const [couponStatus, setCouponStatus] = useState<'idle' | 'checking' | 'error'>('idle');
+  const [couponError, setCouponError] = useState('');
 
   const fetchAddresses = useCallback(async () => {
     if (!isAuthenticated) return;
@@ -167,6 +174,38 @@ export default function CheckoutPage() {
     });
   };
 
+  const handleApplyCoupon = async () => {
+    if (!couponInput.trim()) return;
+    setCouponStatus('checking');
+    setCouponError('');
+    try {
+      const res = await authFetch('/api/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: couponInput.trim(), subtotal: cart.subtotal }),
+      });
+      const json = await res.json();
+      if (json.success && json.data.valid) {
+        setAppliedCoupon({ code: json.data.coupon.code, discountAmount: json.data.discountAmount });
+        setCouponStatus('idle');
+        success(`Coupon applied — you save ${formatINR(json.data.discountAmount)}`);
+      } else {
+        setCouponStatus('error');
+        setCouponError(json.data?.message || json.error?.message || 'Invalid coupon');
+      }
+    } catch {
+      setCouponStatus('error');
+      setCouponError('Could not validate coupon. Please try again.');
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponInput('');
+    setCouponStatus('idle');
+    setCouponError('');
+  };
+
   const handlePlaceOrder = async () => {
     if (!selectedAddressId) {
       error('Please select a delivery address');
@@ -182,6 +221,7 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           addressId: selectedAddressId,
           paymentMethod,
+          ...(appliedCoupon ? { couponCode: appliedCoupon.code } : {}),
         }),
       });
       const json = await res.json();
@@ -361,6 +401,7 @@ export default function CheckoutPage() {
   }
 
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId);
+  const finalTotal = Math.max(0, cart.grandTotal - (appliedCoupon?.discountAmount || 0));
 
   return (
     <div className="min-h-screen bg-neutral-50 pb-24">
@@ -649,6 +690,50 @@ export default function CheckoutPage() {
                 ))}
               </div>
 
+              {/* Coupon Code */}
+              <div className="pt-3 border-t border-neutral-100">
+                {appliedCoupon ? (
+                  <div className="flex items-center justify-between p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl">
+                    <div className="flex items-center gap-2 text-emerald-800">
+                      <Tag className="w-3.5 h-3.5" />
+                      <span className="text-xs font-bold">{appliedCoupon.code}</span>
+                      <span className="text-[11px] font-medium">applied</span>
+                    </div>
+                    <button
+                      onClick={handleRemoveCoupon}
+                      className="text-[11px] font-bold text-neutral-500 hover:text-red-600 cursor-pointer"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Coupon code"
+                        value={couponInput}
+                        onChange={(e) => {
+                          setCouponInput(e.target.value.toUpperCase());
+                          setCouponStatus('idle');
+                        }}
+                        className="flex-1 px-3 py-2 border border-neutral-300 rounded-xl text-xs font-bold text-neutral-900 uppercase focus:outline-none focus:ring-2 focus:ring-[#FFD21F]"
+                      />
+                      <button
+                        onClick={handleApplyCoupon}
+                        disabled={couponStatus === 'checking' || !couponInput.trim()}
+                        className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-[#FFD21F] font-bold text-xs rounded-xl disabled:opacity-50 cursor-pointer"
+                      >
+                        {couponStatus === 'checking' ? '...' : 'Apply'}
+                      </button>
+                    </div>
+                    {couponStatus === 'error' && (
+                      <p className="text-[11px] text-red-600 font-medium mt-1.5">{couponError}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+
               <div className="space-y-2 text-xs pt-3 border-t border-neutral-100">
                 <div className="flex justify-between text-neutral-600">
                   <span>Subtotal</span>
@@ -660,13 +745,19 @@ export default function CheckoutPage() {
                     <span>- {formatINR(cart.totalDiscount)}</span>
                   </div>
                 )}
+                {appliedCoupon && (
+                  <div className="flex justify-between text-emerald-600 font-semibold">
+                    <span>Coupon ({appliedCoupon.code})</span>
+                    <span>- {formatINR(appliedCoupon.discountAmount)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-neutral-600">
                   <span>Express Delivery</span>
                   <span>{cart.deliveryFee === 0 ? <strong className="text-emerald-700">FREE</strong> : formatINR(cart.deliveryFee)}</span>
                 </div>
                 <div className="flex justify-between text-base font-black text-neutral-950 pt-3 border-t border-neutral-200">
                   <span>Total Amount</span>
-                  <span>{formatINR(cart.grandTotal)}</span>
+                  <span>{formatINR(finalTotal)}</span>
                 </div>
               </div>
 
@@ -686,7 +777,7 @@ export default function CheckoutPage() {
                   <span className="inline-block animate-spin w-5 h-5 border-2 border-neutral-950 border-t-transparent rounded-full" />
                 ) : (
                   <>
-                    <span>Place Order & Pay {formatINR(cart.grandTotal)}</span>
+                    <span>Place Order & Pay {formatINR(finalTotal)}</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}

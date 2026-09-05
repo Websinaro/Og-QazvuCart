@@ -34,6 +34,7 @@ import {
   Sparkles,
   ImagePlus,
   Loader2,
+  BellRing,
 } from 'lucide-react';
 
 interface AnalyticsData {
@@ -139,7 +140,7 @@ export default function AdminDashboardPage() {
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { success, error } = useToast();
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'users' | 'categories'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'users' | 'categories' | 'notifications' | 'coupons'>('overview');
   const [isLoading, setIsLoading] = useState(true);
 
   // Analytics
@@ -167,6 +168,57 @@ export default function AdminDashboardPage() {
   const [newProdImageUploadProgress, setNewProdImageUploadProgress] = useState(0);
   const [newProdIsDeal, setNewProdIsDeal] = useState(false);
   const [newProdIsFeatured, setNewProdIsFeatured] = useState(false);
+
+  // Notifications (admin broadcast panel)
+  interface AdminNotificationRow {
+    id: number;
+    title: string;
+    body: string;
+    link: string | null;
+    target: 'ALL' | 'CUSTOMERS' | 'SELLERS';
+    recipientCount: number;
+    pushDeliveredCount: number;
+    pushFailedCount: number;
+    createdAt: string;
+    sentByUsername: string | null;
+  }
+  const [notifHistory, setNotifHistory] = useState<AdminNotificationRow[]>([]);
+  const [notifHistoryStatus, setNotifHistoryStatus] = useState<'loading' | 'error' | 'ready'>('loading');
+  const [notifTitle, setNotifTitle] = useState('');
+  const [notifBody, setNotifBody] = useState('');
+  const [notifLink, setNotifLink] = useState('');
+  const [notifTarget, setNotifTarget] = useState<'ALL' | 'CUSTOMERS' | 'SELLERS'>('ALL');
+  const [isSendingNotif, setIsSendingNotif] = useState(false);
+
+  // Coupons (admin CRUD panel)
+  interface AdminCouponRow {
+    id: number;
+    code: string;
+    description: string | null;
+    type: 'PERCENT' | 'FIXED';
+    value: number;
+    minOrderValue: number;
+    maxDiscountAmount: number | null;
+    usageLimit: number | null;
+    perUserLimit: number;
+    usedCount: number;
+    isActive: boolean;
+    expiresAt: string | null;
+    createdAt: string;
+  }
+  const [coupons, setCoupons] = useState<AdminCouponRow[]>([]);
+  const [couponsStatus, setCouponsStatus] = useState<'loading' | 'error' | 'ready'>('loading');
+  const [isAddCouponOpen, setIsAddCouponOpen] = useState(false);
+  const [newCouponCode, setNewCouponCode] = useState('');
+  const [newCouponDescription, setNewCouponDescription] = useState('');
+  const [newCouponType, setNewCouponType] = useState<'PERCENT' | 'FIXED'>('PERCENT');
+  const [newCouponValue, setNewCouponValue] = useState('10');
+  const [newCouponMinOrder, setNewCouponMinOrder] = useState('0');
+  const [newCouponMaxDiscount, setNewCouponMaxDiscount] = useState('');
+  const [newCouponUsageLimit, setNewCouponUsageLimit] = useState('');
+  const [newCouponPerUserLimit, setNewCouponPerUserLimit] = useState('1');
+  const [newCouponExpiresAt, setNewCouponExpiresAt] = useState('');
+  const [isCreatingCoupon, setIsCreatingCoupon] = useState(false);
 
   // Inline editing product
   const [editingProductId, setEditingProductId] = useState<number | null>(null);
@@ -213,6 +265,170 @@ export default function AdminDashboardPage() {
   // loadDashboardData below, which similarly omits it).
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const loadNotificationsData = useCallback(async () => {
+    setNotifHistoryStatus('loading');
+    try {
+      const res = await authFetch('/api/admin/notifications');
+      const json = await res.json();
+      if (json.success) {
+        setNotifHistory(json.data);
+        setNotifHistoryStatus('ready');
+      } else {
+        setNotifHistoryStatus('error');
+      }
+    } catch {
+      setNotifHistoryStatus('error');
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const loadCouponsData = useCallback(async () => {
+    setCouponsStatus('loading');
+    try {
+      const res = await authFetch('/api/admin/coupons');
+      const json = await res.json();
+      if (json.success) {
+        setCoupons(json.data);
+        setCouponsStatus('ready');
+      } else {
+        setCouponsStatus('error');
+      }
+    } catch {
+      setCouponsStatus('error');
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const resetCouponForm = () => {
+    setNewCouponCode('');
+    setNewCouponDescription('');
+    setNewCouponType('PERCENT');
+    setNewCouponValue('10');
+    setNewCouponMinOrder('0');
+    setNewCouponMaxDiscount('');
+    setNewCouponUsageLimit('');
+    setNewCouponPerUserLimit('1');
+    setNewCouponExpiresAt('');
+  };
+
+  const handleCreateCoupon = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const value = Number(newCouponValue);
+    if (!newCouponCode.trim()) {
+      error('Coupon code is required');
+      return;
+    }
+    if (!Number.isFinite(value) || value <= 0 || (newCouponType === 'PERCENT' && value > 100)) {
+      error('Enter a valid value (max 100 for percent-off coupons)');
+      return;
+    }
+    setIsCreatingCoupon(true);
+    try {
+      const res = await authFetch('/api/admin/coupons', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: newCouponCode.trim(),
+          description: newCouponDescription.trim() || undefined,
+          type: newCouponType,
+          value,
+          minOrderValue: Number(newCouponMinOrder) || 0,
+          maxDiscountAmount: newCouponMaxDiscount ? Number(newCouponMaxDiscount) : null,
+          usageLimit: newCouponUsageLimit ? Number(newCouponUsageLimit) : null,
+          perUserLimit: Number(newCouponPerUserLimit) || 1,
+          expiresAt: newCouponExpiresAt ? new Date(newCouponExpiresAt).toISOString() : null,
+        }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        success(`Coupon "${json.data.code}" created`);
+        resetCouponForm();
+        setIsAddCouponOpen(false);
+        loadCouponsData();
+      } else {
+        error(json.error?.message || 'Failed to create coupon');
+      }
+    } catch {
+      error('Failed to create coupon');
+    } finally {
+      setIsCreatingCoupon(false);
+    }
+  };
+
+  const handleToggleCoupon = async (id: number, isActive: boolean) => {
+    try {
+      const res = await authFetch(`/api/admin/coupons/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setCoupons((prev) => prev.map((c) => (c.id === id ? { ...c, isActive } : c)));
+      } else {
+        error(json.error?.message || 'Failed to update coupon');
+      }
+    } catch {
+      error('Failed to update coupon');
+    }
+  };
+
+  const handleDeleteCoupon = async (id: number, code: string) => {
+    if (!window.confirm(`Delete coupon "${code}"? This cannot be undone.`)) return;
+    try {
+      const res = await authFetch(`/api/admin/coupons/${id}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (json.success) {
+        setCoupons((prev) => prev.filter((c) => c.id !== id));
+        success('Coupon deleted');
+      } else {
+        error(json.error?.message || 'Failed to delete coupon');
+      }
+    } catch {
+      error('Failed to delete coupon');
+    }
+  };
+
+  const handleSendNotification = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!notifTitle.trim() || !notifBody.trim()) {
+      error('Title and message are required');
+      return;
+    }
+    setIsSendingNotif(true);
+    try {
+      const res = await authFetch('/api/admin/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: notifTitle.trim(),
+          body: notifBody.trim(),
+          link: notifLink.trim() || undefined,
+          target: notifTarget,
+        }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        success(
+          `Sent to ${json.data.recipientCount} user${json.data.recipientCount === 1 ? '' : 's'}` +
+            (json.data.pushDelivered > 0 ? ` — ${json.data.pushDelivered} push delivered` : '')
+        );
+        setNotifTitle('');
+        setNotifBody('');
+        setNotifLink('');
+        setNotifTarget('ALL');
+        loadNotificationsData();
+      } else {
+        error(json.error?.message || 'Failed to send notification');
+      }
+    } catch {
+      error('Failed to send notification');
+    } finally {
+      setIsSendingNotif(false);
+    }
+  };
+
 
   const resetCategoryForm = () => {
     setCatName('');
@@ -309,6 +525,20 @@ export default function AdminDashboardPage() {
       loadAdminCategories();
     }
   }, [activeTab, isAuthenticated, user?.role, loadAdminCategories]);
+
+  useEffect(() => {
+    if (activeTab === 'notifications' && isAuthenticated && user?.role === 'ADMIN') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      loadNotificationsData();
+    }
+  }, [activeTab, isAuthenticated, user?.role, loadNotificationsData]);
+
+  useEffect(() => {
+    if (activeTab === 'coupons' && isAuthenticated && user?.role === 'ADMIN') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      loadCouponsData();
+    }
+  }, [activeTab, isAuthenticated, user?.role, loadCouponsData]);
 
 
   // Load Data
@@ -716,6 +946,26 @@ export default function AdminDashboardPage() {
             }`}
           >
             <Users className="w-4 h-4" /> Users & Roles ({users.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('notifications')}
+            className={`flex items-center gap-2 py-3 px-4 text-xs font-bold border-b-2 transition-all whitespace-nowrap ${
+              activeTab === 'notifications'
+                ? 'border-[#FFD21F] text-[#FFD21F]'
+                : 'border-transparent text-neutral-400 hover:text-neutral-200 hover:border-neutral-700'
+            }`}
+          >
+            <BellRing className="w-4 h-4" /> Notifications
+          </button>
+          <button
+            onClick={() => setActiveTab('coupons')}
+            className={`flex items-center gap-2 py-3 px-4 text-xs font-bold border-b-2 transition-all whitespace-nowrap ${
+              activeTab === 'coupons'
+                ? 'border-[#FFD21F] text-[#FFD21F]'
+                : 'border-transparent text-neutral-400 hover:text-neutral-200 hover:border-neutral-700'
+            }`}
+          >
+            <Tag className="w-4 h-4" /> Coupons
           </button>
         </div>
       </header>
@@ -1604,6 +1854,251 @@ export default function AdminDashboardPage() {
             </div>
           </div>
         )}
+
+        {/* TAB: NOTIFICATIONS (compose + admin broadcast history) */}
+        {activeTab === 'notifications' && (
+          <div className="pb-10 grid grid-cols-1 lg:grid-cols-5 gap-6">
+            {/* Compose Panel */}
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-2xl border border-neutral-200 shadow-xs p-5 sticky top-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="w-8 h-8 rounded-lg bg-neutral-900 text-[#FFD21F] flex items-center justify-center">
+                    <BellRing className="w-4 h-4" />
+                  </span>
+                  <h3 className="font-black text-sm text-neutral-950">Send Notification</h3>
+                </div>
+
+                <form onSubmit={handleSendNotification} className="space-y-4 text-xs font-medium">
+                  <div>
+                    <label className="block text-neutral-700 font-bold mb-1">Title *</label>
+                    <input
+                      type="text"
+                      required
+                      maxLength={200}
+                      placeholder="e.g. Flash Sale — 50% off electronics!"
+                      value={notifTitle}
+                      onChange={(e) => setNotifTitle(e.target.value)}
+                      className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-neutral-700 font-bold mb-1">Message *</label>
+                    <textarea
+                      required
+                      rows={4}
+                      maxLength={2000}
+                      placeholder="Keep it short — this is what shows in the notification bell and push alert."
+                      value={notifBody}
+                      onChange={(e) => setNotifBody(e.target.value)}
+                      className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-neutral-700 font-bold mb-1">Link (optional)</label>
+                    <input
+                      type="text"
+                      placeholder="/products?isDeal=true"
+                      value={notifLink}
+                      onChange={(e) => setNotifLink(e.target.value)}
+                      className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900"
+                    />
+                    <p className="text-[10px] text-neutral-400 mt-1">
+                      Where tapping the notification takes the customer, e.g. a deals page or specific product.
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-neutral-700 font-bold mb-2">Send to</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {(['ALL', 'CUSTOMERS', 'SELLERS'] as const).map((t) => (
+                        <button
+                          key={t}
+                          type="button"
+                          onClick={() => setNotifTarget(t)}
+                          className={`py-2 rounded-xl border text-[11px] font-bold transition-colors cursor-pointer ${
+                            notifTarget === t
+                              ? 'bg-neutral-900 text-[#FFD21F] border-neutral-900'
+                              : 'bg-white text-neutral-600 border-neutral-300 hover:border-neutral-400'
+                          }`}
+                        >
+                          {t === 'ALL' ? 'Everyone' : t === 'CUSTOMERS' ? 'Customers' : 'Sellers'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={isSendingNotif}
+                    className="w-full py-3 bg-[#FFD21F] hover:bg-[#ebc21a] text-neutral-950 font-black text-xs rounded-xl shadow-sm transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <BellRing className="w-4 h-4" />
+                    {isSendingNotif ? 'Sending…' : 'Send Notification'}
+                  </button>
+                  <p className="text-[10px] text-neutral-400 text-center">
+                    Delivers instantly to the in-app bell for every matching user, plus a push alert for anyone who has
+                    push notifications enabled.
+                  </p>
+                </form>
+              </div>
+            </div>
+
+            {/* History Panel */}
+            <div className="lg:col-span-3">
+              <div className="bg-white rounded-2xl border border-neutral-200 shadow-xs overflow-hidden">
+                <div className="p-4 border-b border-neutral-100 flex items-center justify-between">
+                  <h3 className="font-black text-sm text-neutral-950">Broadcast History</h3>
+                  <button
+                    onClick={loadNotificationsData}
+                    className="flex items-center gap-1 text-[11px] font-bold text-neutral-500 hover:text-neutral-900 cursor-pointer"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" /> Refresh
+                  </button>
+                </div>
+
+                {notifHistoryStatus === 'loading' ? (
+                  <div className="p-8 text-center text-xs text-neutral-400 font-medium">Loading history…</div>
+                ) : notifHistoryStatus === 'error' ? (
+                  <div className="p-8 text-center text-xs text-red-500 font-medium">Couldn&apos;t load broadcast history.</div>
+                ) : notifHistory.length === 0 ? (
+                  <div className="p-10 text-center">
+                    <BellRing className="w-8 h-8 text-neutral-300 mx-auto mb-2" />
+                    <p className="text-xs text-neutral-500 font-medium">No notifications sent yet</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-neutral-100 max-h-[32rem] overflow-y-auto">
+                    {notifHistory.map((n) => (
+                      <div key={n.id} className="p-4">
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <h4 className="text-xs font-bold text-neutral-900">{n.title}</h4>
+                          <span className="shrink-0 text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-md bg-neutral-100 text-neutral-600">
+                            {n.target}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-neutral-600 mb-2 line-clamp-2">{n.body}</p>
+                        <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-[10px] text-neutral-400 font-medium">
+                          <span>{new Date(n.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                          <span>·</span>
+                          <span>By {n.sentByUsername || 'Admin'}</span>
+                          <span>·</span>
+                          <span className="text-neutral-600 font-bold">{n.recipientCount} recipients</span>
+                          {n.pushDeliveredCount > 0 && (
+                            <span className="text-emerald-600 font-bold">{n.pushDeliveredCount} push delivered</span>
+                          )}
+                          {n.pushFailedCount > 0 && (
+                            <span className="text-red-500 font-bold">{n.pushFailedCount} push failed</span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB: COUPONS */}
+        {activeTab === 'coupons' && (
+          <div className="pb-10">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="font-black text-lg text-neutral-950">Coupons</h2>
+                <p className="text-xs text-neutral-500">Create and manage discount codes for checkout.</p>
+              </div>
+              <button
+                onClick={() => setIsAddCouponOpen(true)}
+                className="flex items-center gap-1.5 px-4 py-2.5 bg-[#FFD21F] hover:bg-[#ebc21a] text-neutral-950 font-bold text-xs rounded-xl shadow-sm transition-colors cursor-pointer"
+              >
+                <Plus className="w-4 h-4" /> New Coupon
+              </button>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-neutral-200 shadow-xs overflow-hidden">
+              {couponsStatus === 'loading' ? (
+                <div className="p-8 text-center text-xs text-neutral-400 font-medium">Loading coupons…</div>
+              ) : couponsStatus === 'error' ? (
+                <div className="p-8 text-center text-xs text-red-500 font-medium">Couldn&apos;t load coupons.</div>
+              ) : coupons.length === 0 ? (
+                <div className="p-10 text-center">
+                  <Tag className="w-8 h-8 text-neutral-300 mx-auto mb-2" />
+                  <p className="text-xs text-neutral-500 font-medium">No coupons created yet</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-neutral-100 text-neutral-400 uppercase text-[10px] font-bold">
+                        <th className="text-left py-3 px-4">Code</th>
+                        <th className="text-left py-3 px-4">Discount</th>
+                        <th className="text-left py-3 px-4">Min Order</th>
+                        <th className="text-left py-3 px-4">Usage</th>
+                        <th className="text-left py-3 px-4">Expires</th>
+                        <th className="text-left py-3 px-4">Status</th>
+                        <th className="text-right py-3 px-4">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {coupons.map((c) => {
+                        const isExpired = c.expiresAt ? new Date(c.expiresAt) < new Date() : false;
+                        return (
+                          <tr key={c.id} className="border-b border-neutral-50 last:border-0 hover:bg-neutral-50/50">
+                            <td className="py-3 px-4">
+                              <div className="font-black text-neutral-900">{c.code}</div>
+                              {c.description && <div className="text-[10px] text-neutral-400">{c.description}</div>}
+                            </td>
+                            <td className="py-3 px-4 font-bold text-neutral-700">
+                              {c.type === 'PERCENT' ? `${c.value}% off` : `${formatINR(c.value)} off`}
+                              {c.type === 'PERCENT' && c.maxDiscountAmount && (
+                                <div className="text-[10px] text-neutral-400 font-medium">
+                                  up to {formatINR(c.maxDiscountAmount)}
+                                </div>
+                              )}
+                            </td>
+                            <td className="py-3 px-4 text-neutral-600">{c.minOrderValue > 0 ? formatINR(c.minOrderValue) : '—'}</td>
+                            <td className="py-3 px-4 text-neutral-600">
+                              {c.usedCount}
+                              {c.usageLimit ? ` / ${c.usageLimit}` : ''} total
+                              <div className="text-[10px] text-neutral-400">{c.perUserLimit}/customer</div>
+                            </td>
+                            <td className="py-3 px-4 text-neutral-600">
+                              {c.expiresAt ? (
+                                <span className={isExpired ? 'text-red-500 font-bold' : ''}>
+                                  {new Date(c.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                </span>
+                              ) : (
+                                'Never'
+                              )}
+                            </td>
+                            <td className="py-3 px-4">
+                              <button
+                                onClick={() => handleToggleCoupon(c.id, !c.isActive)}
+                                className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase cursor-pointer ${
+                                  c.isActive && !isExpired
+                                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                    : 'bg-neutral-100 text-neutral-500 border border-neutral-300'
+                                }`}
+                              >
+                                {isExpired ? 'Expired' : c.isActive ? 'Active' : 'Paused'}
+                              </button>
+                            </td>
+                            <td className="py-3 px-4 text-right">
+                              <button
+                                onClick={() => handleDeleteCoupon(c.id, c.code)}
+                                className="p-1.5 text-neutral-400 hover:text-red-600 cursor-pointer"
+                                title="Delete coupon"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Add Product Modal */}
@@ -1822,6 +2317,177 @@ export default function AdminDashboardPage() {
                   className="px-6 py-2.5 bg-neutral-950 hover:bg-neutral-800 text-[#FFD21F] font-extrabold rounded-xl transition-all shadow-md"
                 >
                   Publish Product
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ADD COUPON MODAL */}
+      {isAddCouponOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={() => {
+            setIsAddCouponOpen(false);
+            resetCouponForm();
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl"
+          >
+            <div className="flex items-center justify-between px-5 py-4 bg-[#111111] rounded-t-2xl sticky top-0">
+              <h3 className="text-white font-extrabold flex items-center gap-2">
+                <Tag className="w-4 h-4 text-[#FFD21F]" /> New Coupon
+              </h3>
+              <button
+                onClick={() => {
+                  setIsAddCouponOpen(false);
+                  resetCouponForm();
+                }}
+                className="text-neutral-400 hover:text-white cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateCoupon} className="p-5 space-y-3.5 text-xs">
+              <div>
+                <label className="block text-neutral-700 font-bold mb-1">Coupon Code *</label>
+                <input
+                  value={newCouponCode}
+                  onChange={(e) => setNewCouponCode(e.target.value.toUpperCase())}
+                  placeholder="e.g. WELCOME50"
+                  maxLength={30}
+                  required
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-black uppercase text-neutral-900 tracking-wide"
+                />
+              </div>
+
+              <div>
+                <label className="block text-neutral-700 font-bold mb-1">Description (optional, internal note)</label>
+                <input
+                  value={newCouponDescription}
+                  onChange={(e) => setNewCouponDescription(e.target.value)}
+                  placeholder="e.g. New customer welcome offer"
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-neutral-700 font-bold mb-1">Discount Type</label>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {(['PERCENT', 'FIXED'] as const).map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => setNewCouponType(t)}
+                        className={`py-2 rounded-xl border text-[11px] font-bold cursor-pointer ${
+                          newCouponType === t
+                            ? 'bg-neutral-900 text-[#FFD21F] border-neutral-900'
+                            : 'bg-white text-neutral-600 border-neutral-300'
+                        }`}
+                      >
+                        {t === 'PERCENT' ? '% Off' : '₹ Off'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-neutral-700 font-bold mb-1">
+                    Value * {newCouponType === 'PERCENT' ? '(%)' : '(₹)'}
+                  </label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={newCouponType === 'PERCENT' ? 100 : undefined}
+                    value={newCouponValue}
+                    onChange={(e) => setNewCouponValue(e.target.value)}
+                    required
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-neutral-700 font-bold mb-1">Min Order Value (₹)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={newCouponMinOrder}
+                    onChange={(e) => setNewCouponMinOrder(e.target.value)}
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900"
+                  />
+                </div>
+                {newCouponType === 'PERCENT' && (
+                  <div>
+                    <label className="block text-neutral-700 font-bold mb-1">Max Discount (₹, optional)</label>
+                    <input
+                      type="number"
+                      min={0}
+                      placeholder="No cap"
+                      value={newCouponMaxDiscount}
+                      onChange={(e) => setNewCouponMaxDiscount(e.target.value)}
+                      className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-neutral-700 font-bold mb-1">Total Usage Limit</label>
+                  <input
+                    type="number"
+                    min={1}
+                    placeholder="Unlimited"
+                    value={newCouponUsageLimit}
+                    onChange={(e) => setNewCouponUsageLimit(e.target.value)}
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-neutral-700 font-bold mb-1">Uses Per Customer</label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={newCouponPerUserLimit}
+                    onChange={(e) => setNewCouponPerUserLimit(e.target.value)}
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-neutral-700 font-bold mb-1">Expires On (optional)</label>
+                <input
+                  type="date"
+                  value={newCouponExpiresAt}
+                  onChange={(e) => setNewCouponExpiresAt(e.target.value)}
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900"
+                />
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsAddCouponOpen(false);
+                    resetCouponForm();
+                  }}
+                  className="flex-1 py-2.5 border border-neutral-300 rounded-xl font-bold text-neutral-700 hover:bg-neutral-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isCreatingCoupon}
+                  className="flex-1 py-2.5 bg-[#FFD21F] hover:bg-[#ebc21a] text-neutral-950 font-extrabold rounded-xl shadow-sm disabled:opacity-50 cursor-pointer"
+                >
+                  {isCreatingCoupon ? 'Creating…' : 'Create Coupon'}
                 </button>
               </div>
             </form>
