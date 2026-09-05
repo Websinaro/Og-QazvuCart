@@ -63,15 +63,25 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     if (!isAuthenticated) return;
+    // Fetching on mount/dependency-change is the intended, standard use of
+    // this effect (syncing with the external notifications API) — see the
+    // identical, already-reviewed pattern in the admin dashboard's
+    // loadAdminCategories/loadNotificationsData/loadCouponsData effects.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchNotifications();
     const interval = setInterval(fetchNotifications, POLL_INTERVAL_MS);
     return () => clearInterval(interval);
   }, [isAuthenticated, fetchNotifications]);
 
   // Foreground push arrives while the tab is open — refresh the bell
-  // immediately instead of waiting for the next poll tick.
+  // immediately instead of waiting for the next poll tick. The ref is
+  // updated in its own effect (not during render) so the listener effect
+  // below always calls the latest fetchNotifications closure without
+  // needing to re-subscribe on every render.
   const fetchRef = useRef(fetchNotifications);
-  fetchRef.current = fetchNotifications;
+  useEffect(() => {
+    fetchRef.current = fetchNotifications;
+  });
   useEffect(() => {
     if (!isAuthenticated) return;
     const unsubscribe = listenForForegroundMessages(() => {

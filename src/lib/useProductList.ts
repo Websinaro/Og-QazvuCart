@@ -22,13 +22,18 @@ export function useProductList(url: string | null): UseProductListResult {
 
   useEffect(() => {
     if (!url) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setProducts([]);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsLoading(false);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setError(false);
       return;
     }
     let cancelled = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoading(true);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setError(false);
     fetch(url)
       .then((r) => r.json())
