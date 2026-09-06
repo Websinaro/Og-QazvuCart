@@ -71,6 +71,22 @@
     max-width: 100%;
     height: auto;
   }
+
+  /* Belt-and-suspenders #2 for the Android Chrome "Auto Dark Theme for Web
+     Content" bug (see app/layout.tsx `viewport.colorScheme` for #1).
+     `color-scheme: light` on <html> should be sufficient on its own, but if
+     it's ever not honored (stale cache, a future browser quirk, an embedded
+     webview that ignores the meta tag), Chrome's force-dark heuristic
+     specifically targets *unstyled* neutral-gray icon buttons — a
+     transparent/inherited button background is what makes it a target.
+     Declaring `color-scheme: light` directly on every header button/link,
+     regardless of styling, opts each one out individually so a single
+     missed case can never make an icon (bell, hamburger, avatar, etc.)
+     silently vanish again. */
+  header button,
+  header a {
+    color-scheme: light;
+  }
 }
 
 /* Skeleton loading shimmer — used by ProductCardSkeleton and any other
