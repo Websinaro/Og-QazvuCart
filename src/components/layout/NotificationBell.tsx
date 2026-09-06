@@ -90,7 +90,7 @@ export function NotificationBell() {
         // being enough on current Chrome; not being a native control is
         // what keeps the icon visible.
         className="relative p-2 rounded-xl bg-white hover:bg-neutral-100 text-neutral-700 hover:text-neutral-950 transition-colors cursor-pointer select-none force-dark-safe"
-        style={{ colorScheme: 'light' }}
+        style={{ colorScheme: 'only light' }}
         aria-label="Notifications"
         title="Notifications"
       >

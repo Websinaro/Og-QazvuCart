@@ -2,16 +2,19 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { AppProviders } from '@/src/components/providers/AppProviders';
 
-// Tells the browser this site only supports a light theme. Without this,
-// Android Chrome's "Auto dark theme for web content" heuristic can forcibly
-// re-invert colors on native form controls like <button> — it's aggressive
-// with neutral grays inside buttons (turning the hamburger/bell icons
-// near-white on a white header) but leaves plain links (wishlist heart) and
-// saturated brand colors (cart's yellow) alone, which is exactly the pattern
-// reported. `color-scheme: light` (also set in globals.css) makes Chrome
-// skip that heuristic entirely.
+// Tells the browser this site only supports a light theme.
+// `only light` (not just `light`) is the important part: plain `light`
+// is a preference the browser can still override, which is why it wasn't
+// enough — some phones (this bug was confirmed on an Oppo/ColorOS device)
+// run their own OS-level forced-dark repaint on top of Chrome that inverts
+// rendered pixels regardless of element type, ignoring plain `light`. The
+// `only` keyword is a hard declaration ("this page has no dark variant at
+// all, don't ever auto-adapt it") that both Chromium's automatic dark-theme
+// heuristic and its manually-forced dark mode setting are specced to
+// respect and skip entirely. `color-scheme: only light` (also set in
+// globals.css) is what actually makes the icons immune to this.
 export const viewport: Viewport = {
-  colorScheme: 'light',
+  colorScheme: 'only light',
   themeColor: '#0a0a0a',
 };
 

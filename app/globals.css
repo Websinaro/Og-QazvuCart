@@ -7,8 +7,13 @@
        app/layout.tsx: explicitly declare this page as light-only so Chrome's
        Android "Auto dark theme for web content" never kicks in and inverts
        neutral-gray icons inside <button> elements (hamburger, bell) to
-       near-white/invisible against the white header. */
-    color-scheme: light;
+       near-white/invisible against the white header. Must be `only light`,
+       not just `light` — plain `light` is a preference the browser (and
+       some OEM Android skins, e.g. ColorOS/MIUI's own forced-dark layer on
+       top of Chrome) can still override. `only` is a hard declaration with
+       no dark variant to fall back to, which both Chromium's automatic and
+       manually-forced dark modes are specced to fully respect. */
+    color-scheme: only light;
     /* Prevent any element from ever creating horizontal scroll/"shake" on
        narrow viewports, and stop iOS Safari's elastic bounce in the X
        direction (the usual cause of a page that visibly wobbles side to
@@ -84,8 +89,9 @@
      missed case can never make an icon (bell, hamburger, avatar, etc.)
      silently vanish again. */
   header button,
-  header a {
-    color-scheme: light;
+  header a,
+  header div[role="button"] {
+    color-scheme: only light;
   }
 }
 

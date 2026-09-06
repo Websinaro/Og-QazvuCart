@@ -157,7 +157,7 @@ export function Header() {
                 // which patched that bypass. Not being a native control is
                 // what actually keeps this icon visible.
                 className="lg:hidden p-2 bg-white text-neutral-700 hover:text-neutral-900 rounded-lg hover:bg-neutral-100 cursor-pointer select-none force-dark-safe"
-                style={{ colorScheme: 'light' }}
+                style={{ colorScheme: 'only light' }}
                 aria-label="Toggle menu"
               >
                 {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -250,7 +250,7 @@ export function Header() {
                     // color; the surrounding trigger's own bg-white/gray
                     // chevron were.
                     className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-2 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 transition-colors cursor-pointer select-none force-dark-safe"
-                    style={{ colorScheme: 'light' }}
+                    style={{ colorScheme: 'only light' }}
                   >
                     <div className="w-8 h-8 rounded-full bg-neutral-900 text-[#FFD21F] font-bold text-xs flex items-center justify-center shrink-0">
                       {user.username.charAt(0).toUpperCase()}
@@ -276,7 +276,7 @@ export function Header() {
                     }}
                     aria-label="Sign in"
                     className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 transition-colors text-xs font-bold cursor-pointer select-none force-dark-safe"
-                    style={{ colorScheme: 'light' }}
+                    style={{ colorScheme: 'only light' }}
                   >
                     <UserIcon className="w-4 h-4 text-neutral-700" />
                     <span className="hidden sm:inline">Sign In</span>
@@ -379,7 +379,7 @@ export function Header() {
               <Link
                 href="/account?tab=wishlist"
                 className="relative p-2 rounded-xl bg-white hover:bg-neutral-100 text-neutral-700 hover:text-neutral-950 transition-colors force-dark-safe"
-                style={{ colorScheme: 'light' }}
+                style={{ colorScheme: 'only light' }}
                 title="My Wishlist"
               >
                 <Heart className="w-5 h-5" />
@@ -494,7 +494,7 @@ export function Header() {
                   // See the toggle button above — same native-<button>
                   // force-dark issue, same div+role fix.
                   className="p-1.5 rounded-full bg-white hover:bg-neutral-100 text-neutral-500 cursor-pointer select-none force-dark-safe"
-                  style={{ colorScheme: 'light' }}
+                  style={{ colorScheme: 'only light' }}
                 >
                   <X className="w-5 h-5" />
                 </div>
