@@ -131,6 +131,22 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     }
   }, []);
 
+  // Self-healing: if the browser already granted permission in a past
+  // session (e.g. before a bug was fixed server-side, or the token
+  // expired/rotated), the "Enable notifications" banner never shows again
+  // — permission is already 'granted' — so there'd otherwise be no way to
+  // retry registration. Silently re-registers once per app load whenever
+  // permission is already granted; requesting again when already granted
+  // just resolves immediately without showing a prompt, so this is
+  // invisible to the person unless it needed to fix something.
+  const hasAutoRegisteredRef = useRef(false);
+  useEffect(() => {
+    if (!isAuthenticated || pushPermission !== 'granted' || hasAutoRegisteredRef.current) return;
+    hasAutoRegisteredRef.current = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    enablePush();
+  }, [isAuthenticated, pushPermission, enablePush]);
+
   return (
     <NotificationContext.Provider
       value={{
