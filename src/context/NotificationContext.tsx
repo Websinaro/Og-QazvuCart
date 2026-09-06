@@ -23,7 +23,7 @@ interface NotificationContextType {
   refresh: () => Promise<void>;
   markRead: (id: number) => Promise<void>;
   markAllRead: () => Promise<void>;
-  enablePush: () => Promise<boolean>;
+  enablePush: () => Promise<{ success: boolean; reason?: string }>;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -111,23 +111,23 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     }
   }, []);
 
-  const enablePush = useCallback(async (): Promise<boolean> => {
-    const token = await requestPushPermissionAndToken();
+  const enablePush = useCallback(async (): Promise<{ success: boolean; reason?: string }> => {
+    const result = await requestPushPermissionAndToken();
     setPushPermission(
       typeof window !== 'undefined' && 'Notification' in window
         ? (Notification.permission as 'default' | 'granted' | 'denied')
         : 'unsupported'
     );
-    if (!token) return false;
+    if (!result.token) return { success: false, reason: result.reason };
     try {
       await authFetch('/api/notifications/register-token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify({ token: result.token }),
       });
-      return true;
+      return { success: true };
     } catch {
-      return false;
+      return { success: false, reason: 'registration_failed' };
     }
   }, []);
 

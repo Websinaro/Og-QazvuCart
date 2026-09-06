@@ -40,19 +40,33 @@ export async function isPushSupported(): Promise<boolean> {
   }
 }
 
+export type PushRequestFailureReason =
+  | 'unsupported'
+  | 'not_configured'
+  | 'permission_denied'
+  | 'registration_failed';
+
+export interface PushRequestResult {
+  token: string | null;
+  reason?: PushRequestFailureReason;
+}
+
 /**
  * Prompts the browser's native permission dialog, registers the FCM
  * service worker, and returns a device token to send to the backend.
- * Returns null (never throws) if push isn't supported, isn't configured,
- * or the person declines — callers should treat all of those the same
- * way: push notifications are simply unavailable this time.
+ * Never throws — every failure mode is reported via `reason` so the
+ * calling UI can tell the person *why* (unsupported browser, missing
+ * server config, permission denied, or a registration error) instead of
+ * push notifications just silently not working.
  */
-export async function requestPushPermissionAndToken(): Promise<string | null> {
-  if (!(await isPushSupported())) return null;
+export async function requestPushPermissionAndToken(): Promise<PushRequestResult> {
+  if (typeof window === 'undefined') return { token: null, reason: 'unsupported' };
+  if (!isFirebaseConfigured()) return { token: null, reason: 'not_configured' };
+  if (!(await isPushSupported())) return { token: null, reason: 'unsupported' };
 
   try {
     const permission = await Notification.requestPermission();
-    if (permission !== 'granted') return null;
+    if (permission !== 'granted') return { token: null, reason: 'permission_denied' };
 
     const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
     const messaging = getMessaging(getFirebaseApp());
@@ -60,10 +74,10 @@ export async function requestPushPermissionAndToken(): Promise<string | null> {
       vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
       serviceWorkerRegistration: registration,
     });
-    return token || null;
+    return token ? { token } : { token: null, reason: 'registration_failed' };
   } catch (err) {
     console.error('[firebaseClient] push permission/token request failed:', err);
-    return null;
+    return { token: null, reason: 'registration_failed' };
   }
 }
 

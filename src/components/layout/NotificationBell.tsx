@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Bell, Check, CheckCheck, BellRing } from 'lucide-react';
 import { useNotifications } from '@/src/context/NotificationContext';
 import { useAuth } from '@/src/context/AuthContext';
+import { useToast } from '@/src/context/ToastContext';
 
 function timeAgo(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -22,6 +23,29 @@ function timeAgo(iso: string): string {
 export function NotificationBell() {
   const { isAuthenticated } = useAuth();
   const { notifications, unreadCount, pushPermission, markRead, markAllRead, enablePush } = useNotifications();
+  const { error: showError, success: showSuccess } = useToast();
+  const [isEnablingPush, setIsEnablingPush] = useState(false);
+
+  const PUSH_FAILURE_MESSAGES: Record<string, string> = {
+    unsupported: "This browser doesn't support push notifications.",
+    not_configured: 'Push notifications are not set up on this server yet.',
+    permission_denied: 'Notifications were blocked. Enable them in your browser/site settings and try again.',
+    registration_failed: 'Could not enable push notifications. Please try again.',
+  };
+
+  const handleEnablePush = async () => {
+    setIsEnablingPush(true);
+    try {
+      const result = await enablePush();
+      if (result.success) {
+        showSuccess('Push notifications enabled');
+      } else {
+        showError(PUSH_FAILURE_MESSAGES[result.reason || 'registration_failed']);
+      }
+    } finally {
+      setIsEnablingPush(false);
+    }
+  };
   const [isOpen, setIsOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -89,10 +113,11 @@ export function NotificationBell() {
                     Turn on push notifications for order updates & deals
                   </p>
                   <button
-                    onClick={() => enablePush()}
-                    className="mt-1.5 text-[11px] font-bold text-amber-900 underline underline-offset-2 cursor-pointer"
+                    onClick={handleEnablePush}
+                    disabled={isEnablingPush}
+                    className="mt-1.5 text-[11px] font-bold text-amber-900 underline underline-offset-2 cursor-pointer disabled:opacity-50"
                   >
-                    Enable notifications
+                    {isEnablingPush ? 'Enabling…' : 'Enable notifications'}
                   </button>
                 </div>
               </div>
