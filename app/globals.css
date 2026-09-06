@@ -89,6 +89,28 @@
   }
 }
 
+/* Last-resort defense against Chrome's *manually forced* "Force dark mode
+   for web contents" setting (Settings > Accessibility > Dark theme, or
+   chrome://flags/#enable-force-dark). Unlike the automatic "Auto Dark
+   Theme" heuristic, this hard override ignores `color-scheme: light`
+   completely — it isn't a per-site opt-out, it's a blanket browser-level
+   repaint applied to every page. That repaint happens when Chrome
+   rasterizes an element on the main thread; elements promoted to their own
+   GPU compositing layer are handled by the compositor instead and are
+   skipped by that repaint pass. Forcing a layer via `translateZ(0)` is the
+   standard workaround sites use for icons that keep inverting even with
+   color-scheme declared correctly. If icons STILL vanish after this, the
+   phone has force-dark hard-enabled and only disabling it in Chrome's own
+   settings will fix it — no page-side code can override a manually forced
+   browser accessibility setting. */
+@layer utilities {
+  .force-dark-safe {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    isolation: isolate;
+  }
+}
+
 /* Skeleton loading shimmer — used by ProductCardSkeleton and any other
    loading placeholder. A soft left-to-right sweep over a neutral base,
    rather than a flat animate-pulse block, reads as "content incoming"

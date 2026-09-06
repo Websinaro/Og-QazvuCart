@@ -73,7 +73,7 @@ export function NotificationBell() {
     <div ref={panelRef}>
       <button
         onClick={() => setIsOpen((v) => !v)}
-        className="relative p-2 rounded-xl bg-white hover:bg-neutral-100 text-neutral-700 hover:text-neutral-950 transition-colors cursor-pointer"
+        className="relative p-2 rounded-xl bg-white hover:bg-neutral-100 text-neutral-700 hover:text-neutral-950 transition-colors cursor-pointer force-dark-safe"
         style={{ colorScheme: 'light' }}
         aria-label="Notifications"
         title="Notifications"
