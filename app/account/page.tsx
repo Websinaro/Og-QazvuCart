@@ -741,7 +741,15 @@ function AccountDashboardContent() {
                               referrerPolicy="no-referrer"
                             />
                             <button
-                              onClick={() => toggleWishlist(item.productId)}
+                              onClick={async () => {
+                                try {
+                                  await toggleWishlist(item.productId);
+                                  success('Removed from Wishlist');
+                                } catch (err: unknown) {
+                                  const errObj = err as Error;
+                                  error(errObj.message || 'Could not remove item');
+                                }
+                              }}
                               className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-full text-red-600 shadow-xs hover:bg-white"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -758,7 +766,15 @@ function AccountDashboardContent() {
                         </div>
 
                         <button
-                          onClick={() => moveToCart(item.productId)}
+                          onClick={async () => {
+                            try {
+                              await moveToCart(item.productId);
+                              success('Moved to cart');
+                            } catch (err: unknown) {
+                              const errObj = err as Error;
+                              error(errObj.message || 'Could not move item to cart');
+                            }
+                          }}
                           className="w-full mt-3 sm:mt-4 py-2 sm:py-2.5 bg-[#FFD21F] hover:bg-[#ebc21a] text-neutral-950 font-bold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                           <ShoppingBag className="w-3.5 h-3.5" />

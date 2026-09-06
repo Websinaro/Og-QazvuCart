@@ -3,6 +3,12 @@
 
 @layer base {
   html {
+    /* Belt-and-suspenders alongside the `viewport.colorScheme` export in
+       app/layout.tsx: explicitly declare this page as light-only so Chrome's
+       Android "Auto dark theme for web content" never kicks in and inverts
+       neutral-gray icons inside <button> elements (hamburger, bell) to
+       near-white/invisible against the white header. */
+    color-scheme: light;
     /* Prevent any element from ever creating horizontal scroll/"shake" on
        narrow viewports, and stop iOS Safari's elastic bounce in the X
        direction (the usual cause of a page that visibly wobbles side to

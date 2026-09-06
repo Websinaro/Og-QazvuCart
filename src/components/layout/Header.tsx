@@ -207,9 +207,9 @@ export function Header() {
             </form>
 
             {/* Right Action Icons (Auth, Wishlist, Cart) */}
-            <div className="flex items-center gap-2 sm:gap-4">
+            <div className="relative flex items-center gap-2 sm:gap-4">
               {/* User Account Menu */}
-              <div className="relative">
+              <div>
                 {isAuthenticated && user ? (
                   <button
                     ref={userMenuTriggerRef}
