@@ -43,7 +43,7 @@ export function Header() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const userMenuTriggerRef = useRef<HTMLButtonElement>(null);
+  const userMenuTriggerRef = useRef<HTMLDivElement>(null);
 
   // Escape closes the profile dropdown and returns focus to its trigger.
   useEffect(() => {
@@ -137,14 +137,31 @@ export function Header() {
           <div className="flex items-center justify-between gap-3 sm:gap-6">
             {/* Mobile Menu Toggle & Brand Logo */}
             <div className="flex items-center gap-3">
-              <button
+              <div
+                role="button"
+                tabIndex={0}
                 onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-                className="lg:hidden p-2 bg-white text-neutral-700 hover:text-neutral-900 rounded-lg hover:bg-neutral-100 force-dark-safe"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setIsMobileMenuOpen((prev) => !prev);
+                  }
+                }}
+                // Deliberately a <div role="button">, not a native <button>.
+                // Android Chrome's "Auto dark theme for web content" heuristic
+                // specifically re-inverts neutral-gray icons inside native
+                // form controls (button/input/select) — it left plain <a>
+                // links (e.g. the wishlist heart, same bg-white/text-neutral
+                // styling) untouched. The old fix (color-scheme + translateZ
+                // GPU-layer promotion) stopped working on current Chrome,
+                // which patched that bypass. Not being a native control is
+                // what actually keeps this icon visible.
+                className="lg:hidden p-2 bg-white text-neutral-700 hover:text-neutral-900 rounded-lg hover:bg-neutral-100 cursor-pointer select-none force-dark-safe"
                 style={{ colorScheme: 'light' }}
                 aria-label="Toggle menu"
               >
                 {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </button>
+              </div>
 
               <Link href="/" className="flex items-center gap-1.5 group">
                 <div className="w-9 h-9 rounded-xl bg-neutral-950 flex items-center justify-center font-black text-xl text-[#FFD21F] shadow-sm group-hover:scale-105 transition-transform">
@@ -212,13 +229,27 @@ export function Header() {
               {/* User Account Menu */}
               <div>
                 {isAuthenticated && user ? (
-                  <button
+                  <div
                     ref={userMenuTriggerRef}
+                    role="button"
+                    tabIndex={0}
                     onClick={() => setIsUserMenuOpen((prev) => !prev)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setIsUserMenuOpen((prev) => !prev);
+                      }
+                    }}
                     aria-haspopup="menu"
                     aria-expanded={isUserMenuOpen}
                     aria-label="Open account menu"
-                    className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-2 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 transition-colors force-dark-safe"
+                    // <div role="button"> instead of a native <button> — see
+                    // the mobile menu toggle comment for why. The avatar
+                    // circle itself (dark bg + brand-yellow letter) was
+                    // never at risk since it's a saturated, non-neutral
+                    // color; the surrounding trigger's own bg-white/gray
+                    // chevron were.
+                    className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-2 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 transition-colors cursor-pointer select-none force-dark-safe"
                     style={{ colorScheme: 'light' }}
                   >
                     <div className="w-8 h-8 rounded-full bg-neutral-900 text-[#FFD21F] font-bold text-xs flex items-center justify-center shrink-0">
@@ -231,16 +262,25 @@ export function Header() {
                       </span>
                     </div>
                     <ChevronDown className="w-3.5 h-3.5 text-neutral-500 hidden sm:block" />
-                  </button>
+                  </div>
                 ) : (
-                  <button
+                  <div
+                    role="button"
+                    tabIndex={0}
                     onClick={openLogin}
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 transition-colors text-xs font-bold force-dark-safe"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openLogin();
+                      }
+                    }}
+                    aria-label="Sign in"
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 transition-colors text-xs font-bold cursor-pointer select-none force-dark-safe"
                     style={{ colorScheme: 'light' }}
                   >
                     <UserIcon className="w-4 h-4 text-neutral-700" />
                     <span className="hidden sm:inline">Sign In</span>
-                  </button>
+                  </div>
                 )}
 
                 {/* Dropdown Menu */}
@@ -441,13 +481,23 @@ export function Header() {
                   </div>
                   <span className="font-black text-lg text-neutral-900">QazvuCart</span>
                 </div>
-                <button
+                <div
+                  role="button"
+                  tabIndex={0}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-1.5 rounded-full bg-white hover:bg-neutral-100 text-neutral-500 force-dark-safe"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setIsMobileMenuOpen(false);
+                    }
+                  }}
+                  // See the toggle button above — same native-<button>
+                  // force-dark issue, same div+role fix.
+                  className="p-1.5 rounded-full bg-white hover:bg-neutral-100 text-neutral-500 cursor-pointer select-none force-dark-safe"
                   style={{ colorScheme: 'light' }}
                 >
                   <X className="w-5 h-5" />
-                </button>
+                </div>
               </div>
 
               {/* User Bar in Drawer */}

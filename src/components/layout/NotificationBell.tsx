@@ -71,9 +71,25 @@ export function NotificationBell() {
     // extend past the left edge of the viewport and get clipped by the
     // global `overflow-x: hidden` on mobile.
     <div ref={panelRef}>
-      <button
+      <div
+        role="button"
+        tabIndex={0}
         onClick={() => setIsOpen((v) => !v)}
-        className="relative p-2 rounded-xl bg-white hover:bg-neutral-100 text-neutral-700 hover:text-neutral-950 transition-colors cursor-pointer force-dark-safe"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setIsOpen((v) => !v);
+          }
+        }}
+        // <div role="button"> on purpose, not a native <button>: Android
+        // Chrome's "Auto dark theme for web content" re-inverts neutral-gray
+        // icons specifically inside native form controls, turning this bell
+        // near-white on the white header — while the wishlist heart <a>
+        // right next to it, with almost identical styling, was untouched.
+        // The earlier color-scheme + translateZ/isolate mitigation stopped
+        // being enough on current Chrome; not being a native control is
+        // what keeps the icon visible.
+        className="relative p-2 rounded-xl bg-white hover:bg-neutral-100 text-neutral-700 hover:text-neutral-950 transition-colors cursor-pointer select-none force-dark-safe"
         style={{ colorScheme: 'light' }}
         aria-label="Notifications"
         title="Notifications"
@@ -90,7 +106,7 @@ export function NotificationBell() {
             {unreadCount > 9 ? '9+' : unreadCount}
           </motion.span>
         )}
-      </button>
+      </div>
 
       <AnimatePresence>
         {isOpen && (
