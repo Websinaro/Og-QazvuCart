@@ -1,19 +1,23 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Tailwind v4's `dark:` variant defaults to the `prefers-color-scheme`
+   media query. We want a manual toggle (ThemeContext) to win over the OS
+   setting, so redefine `dark:` to key off a `.dark` class on <html>
+   instead — same convention as Tailwind v3's `darkMode: 'class'`. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   html {
-    /* Belt-and-suspenders alongside the `viewport.colorScheme` export in
-       app/layout.tsx: explicitly declare this page as light-only so Chrome's
-       Android "Auto dark theme for web content" never kicks in and inverts
-       neutral-gray icons inside <button> elements (hamburger, bell) to
-       near-white/invisible against the white header. Must be `only light`,
-       not just `light` — plain `light` is a preference the browser (and
-       some OEM Android skins, e.g. ColorOS/MIUI's own forced-dark layer on
-       top of Chrome) can still override. `only` is a hard declaration with
-       no dark variant to fall back to, which both Chromium's automatic and
-       manually-forced dark modes are specced to fully respect. */
-    color-scheme: only light;
+    /* Real dark-mode support now lives here (via the `.dark` class +
+       `dark:` utility classes across components) instead of the old
+       `color-scheme: only light` lockout. That lockout was fighting
+       symptoms: Chrome's/ColorOS's auto-dark repaint only overrides pages
+       that never admit a dark variant exists. A page that actually
+       implements one has nothing left for that heuristic to "fix" — the
+       remaining edge case (the header icons) is handled with theme-matched
+       real <img> assets instead, see ThemeContext.tsx. */
+    color-scheme: light dark;
     /* Prevent any element from ever creating horizontal scroll/"shake" on
        narrow viewports, and stop iOS Safari's elastic bounce in the X
        direction (the usual cause of a page that visibly wobbles side to
@@ -21,6 +25,10 @@
     overflow-x: hidden;
     overscroll-behavior-x: none;
     width: 100%;
+  }
+
+  html.dark {
+    color-scheme: dark;
   }
 
   body {
@@ -31,6 +39,15 @@
     overscroll-behavior-x: none;
     width: 100%;
     max-width: 100vw;
+  }
+
+  /* Fallback in case a `dark:` utility is ever missing from body's
+     className in layout.tsx — Tailwind utilities in the cascade layer
+     below would normally win anyway, but this keeps the raw base rule
+     honest on its own rather than silently lying about the theme. */
+  html.dark body {
+    background-color: #0a0a0a;
+    color: #fafafa;
   }
 
   /* NOTE: a blanket `* { max-width: 100% }` rule used to live here as a
@@ -77,38 +94,19 @@
     height: auto;
   }
 
-  /* Belt-and-suspenders #2 for the Android Chrome "Auto Dark Theme for Web
-     Content" bug (see app/layout.tsx `viewport.colorScheme` for #1).
-     `color-scheme: light` on <html> should be sufficient on its own, but if
-     it's ever not honored (stale cache, a future browser quirk, an embedded
-     webview that ignores the meta tag), Chrome's force-dark heuristic
-     specifically targets *unstyled* neutral-gray icon buttons — a
-     transparent/inherited button background is what makes it a target.
-     Declaring `color-scheme: light` directly on every header button/link,
-     regardless of styling, opts each one out individually so a single
-     missed case can never make an icon (bell, hamburger, avatar, etc.)
-     silently vanish again. */
-  header button,
-  header a,
-  header div[role="button"] {
-    color-scheme: only light;
-  }
+  /* Long-form overflow/scroll rules for headings, links, table cells, etc.
+     stay below — the old per-element `color-scheme: only light` override
+     that used to sit here is gone now that the page has real dark-mode
+     support to declare instead of a light-only lie. */
 }
 
-/* Last-resort defense against Chrome's *manually forced* "Force dark mode
-   for web contents" setting (Settings > Accessibility > Dark theme, or
-   chrome://flags/#enable-force-dark). Unlike the automatic "Auto Dark
-   Theme" heuristic, this hard override ignores `color-scheme: light`
-   completely — it isn't a per-site opt-out, it's a blanket browser-level
-   repaint applied to every page. That repaint happens when Chrome
-   rasterizes an element on the main thread; elements promoted to their own
-   GPU compositing layer are handled by the compositor instead and are
-   skipped by that repaint pass. Forcing a layer via `translateZ(0)` is the
-   standard workaround sites use for icons that keep inverting even with
-   color-scheme declared correctly. If icons STILL vanish after this, the
-   phone has force-dark hard-enabled and only disabling it in Chrome's own
-   settings will fix it — no page-side code can override a manually forced
-   browser accessibility setting. */
+/* Kept as a general GPU-layer-promotion utility (harmless, occasionally
+   useful for animation/compositing performance) even though it's no longer
+   load-bearing for the icon-visibility bug now that Header/NotificationBell
+   use theme-matched real <img> icons and the page declares genuine
+   `color-scheme: light dark` support. If a manually-forced OS/browser
+   "force dark" accessibility setting ever still repaints something, that's
+   a device-level override no page code can fully defeat. */
 @layer utilities {
   .force-dark-safe {
     transform: translateZ(0);

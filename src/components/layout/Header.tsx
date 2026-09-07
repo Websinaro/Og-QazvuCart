@@ -7,7 +7,9 @@ import { useAuth } from '@/src/context/AuthContext';
 import { NotificationBell } from '@/src/components/layout/NotificationBell';
 import { useCart } from '@/src/context/CartContext';
 import { useWishlist } from '@/src/context/WishlistContext';
+import { useTheme } from '@/src/context/ThemeContext';
 import { AuthModal } from '@/src/components/auth/AuthModal';
+import { ThemeToggle } from '@/src/components/layout/ThemeToggle';
 import {
   Search,
   ShoppingBag,
@@ -16,7 +18,6 @@ import {
   MapPin,
   ChevronDown,
   Menu,
-  X,
   Package,
   LogOut,
   Settings,
@@ -39,6 +40,8 @@ export function Header() {
   const { user, isAuthenticated, logout } = useAuth();
   const { cart, toggleCartDrawer } = useCart();
   const { items: wishlistItems } = useWishlist();
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
@@ -109,7 +112,7 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full bg-white shadow-xs border-b border-neutral-200">
+      <header className="sticky top-0 z-40 w-full bg-white dark:bg-neutral-900 shadow-xs border-b border-neutral-200 dark:border-neutral-800">
         {/* 1. Announcement Bar */}
         <div className="bg-neutral-950 text-white text-[12px] py-1.5 px-4">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -147,20 +150,28 @@ export function Header() {
                     setIsMobileMenuOpen((prev) => !prev);
                   }
                 }}
-                // Deliberately a <div role="button">, not a native <button>.
-                // Android Chrome's "Auto dark theme for web content" heuristic
-                // specifically re-inverts neutral-gray icons inside native
-                // form controls (button/input/select) — it left plain <a>
-                // links (e.g. the wishlist heart, same bg-white/text-neutral
-                // styling) untouched. The old fix (color-scheme + translateZ
-                // GPU-layer promotion) stopped working on current Chrome,
-                // which patched that bypass. Not being a native control is
-                // what actually keeps this icon visible.
-                className="lg:hidden p-2 bg-white text-neutral-700 hover:text-neutral-900 rounded-lg hover:bg-neutral-100 cursor-pointer select-none force-dark-safe"
-                style={{ colorScheme: 'only light' }}
+                // Deliberately a <div role="button">, not a native <button>,
+                // plus force-dark-safe. Neither defeats ColorOS's own
+                // forced-dark repaint (confirmed on Oppo A6x 5G) on its own
+                // — the one thing that layer reliably exempts is genuine
+                // *image* content, so this is a real .svg loaded via <img>
+                // rather than an inline SVG. It also now picks the
+                // light/dark-matched variant from resolvedTheme, since a
+                // real <img>'s pixels can't be recolored with a `dark:`
+                // class the way inline SVG/currentColor could.
+                className="lg:hidden p-2 bg-white dark:bg-neutral-800 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 cursor-pointer select-none force-dark-safe"
                 aria-label="Toggle menu"
               >
-                {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                <img
+                  src={
+                    isMobileMenuOpen
+                      ? isDark ? '/assets/icons/close-dark.svg' : '/assets/icons/close.svg'
+                      : isDark ? '/assets/icons/menu-dark.svg' : '/assets/icons/menu.svg'
+                  }
+                  alt=""
+                  className="w-6 h-6"
+                  draggable={false}
+                />
               </div>
 
               <Link href="/" className="flex items-center gap-1.5 group">
@@ -169,7 +180,7 @@ export function Header() {
                 </div>
                 <div className="flex flex-col">
                   <div className="flex items-center">
-                    <span className="text-xl sm:text-2xl font-black tracking-tight text-neutral-950">Qazvu</span>
+                    <span className="text-xl sm:text-2xl font-black tracking-tight text-neutral-950 dark:text-neutral-50">Qazvu</span>
                     <span className="text-xl sm:text-2xl font-black text-[#FFD21F] bg-neutral-950 px-1.5 rounded-sm ml-0.5">Cart</span>
                   </div>
                   <span className="text-[9px] font-bold text-neutral-500 uppercase tracking-widest -mt-1 hidden sm:block">
@@ -180,23 +191,23 @@ export function Header() {
             </div>
 
             {/* Location Selector (Desktop) */}
-            <div className="hidden xl:flex items-center gap-2 pl-2 pr-3 py-1.5 bg-neutral-50 hover:bg-neutral-100 rounded-xl border border-neutral-200 text-xs cursor-pointer transition-colors">
+            <div className="hidden xl:flex items-center gap-2 pl-2 pr-3 py-1.5 bg-neutral-50 dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-xl border border-neutral-200 dark:border-neutral-700 text-xs cursor-pointer transition-colors">
               <MapPin className="w-4 h-4 text-[#FFD21F] shrink-0 fill-[#FFD21F]" />
               <div className="flex flex-col text-left">
-                <span className="text-[10px] text-neutral-500 font-medium">Deliver to</span>
-                <span className="font-bold text-neutral-900 leading-tight">Bengaluru 560038</span>
+                <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-medium">Deliver to</span>
+                <span className="font-bold text-neutral-900 dark:text-neutral-100 leading-tight">Bengaluru 560038</span>
               </div>
             </div>
 
             {/* Search Bar with Category Select (Desktop/Tablet) */}
             <form
               onSubmit={handleSearchSubmit}
-              className="flex-1 max-w-2xl hidden md:flex items-center border-2 border-neutral-900 rounded-xl overflow-hidden shadow-xs focus-within:ring-2 focus-within:ring-[#FFD21F]"
+              className="flex-1 max-w-2xl hidden md:flex items-center border-2 border-neutral-900 dark:border-neutral-100 rounded-xl overflow-hidden shadow-xs focus-within:ring-2 focus-within:ring-[#FFD21F]"
             >
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="bg-neutral-100 text-neutral-800 text-xs font-semibold px-3 py-2.5 border-r border-neutral-300 focus:outline-none cursor-pointer"
+                className="bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 text-xs font-semibold px-3 py-2.5 border-r border-neutral-300 dark:border-neutral-700 focus:outline-none cursor-pointer"
               >
                 <option value="all">All Categories</option>
                 {categories.map((c) => (
@@ -211,7 +222,7 @@ export function Header() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search for headphones, laptops, running shoes, espresso machines..."
-                className="flex-1 px-4 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none bg-white"
+                className="flex-1 px-4 py-2.5 text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none bg-white dark:bg-neutral-900"
               />
 
               <button
@@ -248,20 +259,22 @@ export function Header() {
                     // circle itself (dark bg + brand-yellow letter) was
                     // never at risk since it's a saturated, non-neutral
                     // color; the surrounding trigger's own bg-white/gray
-                    // chevron were.
-                    className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-2 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 transition-colors cursor-pointer select-none force-dark-safe"
-                    style={{ colorScheme: 'only light' }}
+                    // chevron were. These use lucide's inline currentColor
+                    // icons (ChevronDown, UserIcon) rather than the <img>
+                    // treatment — they weren't part of the reported bug,
+                    // and `dark:` classes recolor them normally for theme.
+                    className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-2 rounded-xl bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-900 dark:text-neutral-100 transition-colors cursor-pointer select-none force-dark-safe"
                   >
                     <div className="w-8 h-8 rounded-full bg-neutral-900 text-[#FFD21F] font-bold text-xs flex items-center justify-center shrink-0">
                       {user.username.charAt(0).toUpperCase()}
                     </div>
                     <div className="hidden lg:flex flex-col text-left">
-                      <span className="text-[10px] text-neutral-500 font-medium">Hello,</span>
-                      <span className="text-xs font-bold text-neutral-900 max-w-[100px] truncate">
+                      <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-medium">Hello,</span>
+                      <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100 max-w-[100px] truncate">
                         {user.username}
                       </span>
                     </div>
-                    <ChevronDown className="w-3.5 h-3.5 text-neutral-500 hidden sm:block" />
+                    <ChevronDown className="w-3.5 h-3.5 text-neutral-500 dark:text-neutral-400 hidden sm:block" />
                   </div>
                 ) : (
                   <div
@@ -275,10 +288,9 @@ export function Header() {
                       }
                     }}
                     aria-label="Sign in"
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 transition-colors text-xs font-bold cursor-pointer select-none force-dark-safe"
-                    style={{ colorScheme: 'only light' }}
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-900 dark:text-neutral-100 transition-colors text-xs font-bold cursor-pointer select-none force-dark-safe"
                   >
-                    <UserIcon className="w-4 h-4 text-neutral-700" />
+                    <UserIcon className="w-4 h-4 text-neutral-700 dark:text-neutral-300" />
                     <span className="hidden sm:inline">Sign In</span>
                   </div>
                 )}
@@ -293,13 +305,13 @@ export function Header() {
                     <div
                       role="menu"
                       aria-label="Account menu"
-                      className="absolute right-0 mt-2 w-72 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-neutral-200 py-2 z-50 animate-fade-in text-xs font-medium"
+                      className="absolute right-0 mt-2 w-72 max-w-[calc(100vw-2rem)] bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl border border-neutral-200 dark:border-neutral-700 py-2 z-50 animate-fade-in text-xs font-medium"
                     >
                       {isAuthenticated && user && (
-                        <div className="px-4 py-3 border-b border-neutral-100 bg-neutral-50/50">
-                          <p className="font-bold text-neutral-950 text-sm truncate">{user.username}</p>
-                          <p className="text-[11px] text-neutral-500 truncate">{user.email}</p>
-                          <span className="inline-block mt-1 bg-amber-100 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase">
+                        <div className="px-4 py-3 border-b border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-800/50">
+                          <p className="font-bold text-neutral-950 dark:text-neutral-50 text-sm truncate">{user.username}</p>
+                          <p className="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">{user.email}</p>
+                          <span className="inline-block mt-1 bg-amber-100 dark:bg-amber-900/40 text-amber-900 dark:text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase">
                             {user.role}
                           </span>
                         </div>
@@ -310,11 +322,11 @@ export function Header() {
                           <Link
                             href="/admin"
                             onClick={() => setIsUserMenuOpen(false)}
-                            className="flex items-center gap-2.5 px-4 py-2.5 bg-amber-50 text-amber-950 hover:bg-amber-100 font-bold border-b border-amber-200/60"
+                            className="flex items-center gap-2.5 px-4 py-2.5 bg-amber-50 dark:bg-amber-900/20 text-amber-950 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/40 font-bold border-b border-amber-200/60 dark:border-amber-800/60"
                           >
-                            <Shield className="w-4 h-4 text-amber-700" />
+                            <Shield className="w-4 h-4 text-amber-700 dark:text-amber-400" />
                             <span>Admin Panel</span>
-                            <span className="ml-auto text-[10px] bg-amber-300 text-amber-950 font-black px-1.5 py-0.5 rounded uppercase">
+                            <span className="ml-auto text-[10px] bg-amber-300 dark:bg-amber-700 text-amber-950 dark:text-amber-100 font-black px-1.5 py-0.5 rounded uppercase">
                               Admin
                             </span>
                           </Link>
@@ -322,47 +334,47 @@ export function Header() {
                         <Link
                           href="/account"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 hover:text-neutral-950 font-semibold"
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-neutral-950 dark:hover:text-neutral-50 font-semibold"
                         >
-                          <UserIcon className="w-4 h-4 text-neutral-500" /> Profile Overview
+                          <UserIcon className="w-4 h-4 text-neutral-500 dark:text-neutral-400" /> Profile Overview
                         </Link>
                         <Link
                           href="/account?tab=orders"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 hover:text-neutral-950 font-semibold"
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-neutral-950 dark:hover:text-neutral-50 font-semibold"
                         >
-                          <Package className="w-4 h-4 text-neutral-500" /> My Orders & Tracking
+                          <Package className="w-4 h-4 text-neutral-500 dark:text-neutral-400" /> My Orders & Tracking
                         </Link>
                         <Link
                           href="/account?tab=addresses"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 hover:text-neutral-950 font-semibold"
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-neutral-950 dark:hover:text-neutral-50 font-semibold"
                         >
-                          <MapPin className="w-4 h-4 text-neutral-500" /> Saved Addresses
+                          <MapPin className="w-4 h-4 text-neutral-500 dark:text-neutral-400" /> Saved Addresses
                         </Link>
                         <Link
                           href="/account?tab=reviews"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 hover:text-neutral-950 font-semibold"
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-neutral-950 dark:hover:text-neutral-50 font-semibold"
                         >
-                          <Sparkles className="w-4 h-4 text-amber-500" /> Pending Reviews
+                          <Sparkles className="w-4 h-4 text-amber-500 dark:text-amber-400" /> Pending Reviews
                         </Link>
                         <Link
                           href="/account?tab=settings"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-2.5 text-neutral-700 hover:bg-neutral-50 hover:text-neutral-950 font-semibold"
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-neutral-950 dark:hover:text-neutral-50 font-semibold"
                         >
-                          <Settings className="w-4 h-4 text-neutral-500" /> Account Settings
+                          <Settings className="w-4 h-4 text-neutral-500 dark:text-neutral-400" /> Account Settings
                         </Link>
                       </div>
 
-                      <div className="border-t border-neutral-100 pt-1">
+                      <div className="border-t border-neutral-100 dark:border-neutral-800 pt-1">
                         <button
                           onClick={() => {
                             logout();
                             setIsUserMenuOpen(false);
                           }}
-                          className="w-full flex items-center gap-2.5 px-4 py-2.5 text-red-600 hover:bg-red-50 font-bold"
+                          className="w-full flex items-center gap-2.5 px-4 py-2.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 font-bold"
                         >
                           <LogOut className="w-4 h-4" /> Sign Out
                         </button>
@@ -372,14 +384,16 @@ export function Header() {
                 )}
               </div>
 
+              {/* Theme Toggle */}
+              <ThemeToggle className="hidden sm:block" />
+
               {/* Notifications */}
               <NotificationBell />
 
               {/* Wishlist Link */}
               <Link
                 href="/account?tab=wishlist"
-                className="relative p-2 rounded-xl bg-white hover:bg-neutral-100 text-neutral-700 hover:text-neutral-950 transition-colors force-dark-safe"
-                style={{ colorScheme: 'only light' }}
+                className="relative p-2 rounded-xl bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-neutral-50 transition-colors force-dark-safe"
                 title="My Wishlist"
               >
                 <Heart className="w-5 h-5" />
@@ -414,13 +428,13 @@ export function Header() {
 
           {/* Mobile Search Bar Row */}
           <div className="mt-2.5 md:hidden">
-            <form onSubmit={handleSearchSubmit} className="flex items-center border border-neutral-300 rounded-xl overflow-hidden">
+            <form onSubmit={handleSearchSubmit} className="flex items-center border border-neutral-300 dark:border-neutral-700 rounded-xl overflow-hidden">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search products, brands..."
-                className="flex-1 px-3 py-2 text-xs bg-neutral-50 text-neutral-900 focus:outline-none"
+                className="flex-1 px-3 py-2 text-xs bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none"
               />
               <button type="submit" className="bg-[#FFD21F] p-2 text-neutral-950 font-bold">
                 <Search className="w-4 h-4" />
@@ -430,12 +444,12 @@ export function Header() {
         </div>
 
         {/* 3. Category Navigation Strip */}
-        <div className="bg-neutral-50 border-t border-neutral-200 hidden md:block">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between text-xs font-semibold text-neutral-700">
+        <div className="bg-neutral-50 dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-800 hidden md:block">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between text-xs font-semibold text-neutral-700 dark:text-neutral-300">
             <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto py-2 scrollbar-none">
               <Link
                 href="/products"
-                className="px-3 py-1 rounded-lg hover:bg-neutral-200/70 text-neutral-900 flex items-center gap-1.5 transition-colors whitespace-nowrap"
+                className="px-3 py-1 rounded-lg hover:bg-neutral-200/70 dark:hover:bg-neutral-800 text-neutral-900 dark:text-neutral-100 flex items-center gap-1.5 transition-colors whitespace-nowrap"
               >
                 <Menu className="w-3.5 h-3.5" /> All Products
               </Link>
@@ -443,7 +457,7 @@ export function Header() {
                 <Link
                   key={cat.id}
                   href={`/products?category=${cat.slug}`}
-                  className="px-3 py-1 rounded-lg hover:bg-neutral-200/70 text-neutral-700 hover:text-neutral-950 transition-colors whitespace-nowrap"
+                  className="px-3 py-1 rounded-lg hover:bg-neutral-200/70 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-neutral-50 transition-colors whitespace-nowrap"
                 >
                   {cat.name}
                 </Link>
@@ -453,13 +467,13 @@ export function Header() {
             <div className="flex items-center gap-3 py-1.5 pl-4 shrink-0">
               <Link
                 href="/products?isDeal=true"
-                className="flex items-center gap-1 text-red-600 hover:text-red-700 font-extrabold bg-red-50 px-2.5 py-1 rounded-lg border border-red-100 transition-colors"
+                className="flex items-center gap-1 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-extrabold bg-red-50 dark:bg-red-950/30 px-2.5 py-1 rounded-lg border border-red-100 dark:border-red-900 transition-colors"
               >
-                <Zap className="w-3.5 h-3.5 fill-red-600" /> Hot Deals
+                <Zap className="w-3.5 h-3.5 fill-red-600 dark:fill-red-400" /> Hot Deals
               </Link>
               <Link
                 href="/products?isFeatured=true"
-                className="flex items-center gap-1 text-amber-700 hover:text-amber-800 font-bold bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200 transition-colors"
+                className="flex items-center gap-1 text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 font-bold bg-amber-50 dark:bg-amber-950/30 px-2.5 py-1 rounded-lg border border-amber-200 dark:border-amber-900 transition-colors"
               >
                 <Sparkles className="w-3.5 h-3.5" /> Featured
               </Link>
@@ -472,36 +486,43 @@ export function Header() {
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="fixed inset-0 bg-black/60 backdrop-blur-xs" onClick={() => setIsMobileMenuOpen(false)} />
-          <div className="fixed inset-y-0 left-0 max-w-xs w-full bg-white shadow-2xl z-50 flex flex-col justify-between p-5 overflow-y-auto">
+          <div className="fixed inset-y-0 left-0 max-w-xs w-full bg-white dark:bg-neutral-900 shadow-2xl z-50 flex flex-col justify-between p-5 overflow-y-auto">
             <div>
-              <div className="flex items-center justify-between pb-4 border-b border-neutral-200">
+              <div className="flex items-center justify-between pb-4 border-b border-neutral-200 dark:border-neutral-800">
                 <div className="flex items-center gap-1.5">
                   <div className="w-8 h-8 rounded-lg bg-neutral-950 flex items-center justify-center font-bold text-lg text-[#FFD21F]">
                     Q
                   </div>
-                  <span className="font-black text-lg text-neutral-900">QazvuCart</span>
+                  <span className="font-black text-lg text-neutral-900 dark:text-neutral-100">QazvuCart</span>
                 </div>
-                <div
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      setIsMobileMenuOpen(false);
-                    }
-                  }}
-                  // See the toggle button above — same native-<button>
-                  // force-dark issue, same div+role fix.
-                  className="p-1.5 rounded-full bg-white hover:bg-neutral-100 text-neutral-500 cursor-pointer select-none force-dark-safe"
-                  style={{ colorScheme: 'only light' }}
-                >
-                  <X className="w-5 h-5" />
+                <div className="flex items-center gap-2">
+                  <ThemeToggle />
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setIsMobileMenuOpen(false);
+                      }
+                    }}
+                    // See the toggle button above — same OEM forced-dark
+                    // issue, same real-<img> fix, theme-matched variant.
+                    className="p-1.5 rounded-full bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 cursor-pointer select-none force-dark-safe"
+                  >
+                    <img
+                      src={isDark ? '/assets/icons/close-dark.svg' : '/assets/icons/close.svg'}
+                      alt=""
+                      className="w-5 h-5"
+                      draggable={false}
+                    />
+                  </div>
                 </div>
               </div>
 
               {/* User Bar in Drawer */}
-              <div className="py-4 border-b border-neutral-100">
+              <div className="py-4 border-b border-neutral-100 dark:border-neutral-800">
                 {isAuthenticated && user ? (
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
@@ -509,17 +530,17 @@ export function Header() {
                         {user.username.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <p className="font-bold text-sm text-neutral-900">{user.username}</p>
-                        <p className="text-xs text-neutral-500">{user.email}</p>
+                        <p className="font-bold text-sm text-neutral-900 dark:text-neutral-100">{user.username}</p>
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400">{user.email}</p>
                       </div>
                     </div>
                     {user.role === 'ADMIN' && (
                       <Link
                         href="/admin"
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-amber-100 border border-amber-300 text-amber-950 font-black text-xs rounded-xl shadow-xs"
+                        className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-amber-100 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-800 text-amber-950 dark:text-amber-200 font-black text-xs rounded-xl shadow-xs"
                       >
-                        <Shield className="w-4 h-4 text-amber-800" />
+                        <Shield className="w-4 h-4 text-amber-800 dark:text-amber-400" />
                         <span>Go to Admin Panel</span>
                       </Link>
                     )}
@@ -540,7 +561,7 @@ export function Header() {
                         setIsMobileMenuOpen(false);
                         openRegister();
                       }}
-                      className="w-full py-2.5 px-4 border border-neutral-300 text-neutral-800 font-bold text-xs rounded-xl"
+                      className="w-full py-2.5 px-4 border border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 font-bold text-xs rounded-xl"
                     >
                       Create Account
                     </button>
@@ -550,12 +571,12 @@ export function Header() {
 
               {/* Categories Navigation */}
               <div className="py-4">
-                <p className="text-[11px] font-extrabold text-neutral-400 uppercase tracking-wider mb-2">Shop Categories</p>
+                <p className="text-[11px] font-extrabold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-2">Shop Categories</p>
                 <div className="space-y-1">
                   <Link
                     href="/products"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="block px-3 py-2 text-sm font-semibold text-neutral-900 rounded-lg hover:bg-neutral-100"
+                    className="block px-3 py-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800"
                   >
                     All Products
                   </Link>
@@ -564,7 +585,7 @@ export function Header() {
                       key={c.id}
                       href={`/products?category=${c.slug}`}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="block px-3 py-2 text-sm font-medium text-neutral-700 rounded-lg hover:bg-neutral-100"
+                      className="block px-3 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800"
                     >
                       {c.name}
                     </Link>
@@ -575,13 +596,13 @@ export function Header() {
 
             {/* Bottom Actions in Drawer */}
             {isAuthenticated && (
-              <div className="pt-4 border-t border-neutral-200">
+              <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
                 <button
                   onClick={() => {
                     logout();
                     setIsMobileMenuOpen(false);
                   }}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 text-red-600 font-bold text-xs hover:bg-red-50 rounded-xl"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 text-red-600 dark:text-red-400 font-bold text-xs hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl"
                 >
                   <LogOut className="w-4 h-4" /> Sign Out
                 </button>

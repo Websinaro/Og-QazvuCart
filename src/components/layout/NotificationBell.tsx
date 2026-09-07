@@ -7,6 +7,7 @@ import { Bell, Check, CheckCheck, BellRing } from 'lucide-react';
 import { useNotifications } from '@/src/context/NotificationContext';
 import { useAuth } from '@/src/context/AuthContext';
 import { useToast } from '@/src/context/ToastContext';
+import { useTheme } from '@/src/context/ThemeContext';
 
 function timeAgo(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -24,6 +25,8 @@ export function NotificationBell() {
   const { isAuthenticated } = useAuth();
   const { notifications, unreadCount, pushPermission, markRead, markAllRead, enablePush } = useNotifications();
   const { error: showError, success: showSuccess } = useToast();
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
   const [isEnablingPush, setIsEnablingPush] = useState(false);
 
   const PUSH_FAILURE_MESSAGES: Record<string, string> = {
@@ -81,20 +84,25 @@ export function NotificationBell() {
             setIsOpen((v) => !v);
           }
         }}
-        // <div role="button"> on purpose, not a native <button>: Android
-        // Chrome's "Auto dark theme for web content" re-inverts neutral-gray
-        // icons specifically inside native form controls, turning this bell
-        // near-white on the white header — while the wishlist heart <a>
-        // right next to it, with almost identical styling, was untouched.
-        // The earlier color-scheme + translateZ/isolate mitigation stopped
-        // being enough on current Chrome; not being a native control is
-        // what keeps the icon visible.
-        className="relative p-2 rounded-xl bg-white hover:bg-neutral-100 text-neutral-700 hover:text-neutral-950 transition-colors cursor-pointer select-none force-dark-safe"
-        style={{ colorScheme: 'only light' }}
+        // div role="button" + force-dark-safe stayed, but neither survives
+        // ColorOS's own forced-dark layer (confirmed on Oppo A6x 5G and
+        // similar ColorOS/HeyTap-browser devices) on its own — that repaint
+        // targets inline SVG icon content regardless of DOM element type or
+        // GPU layer. Real <img> assets are what those implementations
+        // exempt, so the bell is a static .svg loaded via <img>, with the
+        // light/dark-matched variant picked from resolvedTheme (a real
+        // <img>'s pixels can't be recolored by a `dark:` class the way
+        // inline SVG/currentColor could).
+        className="relative p-2 rounded-xl bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors cursor-pointer select-none force-dark-safe"
         aria-label="Notifications"
         title="Notifications"
       >
-        <Bell className="w-5 h-5" />
+        <img
+          src={isDark ? '/assets/icons/bell-dark.svg' : '/assets/icons/bell.svg'}
+          alt=""
+          className="w-5 h-5"
+          draggable={false}
+        />
         {unreadCount > 0 && (
           <motion.span
             key={unreadCount}
@@ -115,14 +123,14 @@ export function NotificationBell() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.97 }}
             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-            className="absolute right-0 mt-2 w-[22rem] max-w-[90vw] bg-white rounded-2xl shadow-2xl border border-neutral-200 overflow-hidden z-50"
+            className="absolute right-0 mt-2 w-[22rem] max-w-[90vw] bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl border border-neutral-200 dark:border-neutral-700 overflow-hidden z-50"
           >
-            <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-100">
-              <h3 className="font-black text-sm text-neutral-950">Notifications</h3>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-100 dark:border-neutral-800">
+              <h3 className="font-black text-sm text-neutral-950 dark:text-neutral-50">Notifications</h3>
               {unreadCount > 0 && (
                 <button
                   onClick={markAllRead}
-                  className="flex items-center gap-1 text-[11px] font-bold text-neutral-500 hover:text-neutral-900 cursor-pointer"
+                  className="flex items-center gap-1 text-[11px] font-bold text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 cursor-pointer"
                 >
                   <CheckCheck className="w-3.5 h-3.5" /> Mark all read
                 </button>
@@ -130,16 +138,16 @@ export function NotificationBell() {
             </div>
 
             {showPushPrompt && (
-              <div className="px-4 py-3 bg-amber-50 border-b border-amber-100 flex items-start gap-2.5">
-                <BellRing className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+              <div className="px-4 py-3 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-100 dark:border-amber-900 flex items-start gap-2.5">
+                <BellRing className="w-4 h-4 text-amber-700 dark:text-amber-400 shrink-0 mt-0.5" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[11px] font-semibold text-amber-900">
+                  <p className="text-[11px] font-semibold text-amber-900 dark:text-amber-200">
                     Turn on push notifications for order updates & deals
                   </p>
                   <button
                     onClick={handleEnablePush}
                     disabled={isEnablingPush}
-                    className="mt-1.5 text-[11px] font-bold text-amber-900 underline underline-offset-2 cursor-pointer disabled:opacity-50"
+                    className="mt-1.5 text-[11px] font-bold text-amber-900 dark:text-amber-200 underline underline-offset-2 cursor-pointer disabled:opacity-50"
                   >
                     {isEnablingPush ? 'Enabling…' : 'Enable notifications'}
                   </button>
@@ -148,16 +156,16 @@ export function NotificationBell() {
             )}
 
             {pushPermission === 'granted' && (
-              <div className="px-4 py-2 bg-emerald-50 border-b border-emerald-100 flex items-center gap-2">
-                <BellRing className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
-                <p className="text-[11px] font-semibold text-emerald-900">Push notifications are on</p>
+              <div className="px-4 py-2 bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-900 flex items-center gap-2">
+                <BellRing className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400 shrink-0" />
+                <p className="text-[11px] font-semibold text-emerald-900 dark:text-emerald-300">Push notifications are on</p>
               </div>
             )}
 
             {pushPermission === 'denied' && (
-              <div className="px-4 py-2 bg-neutral-50 border-b border-neutral-100 flex items-center gap-2">
+              <div className="px-4 py-2 bg-neutral-50 dark:bg-neutral-800 border-b border-neutral-100 dark:border-neutral-700 flex items-center gap-2">
                 <BellRing className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
-                <p className="text-[11px] font-medium text-neutral-500">
+                <p className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400">
                   Notifications blocked — enable them in your browser&apos;s site settings to turn back on.
                 </p>
               </div>
@@ -166,15 +174,15 @@ export function NotificationBell() {
             <div className="max-h-96 overflow-y-auto">
               {notifications.length === 0 ? (
                 <div className="py-10 text-center">
-                  <Bell className="w-8 h-8 text-neutral-300 mx-auto mb-2" />
-                  <p className="text-xs text-neutral-500 font-medium">You&apos;re all caught up</p>
+                  <Bell className="w-8 h-8 text-neutral-300 dark:text-neutral-600 mx-auto mb-2" />
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 font-medium">You&apos;re all caught up</p>
                 </div>
               ) : (
                 notifications.map((n) => {
                   const content = (
                     <div
-                      className={`px-4 py-3 border-b border-neutral-50 last:border-0 flex gap-2.5 hover:bg-neutral-50 transition-colors cursor-pointer ${
-                        !n.isRead ? 'bg-amber-50/40' : ''
+                      className={`px-4 py-3 border-b border-neutral-50 dark:border-neutral-800 last:border-0 flex gap-2.5 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors cursor-pointer ${
+                        !n.isRead ? 'bg-amber-50/40 dark:bg-amber-900/10' : ''
                       }`}
                       onClick={() => {
                         if (!n.isRead) markRead(n.id);
@@ -183,9 +191,9 @@ export function NotificationBell() {
                     >
                       {!n.isRead && <span className="w-1.5 h-1.5 rounded-full bg-[#FFD21F] mt-1.5 shrink-0" />}
                       <div className={`flex-1 min-w-0 ${n.isRead ? 'pl-4' : ''}`}>
-                        <p className="text-xs font-bold text-neutral-900 line-clamp-1">{n.title}</p>
-                        <p className="text-[11px] text-neutral-600 line-clamp-2 mt-0.5">{n.body}</p>
-                        <p className="text-[10px] text-neutral-400 font-medium mt-1">{timeAgo(n.createdAt)}</p>
+                        <p className="text-xs font-bold text-neutral-900 dark:text-neutral-100 line-clamp-1">{n.title}</p>
+                        <p className="text-[11px] text-neutral-600 dark:text-neutral-400 line-clamp-2 mt-0.5">{n.body}</p>
+                        <p className="text-[10px] text-neutral-400 dark:text-neutral-500 font-medium mt-1">{timeAgo(n.createdAt)}</p>
                       </div>
                       {!n.isRead && (
                         <button
@@ -194,7 +202,7 @@ export function NotificationBell() {
                             e.stopPropagation();
                             markRead(n.id);
                           }}
-                          className="p-1 text-neutral-400 hover:text-emerald-600 shrink-0 h-fit cursor-pointer"
+                          className="p-1 text-neutral-400 hover:text-emerald-600 dark:hover:text-emerald-400 shrink-0 h-fit cursor-pointer"
                           title="Mark as read"
                         >
                           <Check className="w-3.5 h-3.5" />
