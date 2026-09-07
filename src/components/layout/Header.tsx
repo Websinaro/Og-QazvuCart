@@ -18,6 +18,7 @@ import {
   MapPin,
   ChevronDown,
   Menu,
+  X,
   Package,
   LogOut,
   Settings,
@@ -41,7 +42,19 @@ export function Header() {
   const { cart, toggleCartDrawer } = useCart();
   const { items: wishlistItems } = useWishlist();
   const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === 'dark';
+
+  // Explicit color-scheme opt-out for icon wrappers: `only light`/`only
+  // dark` (as opposed to the page-level `light dark`) tells the browser
+  // "this subtree's colors are correct for this exact scheme, don't run
+  // your auto-dark repaint heuristic on it". Page-level `color-scheme:
+  // light dark` already stops most browsers' auto-dark from touching the
+  // page, but some OEM WebViews (confirmed: ColorOS/Oppo) still repaint
+  // inline SVG icon content specifically. Scoping the *stricter* value to
+  // just the icon keeps the icon safe from that without lying to the rest
+  // of the page. Matched to resolvedTheme so it flips correctly on toggle.
+  const iconSafeStyle: React.CSSProperties = {
+    colorScheme: resolvedTheme === 'dark' ? 'only dark' : 'only light',
+  };
 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
@@ -150,28 +163,15 @@ export function Header() {
                     setIsMobileMenuOpen((prev) => !prev);
                   }
                 }}
-                // Deliberately a <div role="button">, not a native <button>,
-                // plus force-dark-safe. Neither defeats ColorOS's own
-                // forced-dark repaint (confirmed on Oppo A6x 5G) on its own
-                // — the one thing that layer reliably exempts is genuine
-                // *image* content, so this is a real .svg loaded via <img>
-                // rather than an inline SVG. It also now picks the
-                // light/dark-matched variant from resolvedTheme, since a
-                // real <img>'s pixels can't be recolored with a `dark:`
-                // class the way inline SVG/currentColor could.
-                className="lg:hidden p-2 bg-white dark:bg-neutral-800 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 cursor-pointer select-none force-dark-safe"
+                className="lg:hidden p-2 bg-white dark:bg-neutral-800 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 cursor-pointer select-none"
+                style={iconSafeStyle}
                 aria-label="Toggle menu"
               >
-                <img
-                  src={
-                    isMobileMenuOpen
-                      ? isDark ? '/assets/icons/close-dark.svg' : '/assets/icons/close.svg'
-                      : isDark ? '/assets/icons/menu-dark.svg' : '/assets/icons/menu.svg'
-                  }
-                  alt=""
-                  className="w-6 h-6"
-                  draggable={false}
-                />
+                {isMobileMenuOpen ? (
+                  <X className="w-6 h-6 text-neutral-700 dark:text-neutral-200" />
+                ) : (
+                  <Menu className="w-6 h-6 text-neutral-700 dark:text-neutral-200" />
+                )}
               </div>
 
               <Link href="/" className="flex items-center gap-1.5 group">
@@ -507,16 +507,10 @@ export function Header() {
                         setIsMobileMenuOpen(false);
                       }
                     }}
-                    // See the toggle button above — same OEM forced-dark
-                    // issue, same real-<img> fix, theme-matched variant.
-                    className="p-1.5 rounded-full bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 cursor-pointer select-none force-dark-safe"
+                    className="p-1.5 rounded-full bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 cursor-pointer select-none"
+                    style={iconSafeStyle}
                   >
-                    <img
-                      src={isDark ? '/assets/icons/close-dark.svg' : '/assets/icons/close.svg'}
-                      alt=""
-                      className="w-5 h-5"
-                      draggable={false}
-                    />
+                    <X className="w-5 h-5 text-neutral-700 dark:text-neutral-200" />
                   </div>
                 </div>
               </div>

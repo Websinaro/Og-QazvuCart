@@ -26,7 +26,11 @@ export function NotificationBell() {
   const { notifications, unreadCount, pushPermission, markRead, markAllRead, enablePush } = useNotifications();
   const { error: showError, success: showSuccess } = useToast();
   const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === 'dark';
+  // See Header.tsx's `iconSafeStyle` comment: scopes the OEM auto-dark
+  // repaint opt-out to just this icon, matched to the live theme.
+  const iconSafeStyle: React.CSSProperties = {
+    colorScheme: resolvedTheme === 'dark' ? 'only dark' : 'only light',
+  };
   const [isEnablingPush, setIsEnablingPush] = useState(false);
 
   const PUSH_FAILURE_MESSAGES: Record<string, string> = {
@@ -84,25 +88,12 @@ export function NotificationBell() {
             setIsOpen((v) => !v);
           }
         }}
-        // div role="button" + force-dark-safe stayed, but neither survives
-        // ColorOS's own forced-dark layer (confirmed on Oppo A6x 5G and
-        // similar ColorOS/HeyTap-browser devices) on its own — that repaint
-        // targets inline SVG icon content regardless of DOM element type or
-        // GPU layer. Real <img> assets are what those implementations
-        // exempt, so the bell is a static .svg loaded via <img>, with the
-        // light/dark-matched variant picked from resolvedTheme (a real
-        // <img>'s pixels can't be recolored by a `dark:` class the way
-        // inline SVG/currentColor could).
-        className="relative p-2 rounded-xl bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors cursor-pointer select-none force-dark-safe"
+        className="relative p-2 rounded-xl bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors cursor-pointer select-none"
+        style={iconSafeStyle}
         aria-label="Notifications"
         title="Notifications"
       >
-        <img
-          src={isDark ? '/assets/icons/bell-dark.svg' : '/assets/icons/bell.svg'}
-          alt=""
-          className="w-5 h-5"
-          draggable={false}
-        />
+        <Bell className="w-5 h-5 text-neutral-700 dark:text-neutral-200" />
         {unreadCount > 0 && (
           <motion.span
             key={unreadCount}

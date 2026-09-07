@@ -1,21 +1,17 @@
 'use client';
 
 import React from 'react';
+import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/src/context/ThemeContext';
 
-/**
- * Icon-only toggle. Deliberately a <div role="button">, not a native
- * <button> — matches every other header trigger (hamburger, bell, avatar)
- * for the same OEM/Android auto-dark-invert reasons documented there.
- *
- * The sun/moon icons don't need light+dark variants like the hamburger/bell
- * do: each one is only ever shown against a background that already
- * matches it (sun = amber, shown on the dark surface; moon = dark neutral,
- * shown on the light surface), so a single fixed color per icon is enough.
- */
+/** Icon-only toggle. */
 export function ThemeToggle({ className = '' }: { className?: string }) {
   const { resolvedTheme, toggleTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
+  // See Header.tsx's `iconSafeStyle` comment.
+  const iconSafeStyle: React.CSSProperties = {
+    colorScheme: isDark ? 'only dark' : 'only light',
+  };
 
   return (
     <div
@@ -30,14 +26,14 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
       }}
       aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
       title={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-      className={`p-2 rounded-xl bg-white hover:bg-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 cursor-pointer select-none force-dark-safe ${className}`}
+      className={`p-2 rounded-xl bg-white hover:bg-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 cursor-pointer select-none ${className}`}
+      style={iconSafeStyle}
     >
-      <img
-        src={isDark ? '/assets/icons/sun.svg' : '/assets/icons/moon.svg'}
-        alt=""
-        className="w-5 h-5"
-        draggable={false}
-      />
+      {isDark ? (
+        <Sun className="w-5 h-5 text-amber-400" />
+      ) : (
+        <Moon className="w-5 h-5 text-neutral-700" />
+      )}
     </div>
   );
 }
