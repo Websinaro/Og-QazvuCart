@@ -46,12 +46,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     return stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system';
   });
 
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() => {
-    if (typeof window === 'undefined') return 'light';
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored === 'light' || stored === 'dark') return stored;
-    return getSystemTheme();
-  });
+  // Tracks the OS-level preference only; updated by the media-query
+  // listener below. Combined with `theme` (via useMemo) to derive
+  // `resolvedTheme` during render instead of via effect-triggered
+  // setState, which the react-hooks/set-state-in-effect rule flags.
+  const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(() => getSystemTheme());
+
+  const resolvedTheme = useMemo<ResolvedTheme>(
+    () => (theme === 'system' ? systemTheme : theme),
+    [theme, systemTheme]
+  );
 
   const setTheme = useCallback((t: Theme) => {
     setThemeState(t);
@@ -62,22 +66,20 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
   }, [resolvedTheme, setTheme]);
 
-  // Recompute + apply whenever the stored preference changes.
+  // Apply the resolved theme to the DOM whenever it changes. This is a
+  // side effect on an external system (the DOM), not derived state, so
+  // it stays in an effect.
   useEffect(() => {
-    const resolved = theme === 'system' ? getSystemTheme() : theme;
-    setResolvedTheme(resolved);
-    applyThemeClass(resolved);
-  }, [theme]);
+    applyThemeClass(resolvedTheme);
+  }, [resolvedTheme]);
 
-  // While following system, react live to OS/browser theme flips.
+  // While following system, react live to OS/browser theme flips. The
+  // setState here happens inside the event callback, not synchronously
+  // in the effect body, so it doesn't trigger cascading renders on mount.
   useEffect(() => {
     if (theme !== 'system') return;
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const onChange = () => {
-      const resolved = getSystemTheme();
-      setResolvedTheme(resolved);
-      applyThemeClass(resolved);
-    };
+    const onChange = () => setSystemTheme(getSystemTheme());
     mq.addEventListener('change', onChange);
     return () => mq.removeEventListener('change', onChange);
   }, [theme]);
