@@ -100,7 +100,7 @@ export function NotificationBell() {
             initial={{ scale: 0.5 }}
             animate={{ scale: 1 }}
             transition={{ type: 'spring', stiffness: 500, damping: 15 }}
-            className="absolute top-1 right-0.5 min-w-[17px] h-[17px] px-1 rounded-full bg-brand-600 text-white font-semibold text-[10px] grid place-items-center ring-2 ring-white dark:ring-neutral-950"
+            className="absolute top-1 right-0.5 min-w-[17px] h-[17px] px-1 rounded-full bg-brand-600 text-neutral-950 font-semibold text-[10px] grid place-items-center ring-2 ring-white dark:ring-neutral-950"
           >
             {unreadCount > 9 ? '9+' : unreadCount}
           </motion.span>
@@ -121,7 +121,7 @@ export function NotificationBell() {
               {unreadCount > 0 && (
                 <button
                   onClick={markAllRead}
-                  className="flex items-center gap-1 text-[11px] font-semibold text-brand-600 dark:text-brand-300 hover:text-brand-700 dark:hover:text-brand-200 cursor-pointer"
+                  className="flex items-center gap-1 text-[11px] font-semibold text-brand-700 dark:text-brand-300 hover:text-brand-700 dark:hover:text-brand-200 cursor-pointer"
                 >
                   <CheckCheck className="w-3.5 h-3.5" /> Mark all read
                 </button>
@@ -130,7 +130,7 @@ export function NotificationBell() {
 
             {showPushPrompt && (
               <div className="px-4 py-3 bg-brand-500/10 border-b border-brand-500/10 flex items-start gap-2.5">
-                <BellRing className="w-4 h-4 text-brand-600 dark:text-brand-300 shrink-0 mt-0.5" />
+                <BellRing className="w-4 h-4 text-brand-700 dark:text-brand-300 shrink-0 mt-0.5" />
                 <div className="flex-1 min-w-0">
                   <p className="text-[11px] font-medium text-brand-900 dark:text-brand-100">
                     Turn on push notifications for order updates & deals

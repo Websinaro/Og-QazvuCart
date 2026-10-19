@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ProductCard, ProductCardProps } from '@/src/components/product/ProductCard';
 import { ProductGridSkeleton } from '@/src/components/product/ProductCardSkeleton';
+import { AnimatedGrid } from '@/src/components/ui/AnimatedGrid';
 import {
   SlidersHorizontal,
   X,
@@ -169,7 +170,7 @@ function ProductsCatalogContent() {
               </button>
 
               {/* Grid Column Selector (Desktop & Tablet) */}
-              <div className="hidden sm:flex items-center bg-white border border-neutral-300 rounded-xl p-1 shadow-soft gap-0.5 dark:bg-[#13131a] dark:border-white/10">
+              <div className="hidden sm:flex items-center bg-white border border-neutral-300 rounded-xl p-1 shadow-soft gap-0.5 dark:bg-[#17140b] dark:border-white/10">
                 <button
                   type="button"
                   onClick={() => setGridCols(2)}
@@ -202,7 +203,7 @@ function ProductsCatalogContent() {
                 </button>
               </div>
 
-              <div className="flex items-center gap-2 bg-white border border-neutral-300 rounded-xl px-3 py-1.5 shadow-soft dark:bg-[#13131a] dark:border-white/10">
+              <div className="flex items-center gap-2 bg-white border border-neutral-300 rounded-xl px-3 py-1.5 shadow-soft dark:bg-[#17140b] dark:border-white/10">
                 <span className="text-xs text-neutral-500 font-semibold whitespace-nowrap hidden sm:inline dark:text-neutral-400">Sort by:</span>
                 <select
                   value={sortParam}
@@ -293,7 +294,7 @@ function ProductsCatalogContent() {
           {/* Desktop Left Sidebar */}
           <aside className="hidden lg:block space-y-6">
             {/* Category Filter */}
-            <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-soft dark:bg-[#13131a] dark:border-white/10">
+            <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-soft dark:bg-[#17140b] dark:border-white/10">
               <h3 className="text-xs font-semibold text-neutral-900 uppercase tracking-wider mb-3 dark:text-white">
                 Categories
               </h3>
@@ -327,7 +328,7 @@ function ProductsCatalogContent() {
             </div>
 
             {/* Price Range Filter */}
-            <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-soft dark:bg-[#13131a] dark:border-white/10">
+            <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-soft dark:bg-[#17140b] dark:border-white/10">
               <h3 className="text-xs font-semibold text-neutral-900 uppercase tracking-wider mb-3 dark:text-white">
                 Price (₹)
               </h3>
@@ -386,7 +387,7 @@ function ProductsCatalogContent() {
             </div>
 
             {/* Rating Filter */}
-            <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-soft dark:bg-[#13131a] dark:border-white/10">
+            <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-soft dark:bg-[#17140b] dark:border-white/10">
               <h3 className="text-xs font-semibold text-neutral-900 uppercase tracking-wider mb-3 dark:text-white">
                 Customer Rating
               </h3>
@@ -411,7 +412,7 @@ function ProductsCatalogContent() {
             </div>
 
             {/* Discount Filter */}
-            <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-soft dark:bg-[#13131a] dark:border-white/10">
+            <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-soft dark:bg-[#17140b] dark:border-white/10">
               <h3 className="text-xs font-semibold text-neutral-900 uppercase tracking-wider mb-3 dark:text-white">
                 Discount
               </h3>
@@ -433,7 +434,7 @@ function ProductsCatalogContent() {
             </div>
 
             {/* Availability & Deals */}
-            <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-soft space-y-3 text-xs dark:bg-[#13131a] dark:border-white/10">
+            <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-soft space-y-3 text-xs dark:bg-[#17140b] dark:border-white/10">
               <h3 className="text-xs font-semibold text-neutral-900 uppercase tracking-wider dark:text-white">
                 Availability & Deals
               </h3>
@@ -483,7 +484,7 @@ function ProductsCatalogContent() {
                 }
               />
             ) : products.length === 0 ? (
-              <div className="bg-white rounded-3xl p-12 text-center border border-neutral-200 shadow-sm max-w-lg mx-auto my-8 dark:bg-[#13131a] dark:border-white/10">
+              <div className="bg-white rounded-3xl p-12 text-center border border-neutral-200 shadow-sm max-w-lg mx-auto my-8 dark:bg-[#17140b] dark:border-white/10">
                 <div className="w-16 h-16 bg-amber-50 text-amber-700 rounded-full flex items-center justify-center mx-auto mb-4 dark:bg-amber-500/15 dark:text-amber-300">
                   <Sparkles className="w-8 h-8" />
                 </div>
@@ -500,7 +501,8 @@ function ProductsCatalogContent() {
               </div>
             ) : (
               <>
-                <div
+                <AnimatedGrid
+                  resetKey={products.map((p) => p.id).join(',')}
                   className={
                     gridCols === 4
                       ? 'grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4'
@@ -512,7 +514,7 @@ function ProductsCatalogContent() {
                   {products.map((product) => (
                     <ProductCard key={product.id} {...product} />
                   ))}
-                </div>
+                </AnimatedGrid>
 
                 {/* Pagination */}
                 {totalPages > 1 && (
@@ -556,7 +558,7 @@ function ProductsCatalogContent() {
       {isMobileFilterOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="fixed inset-0 bg-black/60 backdrop-blur-xs" onClick={() => setIsMobileFilterOpen(false)} />
-          <div className="fixed inset-y-0 right-0 max-w-xs w-full bg-white shadow-2xl z-50 flex flex-col justify-between p-5 overflow-y-auto dark:bg-[#13131a]">
+          <div className="fixed inset-y-0 right-0 max-w-xs w-full bg-white shadow-2xl z-50 flex flex-col justify-between p-5 overflow-y-auto dark:bg-[#17140b]">
             <div>
               <div className="flex items-center justify-between pb-4 border-b border-neutral-200 dark:border-white/10">
                 <div className="flex items-center gap-2">

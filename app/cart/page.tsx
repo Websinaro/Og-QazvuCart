@@ -66,7 +66,7 @@ export default function CartPage() {
     return (
       <div className="min-h-[70vh] flex items-center justify-center p-6 pb-24">
         <div className="surface rounded-[2rem] p-10 sm:p-14 text-center max-w-md w-full">
-          <div className="grid place-items-center w-24 h-24 rounded-[2rem] bg-brand-500/10 text-brand-600 dark:text-brand-300 mx-auto mb-6">
+          <div className="grid place-items-center w-24 h-24 rounded-[2rem] bg-brand-500/10 text-brand-700 dark:text-brand-300 mx-auto mb-6">
             <ShoppingBag className="w-11 h-11" />
           </div>
           <h2 className="text-2xl font-semibold tracking-tight text-neutral-950 dark:text-white">Your cart is empty</h2>
@@ -75,7 +75,7 @@ export default function CartPage() {
           </p>
           <Link
             href="/products"
-            className="group mt-8 inline-flex items-center justify-center gap-2 h-12 px-8 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-sm font-semibold hover:bg-brand-600 dark:hover:bg-brand-200 transition-colors"
+            className="group mt-8 inline-flex items-center justify-center gap-2 h-12 px-8 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-sm font-semibold hover:bg-brand-600 dark:hover:bg-brand-200 transition-colors hover:text-neutral-950"
           >
             Explore marketplace
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" weight="bold" />
@@ -109,7 +109,7 @@ export default function CartPage() {
             <div className="surface p-5 space-y-3">
               <div className="flex items-center justify-between gap-3 text-[13px] font-medium text-neutral-800 dark:text-neutral-200">
                 <span className="flex items-center gap-2.5 min-w-0">
-                  <span className="grid place-items-center w-8 h-8 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-300 shrink-0">
+                  <span className="grid place-items-center w-8 h-8 rounded-full bg-brand-500/10 text-brand-700 dark:text-brand-300 shrink-0">
                     <Truck className="w-4 h-4" />
                   </span>
                   {cart.freeDeliveryRemaining > 0 ? (
@@ -275,7 +275,7 @@ export default function CartPage() {
 
               <button
                 onClick={() => router.push('/checkout')}
-                className="group w-full h-12 px-6 rounded-full bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm shadow-glow active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="group w-full h-12 px-6 rounded-full bg-brand-600 hover:bg-brand-500 text-neutral-950 font-semibold text-sm shadow-glow active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 Proceed to checkout
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" weight="bold" />

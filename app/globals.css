@@ -10,34 +10,48 @@
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* Brand: deep indigo-violet */
-  --color-brand-50: #f3f1ff;
-  --color-brand-100: #e9e5ff;
-  --color-brand-200: #d4ccff;
-  --color-brand-300: #b8abff;
-  --color-brand-400: #9783ff;
-  --color-brand-500: #7a5cff;
-  --color-brand-600: #6340f0;
-  --color-brand-700: #5230d1;
-  --color-brand-800: #432aa8;
-  --color-brand-900: #382785;
-  --color-brand-950: #20164d;
+  /* Brand: sunny yellow. 300-600 are fills (use dark text on them),
+     700-950 are deep ambers that stay readable as text on white. */
+  --color-brand-50: #fffbe8;
+  --color-brand-100: #fff4bd;
+  --color-brand-200: #ffe985;
+  --color-brand-300: #ffdc47;
+  --color-brand-400: #ffcf1f;
+  --color-brand-500: #ffc400;
+  --color-brand-600: #f5b300;
+  --color-brand-700: #946000;
+  --color-brand-800: #744a00;
+  --color-brand-900: #573700;
+  --color-brand-950: #331f00;
 
-  --shadow-soft: 0 1px 2px rgb(16 16 32 / 0.04), 0 4px 16px -4px rgb(16 16 32 / 0.06);
-  --shadow-lift: 0 2px 4px rgb(16 16 32 / 0.04), 0 16px 40px -12px rgb(16 16 32 / 0.18);
-  --shadow-glow: 0 8px 28px -8px rgb(99 64 240 / 0.55);
+  /* Warm (stone) neutrals so greys sit nicely next to yellow */
+  --color-neutral-50: #fafaf9;
+  --color-neutral-100: #f5f5f4;
+  --color-neutral-200: #e7e5e4;
+  --color-neutral-300: #d6d3d1;
+  --color-neutral-400: #a8a29e;
+  --color-neutral-500: #78716c;
+  --color-neutral-600: #57534e;
+  --color-neutral-700: #44403c;
+  --color-neutral-800: #292524;
+  --color-neutral-900: #1c1917;
+  --color-neutral-950: #0c0a09;
+
+  --shadow-soft: 0 1px 2px rgb(110 78 0 / 0.05), 0 4px 16px -4px rgb(110 78 0 / 0.09);
+  --shadow-lift: 0 2px 4px rgb(110 78 0 / 0.05), 0 18px 44px -14px rgb(160 110 0 / 0.30);
+  --shadow-glow: 0 8px 28px -8px rgb(255 190 0 / 0.65);
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @layer base {
   :root {
-    --page: #f6f6f8;
-    --ink: #101018;
+    --page: #fffdf4;
+    --ink: #1c1917;
   }
   .dark {
-    --page: #09090d;
-    --ink: #f4f4f8;
+    --page: #0f0d08;
+    --ink: #faf7ec;
   }
 
   html {
@@ -65,7 +79,7 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Soft brand aura behind the page, fixed so it never causes scroll. */
+  /* Soft sunny aura behind the page, fixed so it never causes scroll. */
   body::before {
     content: "";
     position: fixed;
@@ -73,13 +87,14 @@
     z-index: -1;
     pointer-events: none;
     background:
-      radial-gradient(60rem 28rem at 12% -8%, rgb(122 92 255 / 0.10), transparent 60%),
-      radial-gradient(48rem 24rem at 100% 0%, rgb(56 189 248 / 0.07), transparent 60%);
+      radial-gradient(56rem 26rem at 8% -6%, rgb(255 213 0 / 0.20), transparent 62%),
+      radial-gradient(44rem 22rem at 100% 2%, rgb(255 236 150 / 0.30), transparent 60%),
+      radial-gradient(40rem 22rem at 50% 105%, rgb(255 200 0 / 0.08), transparent 60%);
   }
   .dark body::before {
     background:
-      radial-gradient(60rem 28rem at 12% -8%, rgb(122 92 255 / 0.18), transparent 60%),
-      radial-gradient(48rem 24rem at 100% 0%, rgb(56 189 248 / 0.08), transparent 60%);
+      radial-gradient(56rem 26rem at 8% -6%, rgb(255 196 0 / 0.14), transparent 62%),
+      radial-gradient(44rem 22rem at 100% 2%, rgb(255 160 0 / 0.07), transparent 60%);
   }
 
   h1, h2, h3, h4 {
@@ -92,44 +107,44 @@
   pre, code { max-width: 100%; overflow-x: auto; }
   img, svg, video, canvas { max-width: 100%; height: auto; }
 
-  ::selection { background: rgb(122 92 255 / 0.28); }
+  ::selection { background: rgb(255 196 0 / 0.45); color: #1c1917; }
 
   :focus-visible {
-    outline: 2px solid var(--color-brand-500);
+    outline: 2px solid var(--color-brand-600);
     outline-offset: 2px;
     border-radius: 0.5rem;
   }
 
   /* Refined scrollbars */
-  * { scrollbar-width: thin; scrollbar-color: rgb(120 120 140 / 0.35) transparent; }
+  * { scrollbar-width: thin; scrollbar-color: rgb(160 120 20 / 0.40) transparent; }
   ::-webkit-scrollbar { width: 10px; height: 10px; }
-  ::-webkit-scrollbar-thumb { background: rgb(120 120 140 / 0.3); border-radius: 999px; border: 3px solid transparent; background-clip: content-box; }
-  ::-webkit-scrollbar-thumb:hover { background: rgb(120 120 140 / 0.5); background-clip: content-box; border: 3px solid transparent; }
+  ::-webkit-scrollbar-thumb { background: rgb(160 120 20 / 0.32); border-radius: 999px; border: 3px solid transparent; background-clip: content-box; }
+  ::-webkit-scrollbar-thumb:hover { background: rgb(160 120 20 / 0.55); background-clip: content-box; border: 3px solid transparent; }
 }
 
 /* ───────────────────────── Reusable utilities ───────────────────────── */
 @utility glass {
-  background-color: rgb(255 255 255 / 0.72);
+  background-color: rgb(255 253 244 / 0.78);
   backdrop-filter: saturate(180%) blur(18px);
   -webkit-backdrop-filter: saturate(180%) blur(18px);
   &:where(.dark, .dark *) {
-    background-color: rgb(14 14 20 / 0.72);
+    background-color: rgb(20 17 9 / 0.74);
   }
 }
 
 @utility surface {
   background-color: #fff;
-  border: 1px solid rgb(16 16 32 / 0.07);
+  border: 1px solid rgb(120 85 0 / 0.11);
   box-shadow: var(--shadow-soft);
   border-radius: 1.25rem;
   &:where(.dark, .dark *) {
-    background-color: #13131a;
+    background-color: #17140b;
     border-color: rgb(255 255 255 / 0.08);
   }
 }
 
 @utility text-gradient {
-  background-image: linear-gradient(120deg, #8f78ff 0%, #6340f0 45%, #38bdf8 100%);
+  background-image: linear-gradient(120deg, #b45f00 0%, #e08a00 45%, #ffb800 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -148,13 +163,13 @@
 
 /* Skeleton shimmer */
 @utility shimmer-bg {
-  background-color: #ececf1;
-  background-image: linear-gradient(90deg, #ececf1 0%, #f7f7fa 20%, #ececf1 40%, #ececf1 100%);
+  background-color: #f6efd2;
+  background-image: linear-gradient(90deg, #f6efd2 0%, #fffbe6 20%, #f6efd2 40%, #f6efd2 100%);
   background-size: 200% 100%;
   animation: shimmer-sweep 1.6s ease-in-out infinite;
   &:where(.dark, .dark *) {
-    background-color: #1b1b25;
-    background-image: linear-gradient(90deg, #1b1b25 0%, #24243180 20%, #1b1b25 40%, #1b1b25 100%);
+    background-color: #211c0d;
+    background-image: linear-gradient(90deg, #211c0d 0%, #33290f 20%, #211c0d 40%, #211c0d 100%);
   }
 }
 
@@ -188,6 +203,87 @@
 @utility animate-float-slow {
   animation: float-slow 7s ease-in-out infinite;
 }
+
+/* ───────────────────────── Grid & card motion ───────────────────────── */
+
+/* Pointer-follow spotlight. Cards set --mx/--my on pointermove (see
+   ProductCard); without JS it simply stays hidden. */
+@utility card-spotlight {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    background: radial-gradient(
+      320px circle at var(--mx, 50%) var(--my, 0%),
+      rgb(255 205 20 / 0.20),
+      transparent 60%
+    );
+  }
+  &:hover::after { opacity: 1; }
+}
+
+/* A diagonal light sweep across the media on hover */
+@utility shine-sweep {
+  position: relative;
+  overflow: hidden;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -20% auto -20% -60%;
+    width: 45%;
+    z-index: 5;
+    pointer-events: none;
+    transform: skewX(-18deg);
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.55), transparent);
+    opacity: 0;
+  }
+  &:hover::before { animation: shine-pass 0.9s ease-out; }
+}
+@keyframes shine-pass {
+  0% { left: -60%; opacity: 0; }
+  20% { opacity: 1; }
+  100% { left: 130%; opacity: 0; }
+}
+
+/* Soft dotted grid for hero / banner backgrounds */
+@utility bg-dots {
+  background-image: radial-gradient(rgb(120 85 0 / 0.20) 1.2px, transparent 1.2px);
+  background-size: 22px 22px;
+}
+
+/* Slow breathing glow */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.08); }
+}
+@utility animate-pulse-glow {
+  animation: pulse-glow 6s ease-in-out infinite;
+}
+
+/* Skeleton cards fade in one after another */
+@keyframes skeleton-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+@utility animate-skeleton-in {
+  animation: skeleton-in 0.5s var(--ease-out-expo) both;
+}
+
+/* Category icon wiggle */
+@keyframes icon-wiggle {
+  0%, 100% { transform: rotate(0) scale(1.08); }
+  25% { transform: rotate(-9deg) scale(1.12); }
+  75% { transform: rotate(9deg) scale(1.12); }
+}
+@utility animate-icon-wiggle {
+  animation: icon-wiggle 0.6s ease-in-out;
+}
+
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

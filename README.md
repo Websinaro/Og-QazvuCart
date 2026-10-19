@@ -53,6 +53,16 @@ Next.js → Service layer (src/server/modules/*) → Drizzle ORM → PostgreSQL
    ```
 4. `npm run dev`
 
+### Admin access
+
+Set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in your server environment (see
+`.env.example`). Anyone who **signs up or signs in with exactly that email
+and password** becomes an admin. The account is created on first use and
+repaired (role and password) on later logins. Both variables must be set;
+if either is missing, nobody can gain admin this way. The admin email is
+reserved: it cannot be registered with a different password or set as another
+user's email, so it can't be squatted.
+
 ### Schema changes going forward
 
 `src/db/schema.ts` is the source of truth. For schema changes:

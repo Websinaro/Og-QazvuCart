@@ -140,22 +140,22 @@ export function Header() {
     <>
       <header className="sticky top-0 z-40 w-full">
         {/* 1. Announcement bar */}
-        <div className="bg-neutral-950 text-white">
+        <div className="bg-gradient-to-r from-brand-300 via-brand-400 to-brand-300 text-neutral-950">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 h-9 flex items-center justify-between gap-4 text-[12px]">
-            <p className="flex items-center gap-2 min-w-0 text-neutral-300">
-              <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-200">
+            <p className="flex items-center gap-2 min-w-0 text-neutral-900/80">
+              <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-neutral-950 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-300">
                 <Zap className="w-3 h-3" /> Live
               </span>
               <span className="truncate hidden sm:inline">
-                Up to <b className="text-white font-semibold">50% off</b> and <b className="text-white font-semibold">free delivery</b> on orders above ₹999
+                Up to <b className="text-neutral-950 font-bold">50% off</b> and <b className="text-neutral-950 font-bold">free delivery</b> on orders above ₹999
               </span>
               <span className="truncate sm:hidden">Up to 50% off · Free delivery ₹999+</span>
             </p>
             <Link
               href="/products?isDeal=true"
-              className="shrink-0 inline-flex items-center gap-1.5 font-medium text-white/90 hover:text-white transition-colors"
+              className="shrink-0 inline-flex items-center gap-1.5 font-semibold text-neutral-950 hover:underline underline-offset-2 transition-colors"
             >
-              <Flame className="w-3.5 h-3.5 text-brand-300" /> Today&apos;s deals
+              <Flame className="w-3.5 h-3.5 text-neutral-950" /> Today&apos;s deals
             </Link>
           </div>
         </div>
@@ -179,13 +179,13 @@ export function Header() {
                 </div>
 
                 <Link href="/" className="flex items-center gap-2.5 group" aria-label="QazvuCart home">
-                  <span className="relative grid place-items-center w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white font-bold text-lg shadow-glow group-hover:scale-105 transition-transform">
+                  <span className="relative grid place-items-center w-9 h-9 rounded-xl bg-gradient-to-br from-brand-300 to-brand-600 text-neutral-950 font-bold text-lg shadow-glow group-hover:scale-105 transition-transform">
                     Q
                     <span className="absolute inset-0 rounded-xl ring-1 ring-inset ring-white/25" />
                   </span>
                   <span className="hidden sm:flex flex-col leading-none">
                     <span className="text-[19px] font-semibold tracking-tight text-neutral-950 dark:text-white">
-                      Qazvu<span className="text-brand-600 dark:text-brand-300">Cart</span>
+                      Qazvu<span className="text-brand-700 dark:text-brand-300">Cart</span>
                     </span>
                     <span className="mt-1 text-[9px] font-medium uppercase tracking-[0.2em] text-neutral-500">Marketplace</span>
                   </span>
@@ -194,7 +194,7 @@ export function Header() {
 
               {/* Deliver-to (xl) */}
               <div className="hidden xl:flex items-center gap-2 pl-2.5 pr-3.5 py-1.5 rounded-full border border-neutral-900/10 dark:border-white/10 hover:bg-neutral-900/5 dark:hover:bg-white/5 text-xs cursor-pointer transition-colors shrink-0">
-                <MapPin className="w-4 h-4 text-brand-600 dark:text-brand-300 shrink-0" weight="fill" />
+                <MapPin className="w-4 h-4 text-brand-700 dark:text-brand-300 shrink-0" weight="fill" />
                 <div className="flex flex-col text-left leading-tight">
                   <span className="text-[10px] text-neutral-500 dark:text-neutral-400">Deliver to</span>
                   <span className="font-semibold text-neutral-900 dark:text-neutral-100">Bengaluru 560038</span>
@@ -230,7 +230,7 @@ export function Header() {
                 <button
                   type="submit"
                   aria-label="Search"
-                  className="m-1 h-9 w-9 lg:w-auto lg:px-4 grid lg:flex place-items-center gap-1.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-semibold hover:bg-brand-600 dark:hover:bg-brand-200 transition-colors"
+                  className="m-1 h-9 w-9 lg:w-auto lg:px-4 grid lg:flex place-items-center gap-1.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-semibold hover:bg-brand-600 dark:hover:bg-brand-200 transition-colors hover:text-neutral-950"
                 >
                   <Search className="w-4 h-4" weight="bold" />
                   <span className="hidden lg:inline">Search</span>
@@ -267,7 +267,7 @@ export function Header() {
                       aria-label="Open account menu"
                       className="flex items-center gap-2 h-10 pl-1 pr-1 sm:pr-3 rounded-full hover:bg-neutral-900/5 dark:hover:bg-white/10 transition-colors cursor-pointer select-none force-dark-safe"
                     >
-                      <span className="grid place-items-center w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white font-semibold text-xs shrink-0">
+                      <span className="grid place-items-center w-8 h-8 rounded-full bg-gradient-to-br from-brand-300 to-brand-600 text-neutral-950 font-semibold text-xs shrink-0">
                         {user.username.charAt(0).toUpperCase()}
                       </span>
                       <span className="hidden lg:flex flex-col text-left leading-tight">
@@ -302,7 +302,7 @@ export function Header() {
                       >
                         {user && (
                           <div className="flex items-center gap-3 px-3 py-3 mb-1 rounded-xl bg-neutral-900/[0.035] dark:bg-white/5">
-                            <span className="grid place-items-center w-10 h-10 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white font-semibold">
+                            <span className="grid place-items-center w-10 h-10 rounded-full bg-gradient-to-br from-brand-300 to-brand-600 text-neutral-950 font-semibold">
                               {user.username.charAt(0).toUpperCase()}
                             </span>
                             <div className="min-w-0">
@@ -357,13 +357,13 @@ export function Header() {
                 {/* Cart */}
                 <button
                   onClick={toggleCartDrawer}
-                  className="ml-1 flex items-center gap-2.5 h-10 pl-3 pr-3 sm:pr-4 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 hover:bg-brand-600 dark:hover:bg-brand-200 active:scale-95 shadow-soft transition"
+                  className="ml-1 flex items-center gap-2.5 h-10 pl-3 pr-3 sm:pr-4 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 hover:bg-brand-600 dark:hover:bg-brand-200 active:scale-95 shadow-soft transition hover:text-neutral-950"
                   aria-label="Open shopping cart"
                 >
                   <span className="relative" id="header-cart-icon">
                     <ShoppingBag className="w-[19px] h-[19px]" />
                     {cart.totalItems > 0 && (
-                      <span className="absolute -top-2 -right-2.5 min-w-[17px] h-[17px] px-1 grid place-items-center rounded-full bg-brand-500 text-white text-[10px] font-semibold ring-2 ring-neutral-950 dark:ring-white">
+                      <span className="absolute -top-2 -right-2.5 min-w-[17px] h-[17px] px-1 grid place-items-center rounded-full bg-brand-500 text-neutral-950 text-[10px] font-semibold ring-2 ring-neutral-950 dark:ring-white">
                         {cart.totalItems}
                       </span>
                     )}
@@ -388,7 +388,7 @@ export function Header() {
                   className="flex-1 min-w-0 bg-transparent text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 focus:outline-none"
                 />
               </div>
-              <button type="submit" className="h-10 px-4 rounded-full bg-brand-600 text-white text-xs font-semibold" aria-label="Search">
+              <button type="submit" className="h-10 px-4 rounded-full bg-brand-600 text-neutral-950 text-xs font-semibold" aria-label="Search">
                 Go
               </button>
             </form>
@@ -400,7 +400,7 @@ export function Header() {
               <nav className="flex items-center gap-1 overflow-x-auto no-scrollbar text-[13px] font-medium" aria-label="Categories">
                 <Link
                   href="/products"
-                  className="flex items-center gap-1.5 px-3 h-8 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 font-semibold whitespace-nowrap hover:bg-brand-600 dark:hover:bg-brand-200 transition-colors"
+                  className="flex items-center gap-1.5 px-3 h-8 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 font-semibold whitespace-nowrap hover:bg-brand-600 dark:hover:bg-brand-200 transition-colors hover:text-neutral-950"
                 >
                   <Menu className="w-3.5 h-3.5" /> All products
                 </Link>
@@ -440,10 +440,10 @@ export function Header() {
             className="fixed inset-0 bg-neutral-950/50 backdrop-blur-sm animate-in fade-in duration-200"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-          <div className="fixed inset-y-0 left-0 w-[86%] max-w-sm bg-white dark:bg-[#0e0e14] shadow-2xl flex flex-col animate-in slide-in-from-left duration-300">
+          <div className="fixed inset-y-0 left-0 w-[86%] max-w-sm bg-white dark:bg-[#14110a] shadow-2xl flex flex-col animate-in slide-in-from-left duration-300">
             <div className="flex items-center justify-between px-5 h-16 border-b border-neutral-900/5 dark:border-white/10 shrink-0">
               <div className="flex items-center gap-2.5">
-                <span className="grid place-items-center w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 text-white font-bold">Q</span>
+                <span className="grid place-items-center w-8 h-8 rounded-lg bg-gradient-to-br from-brand-300 to-brand-600 text-neutral-950 font-bold">Q</span>
                 <span className="font-semibold text-[17px] text-neutral-950 dark:text-white tracking-tight">QazvuCart</span>
               </div>
               <div className="flex items-center gap-1">
@@ -466,7 +466,7 @@ export function Header() {
               {isAuthenticated && user ? (
                 <div className="space-y-3">
                   <div className="flex items-center gap-3 p-3 rounded-2xl bg-neutral-900/[0.035] dark:bg-white/5">
-                    <span className="grid place-items-center w-11 h-11 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white font-semibold">
+                    <span className="grid place-items-center w-11 h-11 rounded-full bg-gradient-to-br from-brand-300 to-brand-600 text-neutral-950 font-semibold">
                       {user.username.charAt(0).toUpperCase()}
                     </span>
                     <div className="min-w-0">
@@ -508,7 +508,7 @@ export function Header() {
                       setIsMobileMenuOpen(false);
                       openLogin();
                     }}
-                    className="w-full h-11 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-[13px] shadow-glow transition-colors"
+                    className="w-full h-11 rounded-xl bg-brand-600 hover:bg-brand-500 text-neutral-950 font-semibold text-[13px] shadow-glow transition-colors"
                   >
                     Sign in to QazvuCart
                   </button>

@@ -20,8 +20,8 @@ import { ThemeProvider } from '@/src/context/ThemeContext';
 export const viewport: Viewport = {
   colorScheme: 'light dark',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#f6f6f8' },
-    { media: '(prefers-color-scheme: dark)', color: '#09090d' },
+    { media: '(prefers-color-scheme: light)', color: '#fffdf4' },
+    { media: '(prefers-color-scheme: dark)', color: '#0f0d08' },
   ],
 };
 

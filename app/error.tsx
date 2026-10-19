@@ -30,7 +30,7 @@ export default function ErrorPage({
           <button
             id="retry-btn"
             onClick={() => reset()}
-            className="w-full flex items-center justify-center gap-2 h-12 px-5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-sm font-semibold hover:bg-brand-600 dark:hover:bg-brand-200 transition-colors cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 h-12 px-5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-sm font-semibold hover:bg-brand-600 dark:hover:bg-brand-200 transition-colors cursor-pointer hover:text-neutral-950"
           >
             <RotateCcw className="w-4 h-4" />
             Try again

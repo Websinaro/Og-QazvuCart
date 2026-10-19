@@ -81,10 +81,41 @@ export const config = {
 } as const;
 
 /**
- * One-time admin bootstrap credentials. Only read by the `admin:create`
- * CLI script (see src/scripts/create-admin.ts) — never by the running
- * application, and never with a hardcoded fallback. There is no automatic
- * demo/seed account creation in production.
+ * Admin credentials (server-side only, never sent to the browser).
+ *
+ * Whoever signs up or signs in with EXACTLY this email AND this password
+ * becomes (or is kept as) an ADMIN. Both values must be set for the
+ * feature to be active; if either is missing nobody can obtain admin this
+ * way. There is no hardcoded fallback. `ADMIN_USERNAME` is optional and is
+ * only used as the username when the admin account is first created from
+ * a login (signup uses the username typed in the form).
+ *
+ * The legacy BOOTSTRAP_ADMIN_* names are still honoured so existing
+ * deployments keep working.
+ */
+function optionalEnv(...names: string[]): string | undefined {
+  for (const name of names) {
+    const value = process.env[name];
+    if (value && value.trim().length > 0) return value;
+  }
+  return undefined;
+}
+
+export const adminEnv = {
+  get email(): string | undefined {
+    return optionalEnv('ADMIN_EMAIL', 'BOOTSTRAP_ADMIN_EMAIL')?.trim().toLowerCase();
+  },
+  get password(): string | undefined {
+    return optionalEnv('ADMIN_PASSWORD', 'BOOTSTRAP_ADMIN_PASSWORD');
+  },
+  get username(): string | undefined {
+    return optionalEnv('ADMIN_USERNAME')?.trim();
+  },
+};
+
+/**
+ * Credentials for the interactive `npm run admin:create` CLI. Kept for
+ * backwards compatibility; the running application uses `adminEnv`.
  */
 export const bootstrap = {
   get adminEmail() {

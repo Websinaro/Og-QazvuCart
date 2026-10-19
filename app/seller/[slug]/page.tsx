@@ -3,6 +3,7 @@
 import React, { useState, useEffect, use, useCallback } from 'react';
 import Link from 'next/link';
 import { ProductCard, ProductCardProps } from '@/src/components/product/ProductCard';
+import { AnimatedGrid } from '@/src/components/ui/AnimatedGrid';
 import {
   Store,
   Star,
@@ -112,7 +113,7 @@ export default function SellerStorePage({ params }: { params: Promise<{ slug: st
       {/* Store Banner */}
       <div className="bg-neutral-950 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10 flex flex-col sm:flex-row sm:items-center gap-5">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-brand-600 flex items-center justify-center shrink-0 font-bold text-2xl text-white">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-brand-600 flex items-center justify-center shrink-0 font-bold text-2xl text-neutral-950">
             {seller.avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={seller.avatarUrl} alt={seller.name} className="w-full h-full object-cover rounded-2xl" referrerPolicy="no-referrer" />
@@ -165,18 +166,21 @@ export default function SellerStorePage({ params }: { params: Promise<{ slug: st
         )}
 
         {!isLoading && productList.length === 0 && (
-          <div className="text-center py-16 text-sm text-neutral-500 bg-white border border-neutral-200 rounded-2xl dark:bg-[#13131a] dark:text-neutral-400 dark:border-white/10">
+          <div className="text-center py-16 text-sm text-neutral-500 bg-white border border-neutral-200 rounded-2xl dark:bg-[#17140b] dark:text-neutral-400 dark:border-white/10">
             This store hasn&apos;t listed any products yet. Check back soon.
           </div>
         )}
 
         {!isLoading && productList.length > 0 && (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+            <AnimatedGrid
+              resetKey={productList.map((p) => p.id).join(',')}
+              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4"
+            >
               {productList.map((p) => (
                 <ProductCard key={p.id} {...p} />
               ))}
-            </div>
+            </AnimatedGrid>
 
             {pagination && pagination.totalPages > 1 && (
               <div className="flex items-center justify-center gap-3 mt-8">

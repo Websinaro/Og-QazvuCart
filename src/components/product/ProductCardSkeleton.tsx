@@ -4,9 +4,12 @@ import React from 'react';
  * Mirrors the real ProductCard layout so the page doesn't jump when data
  * replaces the skeleton.
  */
-export function ProductCardSkeleton() {
+export function ProductCardSkeleton({ index = 0 }: { index?: number }) {
   return (
-    <div className="rounded-[1.375rem] bg-white dark:bg-[#13131a] border border-neutral-900/[0.06] dark:border-white/[0.08] overflow-hidden h-full flex flex-col">
+    <div
+      style={{ animationDelay: `${Math.min(index, 11) * 60}ms` }}
+      className="animate-skeleton-in rounded-[1.375rem] bg-white dark:bg-[#17140b] border border-brand-700/10 dark:border-white/[0.08] overflow-hidden h-full flex flex-col"
+    >
       <div className="relative aspect-[4/4.2] w-full shimmer-bg" />
       <div className="p-3.5 sm:p-4 flex-1 flex flex-col gap-2.5">
         <div className="h-2.5 w-1/3 rounded-full shimmer-bg" />
@@ -32,7 +35,7 @@ export function ProductGridSkeleton({
   return (
     <div className={className}>
       {Array.from({ length: count }).map((_, i) => (
-        <ProductCardSkeleton key={i} />
+        <ProductCardSkeleton key={i} index={i} />
       ))}
     </div>
   );

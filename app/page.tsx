@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { motion } from 'motion/react';
 import { ProductCard, ProductCardProps } from '@/src/components/product/ProductCard';
 import { ProductGridSkeleton } from '@/src/components/product/ProductCardSkeleton';
+import { AnimatedGrid } from '@/src/components/ui/AnimatedGrid';
 import { useDealCountdown } from '@/src/lib/dealCountdown';
 import { RecentlyViewedRail } from '@/src/components/product/RecentlyViewedRail';
 import { TrendingRail } from '@/src/components/product/TrendingRail';
@@ -128,7 +129,7 @@ export default function HomePage() {
 
   const clock = (v: number, unit: string) => (
     <span className="grid place-items-center min-w-[2.75rem] rounded-lg bg-white/10 px-2 py-1.5 tabular-nums">
-      <span className="text-sm font-semibold text-white leading-none">{String(v).padStart(2, '0')}</span>
+      <span className="text-sm font-semibold text-brand-300 leading-none">{String(v).padStart(2, '0')}</span>
       <span className="text-[9px] uppercase tracking-wider text-neutral-400 mt-0.5">{unit}</span>
     </span>
   );
@@ -142,33 +143,49 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:col-span-2 relative isolate rounded-[2rem] bg-neutral-950 text-white overflow-hidden p-7 sm:p-12 flex flex-col justify-between min-h-[420px] sm:min-h-[500px]"
+            className="lg:col-span-2 relative isolate rounded-[2rem] bg-gradient-to-br from-brand-200 via-brand-300 to-brand-400 text-neutral-950 overflow-hidden p-7 sm:p-12 flex flex-col justify-between min-h-[420px] sm:min-h-[500px] shadow-lift"
           >
-            <div className="absolute inset-0 -z-10">
-              <Image
-                src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1400&q=80"
-                alt="SonicBlast Pro wireless headphones"
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 66vw"
-                className="object-cover object-right opacity-60"
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-neutral-950 via-neutral-950/85 to-neutral-950/10" />
-              <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/70 via-transparent to-transparent" />
-              <div className="absolute -left-24 -bottom-24 w-96 h-96 rounded-full bg-brand-600/40 blur-[110px]" />
+            {/* Backdrop: dotted grid + breathing white glows */}
+            <div className="absolute inset-0 -z-10 pointer-events-none">
+              <div className="absolute inset-0 bg-dots opacity-70 [mask-image:linear-gradient(135deg,black,transparent_65%)]" />
+              <div className="absolute -left-24 -bottom-24 w-96 h-96 rounded-full bg-white/70 blur-[100px] animate-pulse-glow" />
+              <div className="absolute right-1/4 -top-28 w-80 h-80 rounded-full bg-white/60 blur-[90px] animate-pulse-glow [animation-delay:2s]" />
             </div>
 
-            <div className="max-w-lg space-y-5">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md border border-white/15 px-3.5 py-1.5 text-[11px] font-medium text-brand-100">
-                <Flame className="w-3.5 h-3.5 text-brand-300" weight="fill" /> Limited edition launch
+            {/* Floating product photo (desktop) */}
+            <motion.div
+              initial={{ opacity: 0, x: 40, rotate: 6 }}
+              animate={{ opacity: 1, x: 0, rotate: 2 }}
+              transition={{ duration: 0.9, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className="hidden sm:block absolute right-8 top-8 bottom-8 w-[40%] -z-[5]"
+            >
+              <div className="relative h-full w-full rounded-[1.75rem] overflow-hidden ring-4 ring-white/80 shadow-lift animate-float-slow">
+                <Image
+                  src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=900&q=80"
+                  alt="SonicBlast Pro wireless headphones"
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 40vw, 28vw"
+                  className="object-cover"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-500/25 via-transparent to-white/10" />
+              </div>
+            </motion.div>
+
+            <div className="max-w-lg space-y-5 sm:max-w-[52%] lg:max-w-[55%]">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/75 backdrop-blur-md border border-neutral-950/10 px-3.5 py-1.5 text-[11px] font-semibold text-neutral-900">
+                <Flame className="w-3.5 h-3.5 text-brand-700" weight="fill" /> Limited edition launch
               </span>
               <h1 className="text-4xl sm:text-6xl font-semibold tracking-[-0.035em] leading-[1.02]">
-                Hear every <span className="text-gradient">detail.</span>
+                Hear every{' '}
+                <span className="relative inline-block px-2.5 -mx-0.5 rounded-xl bg-white/85 text-neutral-950 -rotate-1 shadow-soft">
+                  detail.
+                </span>
                 <br />
                 Block the rest.
               </h1>
-              <p className="text-sm sm:text-base text-neutral-300 leading-relaxed max-w-md">
+              <p className="text-sm sm:text-base text-neutral-800/80 leading-relaxed max-w-md">
                 Studio-grade 40mm graphene drivers, 42 dB hybrid noise cancellation and a 60-hour battery, in one pair.
               </p>
             </div>
@@ -176,14 +193,14 @@ export default function HomePage() {
             <div className="pt-8 flex flex-wrap items-center gap-3">
               <Link
                 href="/products/sonicblast-pro-wireless-headphones"
-                className="group inline-flex items-center gap-2 h-12 px-6 rounded-full bg-white text-neutral-950 text-sm font-semibold hover:bg-brand-100 transition-colors shadow-lg"
+                className="group inline-flex items-center gap-2 h-12 px-6 rounded-full bg-neutral-950 text-white text-sm font-semibold hover:bg-neutral-800 hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-lg"
               >
                 Shop SonicBlast Pro · ₹1,499
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" weight="bold" />
               </Link>
               <Link
                 href="/products?isDeal=true"
-                className="inline-flex items-center h-12 px-6 rounded-full bg-white/10 hover:bg-white/15 backdrop-blur-md border border-white/20 text-sm font-medium transition-colors"
+                className="inline-flex items-center h-12 px-6 rounded-full bg-white/60 hover:bg-white backdrop-blur-md border border-neutral-950/10 text-sm font-semibold text-neutral-900 transition-colors"
               >
                 Explore mega deals
               </Link>
@@ -195,27 +212,27 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="relative isolate rounded-[2rem] p-6 sm:p-7 min-h-[220px] flex flex-col justify-between overflow-hidden bg-gradient-to-br from-brand-500 via-brand-600 to-brand-800 text-white shadow-glow"
+              className="group relative isolate rounded-[2rem] p-6 sm:p-7 min-h-[220px] flex flex-col justify-between overflow-hidden bg-white dark:bg-[#17140b] border border-brand-700/10 dark:border-white/10 shadow-soft hover:shadow-lift hover:-translate-y-1 transition-all duration-300"
             >
-              <div className="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-white/15 blur-2xl -z-10" />
+              <div className="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-brand-300/70 blur-2xl -z-10 group-hover:scale-125 transition-transform duration-700" />
               <div className="space-y-2.5">
-                <span className="inline-block rounded-full bg-white/20 backdrop-blur px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]">
+                <span className="inline-block rounded-full bg-neutral-950 text-brand-300 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]">
                   Top seller
                 </span>
-                <h3 className="text-xl sm:text-2xl font-semibold leading-tight tracking-tight">
+                <h3 className="text-xl sm:text-2xl font-semibold leading-tight tracking-tight text-neutral-950 dark:text-white">
                   AuraBook Max 15.6&quot; Ultra Laptop
                 </h3>
-                <p className="text-xs text-white/75">Intel Core i7 13th Gen · 16GB RAM · 512GB NVMe SSD</p>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">Intel Core i7 13th Gen · 16GB RAM · 512GB NVMe SSD</p>
               </div>
               <div className="pt-5 flex items-end justify-between">
                 <div>
-                  <span className="text-xs text-white/60 line-through tabular-nums">₹79,999</span>
-                  <p className="text-xl font-semibold tabular-nums">₹54,999</p>
+                  <span className="text-xs text-neutral-400 line-through tabular-nums">₹79,999</span>
+                  <p className="text-xl font-semibold tabular-nums text-neutral-950 dark:text-white">₹54,999</p>
                 </div>
                 <Link
                   href="/products/aurabook-max-ultra-thin-laptop"
                   aria-label="View AuraBook Max"
-                  className="grid place-items-center w-11 h-11 rounded-full bg-white text-brand-700 hover:scale-105 active:scale-95 transition-transform"
+                  className="grid place-items-center w-11 h-11 rounded-full bg-brand-500 text-neutral-950 shadow-glow hover:bg-brand-400 hover:scale-110 active:scale-95 transition"
                 >
                   <ArrowRight className="w-4 h-4" weight="bold" />
                 </Link>
@@ -226,27 +243,27 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="relative isolate rounded-[2rem] p-6 sm:p-7 min-h-[220px] flex flex-col justify-between overflow-hidden bg-neutral-900 text-white border border-white/10"
+              className="group relative isolate rounded-[2rem] p-6 sm:p-7 min-h-[220px] flex flex-col justify-between overflow-hidden bg-gradient-to-br from-brand-400 to-brand-500 text-neutral-950 shadow-glow hover:-translate-y-1 transition-transform duration-300"
             >
-              <div className="absolute -left-10 -bottom-12 w-48 h-48 rounded-full bg-sky-500/20 blur-3xl -z-10" />
+              <div className="absolute -left-10 -bottom-12 w-48 h-48 rounded-full bg-white/60 blur-3xl -z-10 group-hover:scale-125 transition-transform duration-700" />
               <div className="space-y-2.5">
-                <span className="inline-block rounded-full bg-rose-600 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]">
+                <span className="inline-block rounded-full bg-rose-600 text-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]">
                   50% off
                 </span>
                 <h3 className="text-xl sm:text-2xl font-semibold leading-tight tracking-tight">
                   NovaPulse Series 7 AMOLED Smartwatch
                 </h3>
-                <p className="text-xs text-neutral-400">Always-on display · Bluetooth calling · IP68</p>
+                <p className="text-xs text-neutral-900/70">Always-on display · Bluetooth calling · IP68</p>
               </div>
               <div className="pt-5 flex items-end justify-between">
                 <div>
-                  <span className="text-xs text-neutral-500 line-through tabular-nums">₹5,999</span>
-                  <p className="text-xl font-semibold text-brand-200 tabular-nums">₹2,999</p>
+                  <span className="text-xs text-neutral-900/55 line-through tabular-nums">₹5,999</span>
+                  <p className="text-xl font-semibold tabular-nums">₹2,999</p>
                 </div>
                 <Link
                   href="/products/novapulse-smartwatch-series-7"
                   aria-label="View NovaPulse Series 7"
-                  className="grid place-items-center w-11 h-11 rounded-full bg-brand-600 hover:bg-brand-500 hover:scale-105 active:scale-95 text-white transition"
+                  className="grid place-items-center w-11 h-11 rounded-full bg-neutral-950 text-brand-300 hover:scale-110 active:scale-95 transition"
                 >
                   <ArrowRight className="w-4 h-4" weight="bold" />
                 </Link>
@@ -264,21 +281,30 @@ export default function HomePage() {
           href="/products"
           cta="View all"
         />
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4">
+        <AnimatedGrid
+          resetKey={categories.length}
+          stagger={0.07}
+          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4"
+        >
           {categories.map((cat) => (
             <Link
               key={cat.id}
               href={`/products?category=${cat.slug}`}
-              className="group relative surface p-4 sm:p-5 flex flex-col items-center text-center hover:-translate-y-1 hover:shadow-lift hover:border-brand-500/40 transition-all duration-300"
+              className="group card-spotlight relative surface p-4 sm:p-5 flex flex-col items-center text-center hover:-translate-y-1.5 hover:shadow-lift hover:border-brand-400/70 transition-[transform,box-shadow,border-color] duration-300"
+              onPointerMove={(e) => {
+                const r = e.currentTarget.getBoundingClientRect();
+                e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`);
+                e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`);
+              }}
             >
-              <span className="grid place-items-center w-14 h-14 rounded-2xl bg-brand-500/10 text-brand-700 dark:text-brand-300 group-hover:bg-brand-600 group-hover:text-white group-hover:scale-105 transition-all duration-300 mb-3 [&_svg]:text-current">
+              <span className="grid place-items-center w-14 h-14 rounded-2xl bg-brand-400/20 text-brand-700 dark:text-brand-300 group-hover:bg-brand-500 group-hover:text-neutral-950 group-hover:shadow-glow group-hover:animate-icon-wiggle transition-colors duration-300 mb-3 [&_svg]:text-current">
                 {getCategoryIcon(cat.slug)}
               </span>
               <h3 className="text-[13px] font-semibold text-neutral-900 dark:text-neutral-100">{cat.name}</h3>
               <span className="text-[11px] text-neutral-500 mt-0.5">{cat.productCount} products</span>
             </Link>
           ))}
-        </div>
+        </AnimatedGrid>
       </motion.section>
 
       {/* 3. Deals of the day */}
@@ -286,13 +312,13 @@ export default function HomePage() {
         <div className="rounded-[2rem] surface p-5 sm:p-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 pb-6">
             <div className="flex items-center gap-3.5">
-              <span className="grid place-items-center w-12 h-12 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-700 text-white shadow-[0_8px_24px_-8px_rgb(225_29_72/0.6)]">
+              <span className="grid place-items-center w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-300 to-brand-600 text-neutral-950 shadow-glow">
                 <Flame className="w-6 h-6" weight="fill" />
               </span>
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-neutral-950 dark:text-white">Deals of the day</h2>
-                  <span className="rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[10px] font-semibold px-2.5 py-1 uppercase tracking-wide">
+                  <span className="rounded-full bg-brand-400/25 text-brand-800 dark:text-brand-300 text-[10px] font-semibold px-2.5 py-1 uppercase tracking-wide">
                     Up to 50% off
                   </span>
                 </div>
@@ -319,11 +345,11 @@ export default function HomePage() {
           {isLoading ? (
             <ProductGridSkeleton count={4} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5" />
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5">
+            <AnimatedGrid className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5">
               {deals.map((product) => (
                 <ProductCard key={product.id} {...product} />
               ))}
-            </div>
+            </AnimatedGrid>
           )}
         </div>
       </motion.section>
@@ -349,11 +375,11 @@ export default function HomePage() {
         {isLoading ? (
           <ProductGridSkeleton count={4} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5" />
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5">
+          <AnimatedGrid className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5">
             {featured.map((product) => (
               <ProductCard key={product.id} {...product} />
             ))}
-          </div>
+          </AnimatedGrid>
         )}
       </motion.section>
 
@@ -369,25 +395,26 @@ export default function HomePage() {
 
       {/* 5. Guarantees */}
       <motion.section {...fadeUp} className="max-w-7xl mx-auto px-4 sm:px-6 pt-14">
-        <div className="relative isolate overflow-hidden rounded-[2rem] bg-neutral-950 text-white p-7 sm:p-12">
-          <div className="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-brand-600/30 blur-[110px] -z-10" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10">
+        <div className="relative isolate overflow-hidden rounded-[2rem] bg-gradient-to-br from-brand-200 via-brand-100 to-white dark:from-[#241d09] dark:via-[#1a1508] dark:to-[#120f08] border border-brand-400/40 dark:border-white/10 text-neutral-900 dark:text-white p-7 sm:p-12">
+          <div className="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-brand-400/40 blur-[110px] -z-10 animate-pulse-glow" />
+          <div className="absolute inset-0 bg-dots opacity-40 -z-10 [mask-image:linear-gradient(200deg,black,transparent_60%)]" />
+          <AnimatedGrid className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10" stagger={0.12} itemClassName="">
             {[
               { Icon: ShieldCheck, title: 'Authentic guarantee', copy: 'Every merchant is compliance-verified. 100% original manufacturer inventory.' },
               { Icon: Truck, title: 'Dynamic express delivery', copy: 'Real-time warehouse tracking, live delivery dates and free shipping over ₹999.' },
               { Icon: RotateCcw, title: '7-day zero-hassle returns', copy: 'Return or replace if damaged or mismatched, with instant refunds.' },
             ].map(({ Icon, title, copy }) => (
-              <div key={title} className="flex items-start gap-4">
-                <span className="grid place-items-center w-12 h-12 rounded-2xl bg-white/10 border border-white/10 text-brand-200 shrink-0">
+              <div key={title} className="group flex items-start gap-4">
+                <span className="grid place-items-center w-12 h-12 rounded-2xl bg-brand-500 text-neutral-950 shadow-glow shrink-0 group-hover:rotate-6 group-hover:scale-110 transition-transform duration-300">
                   <Icon className="w-6 h-6" />
                 </span>
                 <div>
                   <h4 className="text-base font-semibold mb-1.5">{title}</h4>
-                  <p className="text-[13px] text-neutral-400 leading-relaxed">{copy}</p>
+                  <p className="text-[13px] text-neutral-700 dark:text-neutral-400 leading-relaxed">{copy}</p>
                 </div>
               </div>
             ))}
-          </div>
+          </AnimatedGrid>
         </div>
       </motion.section>
     </div>

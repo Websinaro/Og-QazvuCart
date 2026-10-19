@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef } from 'react';
+import { motion } from 'motion/react';
 import { ChevronLeft, ChevronRight, type AppIcon } from '@/src/components/ui/icons';
 import { ProductCard, ProductCardProps } from '@/src/components/product/ProductCard';
 import { ProductCardSkeleton } from '@/src/components/product/ProductCardSkeleton';
@@ -38,7 +39,7 @@ export function ProductRail({
             <span
               className={`grid place-items-center w-10 h-10 rounded-2xl shrink-0 ${
                 accent === 'amber'
-                  ? 'bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-glow'
+                  ? 'bg-gradient-to-br from-brand-300 to-brand-600 text-neutral-950 shadow-glow'
                   : 'bg-brand-500/10 text-brand-700 dark:text-brand-300'
               }`}
             >
@@ -75,13 +76,20 @@ export function ProductRail({
         {isLoading
           ? Array.from({ length: skeletonCount }).map((_, i) => (
               <div key={i} className="w-[46vw] sm:w-[250px] shrink-0 snap-start">
-                <ProductCardSkeleton />
+                <ProductCardSkeleton index={i} />
               </div>
             ))
-          : products.map((p) => (
-              <div key={p.id} className="w-[46vw] sm:w-[250px] shrink-0 snap-start">
+          : products.map((p, i) => (
+              <motion.div
+                key={p.id}
+                initial={{ opacity: 0, y: 26, scale: 0.95 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, amount: 0.15 }}
+                transition={{ type: 'spring', stiffness: 200, damping: 22, delay: Math.min(i, 6) * 0.06 }}
+                className="w-[46vw] sm:w-[250px] shrink-0 snap-start"
+              >
                 <ProductCard {...p} />
-              </div>
+              </motion.div>
             ))}
       </div>
     </section>

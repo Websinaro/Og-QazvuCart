@@ -3,6 +3,7 @@
 import React, { useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useCart } from '@/src/context/CartContext';
 import { useWishlist } from '@/src/context/WishlistContext';
@@ -58,6 +59,14 @@ export function ProductCard({
 
   const isFav = isInWishlist(id);
 
+  // Feeds the pointer-follow yellow spotlight (see .card-spotlight in globals.css).
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === 'touch') return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty('--mx', `${e.clientX - rect.left}px`);
+    e.currentTarget.style.setProperty('--my', `${e.clientY - rect.top}px`);
+  };
+
   const handleWishlistToggle = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -91,16 +100,19 @@ export function ProductCard({
       : 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=900&q=80';
 
   return (
-    <div className="group relative flex flex-col h-full rounded-[1.375rem] bg-white dark:bg-[#13131a] border border-neutral-900/[0.06] dark:border-white/[0.08] shadow-soft hover:shadow-lift hover:-translate-y-0.5 transition-all duration-300 overflow-hidden">
+    <div
+      onPointerMove={handlePointerMove}
+      className="group card-spotlight relative flex flex-col h-full rounded-[1.375rem] bg-white dark:bg-[#17140b] border border-brand-700/10 dark:border-white/[0.08] shadow-soft hover:shadow-lift hover:border-brand-400/70 dark:hover:border-brand-400/40 hover:-translate-y-1 transition-[transform,box-shadow,border-color] duration-300 ease-out overflow-hidden"
+    >
       {/* Media */}
-      <div ref={imageRef} className="relative aspect-[4/4.2] w-full bg-neutral-100 dark:bg-neutral-900 overflow-hidden shrink-0 m-0">
+      <div ref={imageRef} className="shine-sweep relative aspect-[4/4.2] w-full bg-brand-50 dark:bg-neutral-900 overflow-hidden shrink-0 m-0">
         <Link href={`/products/${slug}`} className="block w-full h-full" aria-label={name}>
           <Image
             src={validImage}
             alt={name}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover group-hover:scale-[1.06] transition-transform duration-700 ease-out"
+            className="object-cover group-hover:scale-[1.08] group-hover:rotate-[0.4deg] transition-transform duration-700 ease-out"
             referrerPolicy="no-referrer"
           />
           <span className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -115,7 +127,7 @@ export function ProductCard({
           )}
           {isDeal && (
             <span className="inline-flex items-center gap-1 rounded-full glass text-neutral-900 dark:text-white text-[10px] font-semibold px-2.5 py-1 shadow-sm">
-              <Zap className="w-3 h-3 text-brand-600 dark:text-brand-300" weight="fill" /> Deal
+              <Zap className="w-3 h-3 text-brand-700 dark:text-brand-300" weight="fill" /> Deal
             </span>
           )}
         </div>
@@ -209,7 +221,7 @@ export function ProductCard({
             className={`mt-3 w-full h-10 px-3 text-[13px] font-semibold rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] cursor-pointer ${
               justAdded
                 ? 'bg-emerald-500 text-white'
-                : 'bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 hover:bg-brand-600 dark:hover:bg-brand-200 hover:shadow-glow'
+                : 'bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 hover:bg-brand-600 dark:hover:bg-brand-200 hover:shadow-glow hover:text-neutral-950'
             }`}
           >
             <AnimatePresence mode="wait" initial={false}>
@@ -240,9 +252,12 @@ export function ProductCard({
         </div>
       </div>
 
-      {isQuickViewOpen && (
-        <QuickViewModal key={slug} slug={slug} onClose={() => setIsQuickViewOpen(false)} />
-      )}
+      {isQuickViewOpen &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <QuickViewModal key={slug} slug={slug} onClose={() => setIsQuickViewOpen(false)} />,
+          document.body
+        )}
     </div>
   );
 }
