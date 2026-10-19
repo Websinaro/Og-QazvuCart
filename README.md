@@ -46,22 +46,30 @@ Next.js → Service layer (src/server/modules/*) → Drizzle ORM → PostgreSQL
    `schema_migrations` table so re-running it is a no-op. It does **not**
    recreate tables on every server boot.
 3. (Optional) Seed demo data — categories, products, a demo customer,
-   seller, and admin account, plus one delivered order so review
+   and seller account, plus one delivered order so review
    eligibility can be tested immediately:
    ```
    npm run db:seed
    ```
 4. `npm run dev`
 
-### Admin access
+### Admin access (one-time bootstrap)
 
-Set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in your server environment (see
-`.env.example`). Anyone who **signs up or signs in with exactly that email
-and password** becomes an admin. The account is created on first use and
-repaired (role and password) on later logins. Both variables must be set;
-if either is missing, nobody can gain admin this way. The admin email is
-reserved: it cannot be registered with a different password or set as another
-user's email, so it can't be squatted.
+Nobody can become an admin by registering or logging in — public
+registration always creates a `CUSTOMER`. The first admin is created once,
+from the server shell:
+
+```
+ADMIN_BOOTSTRAP_EMAIL=you@example.com \
+ADMIN_BOOTSTRAP_PASSWORD='a-long-Strong-pass-123' \
+npm run admin:bootstrap
+```
+
+(`ADMIN_BOOTSTRAP_USERNAME` is optional.) The command refuses to run if any
+admin already exists, so it is a one-time operation; unset the variables
+afterwards. Further admins can only be promoted by an existing admin from the
+admin dashboard. The old `ADMIN_EMAIL` / `ADMIN_PASSWORD` variables are no
+longer read.
 
 ### Schema changes going forward
 

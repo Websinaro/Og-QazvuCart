@@ -81,47 +81,21 @@ export const config = {
 } as const;
 
 /**
- * Admin credentials (server-side only, never sent to the browser).
+ * One-time admin bootstrap (CLI only — see src/scripts/create-admin.ts).
  *
- * Whoever signs up or signs in with EXACTLY this email AND this password
- * becomes (or is kept as) an ADMIN. Both values must be set for the
- * feature to be active; if either is missing nobody can obtain admin this
- * way. There is no hardcoded fallback. `ADMIN_USERNAME` is optional and is
- * only used as the username when the admin account is first created from
- * a login (signup uses the username typed in the form).
- *
- * The legacy BOOTSTRAP_ADMIN_* names are still honoured so existing
- * deployments keep working.
- */
-function optionalEnv(...names: string[]): string | undefined {
-  for (const name of names) {
-    const value = process.env[name];
-    if (value && value.trim().length > 0) return value;
-  }
-  return undefined;
-}
-
-export const adminEnv = {
-  get email(): string | undefined {
-    return optionalEnv('ADMIN_EMAIL', 'BOOTSTRAP_ADMIN_EMAIL')?.trim().toLowerCase();
-  },
-  get password(): string | undefined {
-    return optionalEnv('ADMIN_PASSWORD', 'BOOTSTRAP_ADMIN_PASSWORD');
-  },
-  get username(): string | undefined {
-    return optionalEnv('ADMIN_USERNAME')?.trim();
-  },
-};
-
-/**
- * Credentials for the interactive `npm run admin:create` CLI. Kept for
- * backwards compatibility; the running application uses `adminEnv`.
+ * These variables are read ONLY by `npm run admin:bootstrap`. The running
+ * web application never reads them, so they cannot be used to log in or to
+ * gain admin through registration/login. Remove them after bootstrapping.
  */
 export const bootstrap = {
   get adminEmail() {
-    return requireEnv('BOOTSTRAP_ADMIN_EMAIL');
+    return requireEnv('ADMIN_BOOTSTRAP_EMAIL');
   },
   get adminPassword() {
-    return requireEnv('BOOTSTRAP_ADMIN_PASSWORD');
+    return requireEnv('ADMIN_BOOTSTRAP_PASSWORD');
+  },
+  get adminUsername(): string | undefined {
+    const v = process.env.ADMIN_BOOTSTRAP_USERNAME?.trim();
+    return v ? v : undefined;
   },
 };

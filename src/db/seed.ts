@@ -28,7 +28,7 @@ import { hashPassword } from '@/src/lib/password';
  * when a developer explicitly executes `npm run db:seed`.
  *
  * It intentionally does NOT create any admin account. Admins are created
- * exclusively via `npm run admin:create` (see src/scripts/create-admin.ts),
+ * exclusively via `npm run admin:bootstrap` (see src/scripts/create-admin.ts),
  * which prompts for credentials interactively and never uses a
  * predictable/hardcoded password.
  *
