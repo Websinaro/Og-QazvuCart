@@ -602,7 +602,7 @@ function AccountDashboardContent() {
                         className="bg-white rounded-3xl border border-neutral-200 shadow-soft overflow-hidden divide-y divide-neutral-100 dark:bg-[#17140b] dark:border-white/10 dark:divide-white/10"
                       >
                         {/* Order Header */}
-                        <div className="p-5 bg-neutral-50/70 flex flex-wrap items-center justify-between gap-3 text-xs">
+                        <div className="p-5 bg-neutral-50/70 dark:bg-white/[0.04] flex flex-wrap items-center justify-between gap-3 text-xs">
                           <div className="flex items-center gap-4">
                             <div>
                               <span className="text-[10px] text-neutral-400 font-bold uppercase">Order No</span>
@@ -663,7 +663,7 @@ function AccountDashboardContent() {
 
                         {/* Interactive Tracking Stepper */}
                         {order.timeline && order.timeline.length > 0 && (
-                          <div className="p-5 bg-neutral-50/40">
+                          <div className="p-5 bg-neutral-50/40 dark:bg-white/[0.03]">
                             <h5 className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider mb-3 dark:text-neutral-400">
                               Live Delivery Tracking
                             </h5>

@@ -642,7 +642,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               )}
 
               {/* 3. Original Price, Discount & Discounted Price Box */}
-              <div className="py-4 space-y-1.5 bg-neutral-50/70 p-4 rounded-2xl border border-neutral-100 my-4 dark:border-white/10">
+              <div className="py-4 space-y-1.5 bg-neutral-50/70 p-4 rounded-2xl border border-neutral-100 my-4 dark:bg-white/[0.04] dark:border-white/10">
                 <div className="flex flex-wrap items-baseline gap-3">
                   {/* Final Discounted Price */}
                   <span className="text-3xl sm:text-4xl font-bold text-neutral-950 tracking-tight dark:text-white">
@@ -751,7 +751,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
                 {pincodeStatus === 'idle' && (
                   <div className="flex items-start gap-2.5 text-xs text-neutral-800 dark:text-neutral-100">
-                    <Truck className="w-4 h-4 text-brand-300 shrink-0 mt-0.5 fill-brand-300" />
+                    <Truck className="w-4 h-4 text-brand-700 dark:text-brand-300 shrink-0 mt-0.5" />
                     <div>
                       <span className="font-semibold text-neutral-900 dark:text-white">
                         Standard Delivery by <strong className="text-neutral-950 font-bold dark:text-white">{product.deliveryInfo.dateString}</strong>
@@ -1135,7 +1135,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                     return (
                       <div
                         key={rev.id}
-                        className="p-5 rounded-2xl bg-neutral-50/70 border border-neutral-200/80 space-y-3 dark:border-white/10"
+                        className="p-5 rounded-2xl bg-neutral-50/70 border border-neutral-200/80 space-y-3 dark:bg-white/[0.04] dark:border-white/10"
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2.5">
@@ -1245,7 +1245,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
                       {qa.answer ? (
                         <div className="flex items-start gap-2 pl-4 border-l-2 border-brand-500 mt-2">
-                          <span className="font-bold text-xs text-amber-900 bg-brand-600 px-1.5 py-0.5 rounded dark:text-amber-300">A</span>
+                          <span className="font-bold text-xs text-amber-900 bg-brand-600 px-1.5 py-0.5 rounded">A</span>
                           <div>
                             <p className="text-xs text-neutral-700 leading-relaxed dark:text-neutral-300">{qa.answer}</p>
                             <span className="text-[10px] text-neutral-500 font-semibold flex items-center gap-1 mt-1 dark:text-neutral-400">

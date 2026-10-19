@@ -1149,7 +1149,7 @@ export default function AdminDashboardPage() {
                   </thead>
                   <tbody className="divide-y divide-neutral-100 font-medium dark:divide-white/10">
                     {analytics?.recentOrders?.map((ord) => (
-                      <tr key={ord.id} className="hover:bg-neutral-50/70 transition-colors">
+                      <tr key={ord.id} className="hover:bg-neutral-50/70 dark:hover:bg-white/[0.04] transition-colors">
                         <td className="py-3 px-3 font-mono font-bold text-neutral-950 dark:text-white">{ord.orderNumber}</td>
                         <td className="py-3 px-3">
                           <p className="font-bold text-neutral-950 dark:text-white">{ord.customerName}</p>
@@ -1241,7 +1241,7 @@ export default function AdminDashboardPage() {
                     {filteredProducts.map((prod) => {
                       const isEditing = editingProductId === prod.id;
                       return (
-                        <tr key={prod.id} className="hover:bg-neutral-50/70 transition-colors">
+                        <tr key={prod.id} className="hover:bg-neutral-50/70 dark:hover:bg-white/[0.04] transition-colors">
                           {/* Product Info */}
                           <td className="py-3.5 px-4">
                             <div className="flex items-center gap-3">
@@ -1720,7 +1720,7 @@ export default function AdminDashboardPage() {
                       {ord.status === 'PENDING' && (
                         <button
                           onClick={() => handleUpdateOrderStatus(ord.id, 'CONFIRMED')}
-                          className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg text-xs transition-colors"
+                          className="px-3 py-1.5 bg-brand-500 hover:bg-brand-400 text-neutral-950 font-bold rounded-lg text-xs transition-colors"
                         >
                           Confirm Order
                         </button>
@@ -1801,7 +1801,7 @@ export default function AdminDashboardPage() {
                   </thead>
                   <tbody className="divide-y divide-neutral-100 font-medium dark:divide-white/10">
                     {filteredUsers.map((u) => (
-                      <tr key={u.id} className="hover:bg-neutral-50/70 transition-colors">
+                      <tr key={u.id} className="hover:bg-neutral-50/70 dark:hover:bg-white/[0.04] transition-colors">
                         <td className="py-3.5 px-4">
                           <div className="flex items-center gap-2.5">
                             <div className="w-8 h-8 rounded-full bg-neutral-950 text-brand-300 font-bold text-xs flex items-center justify-center">
@@ -2040,7 +2040,7 @@ export default function AdminDashboardPage() {
                       {coupons.map((c) => {
                         const isExpired = c.expiresAt ? new Date(c.expiresAt) < new Date() : false;
                         return (
-                          <tr key={c.id} className="border-b border-neutral-50 last:border-0 hover:bg-neutral-50/50">
+                          <tr key={c.id} className="border-b border-neutral-50 last:border-0 hover:bg-neutral-50/50 dark:hover:bg-white/[0.04]">
                             <td className="py-3 px-4">
                               <div className="font-bold text-neutral-900 dark:text-white">{c.code}</div>
                               {c.description && <div className="text-[10px] text-neutral-400">{c.description}</div>}

@@ -109,7 +109,7 @@ export default function SellerStorePage({ params }: { params: Promise<{ slug: st
   }
 
   return (
-    <div className="bg-neutral-50 min-h-screen">
+    <div className="bg-neutral-50 dark:bg-transparent min-h-screen">
       {/* Store Banner */}
       <div className="bg-neutral-950 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10 flex flex-col sm:flex-row sm:items-center gap-5">
