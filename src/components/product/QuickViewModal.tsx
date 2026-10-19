@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Star, Heart, ShoppingBag, Truck, Minus, Plus, ExternalLink } from 'lucide-react';
+import { X, Star, Heart, ShoppingBag, Truck, Minus, Plus, ExternalLink } from '@/src/components/ui/icons';
 import { useCart } from '@/src/context/CartContext';
 import { useWishlist } from '@/src/context/WishlistContext';
 import { useToast } from '@/src/context/ToastContext';
@@ -121,7 +121,7 @@ export function QuickViewModal({
           role="dialog"
           aria-modal="true"
           aria-label="Quick product preview"
-          className="relative bg-white w-full sm:max-w-2xl sm:rounded-3xl rounded-t-3xl shadow-2xl overflow-hidden max-h-[92vh] sm:max-h-[85vh] flex flex-col"
+          className="relative bg-white w-full sm:max-w-2xl sm:rounded-3xl rounded-t-3xl shadow-2xl overflow-hidden max-h-[92vh] sm:max-h-[85vh] flex flex-col dark:bg-[#13131a]"
           initial={{ y: 40, opacity: 0, scale: 0.98 }}
           animate={{ y: 0, opacity: 1, scale: 1 }}
           exit={{ y: 20, opacity: 0, scale: 0.98 }}
@@ -130,21 +130,21 @@ export function QuickViewModal({
           <button
             onClick={onClose}
             aria-label="Close quick view"
-            className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/90 hover:bg-white shadow-md text-neutral-700 cursor-pointer"
+            className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/90 hover:bg-white shadow-md text-neutral-700 cursor-pointer dark:bg-neutral-900/80 dark:text-neutral-300"
           >
             <X className="w-4 h-4" />
           </button>
 
           {status === 'loading' && (
             <div className="p-10 flex items-center justify-center min-h-[320px]">
-              <div className="w-8 h-8 border-2 border-neutral-300 border-t-neutral-900 rounded-full animate-spin" />
+              <div className="w-8 h-8 border-2 border-neutral-300 border-t-neutral-900 rounded-full animate-spin dark:border-white/10" />
             </div>
           )}
 
           {status === 'error' && (
             <div className="p-10 text-center min-h-[320px] flex flex-col items-center justify-center">
-              <p className="text-sm font-bold text-neutral-700">Couldn&apos;t load this product.</p>
-              <Link href={`/products/${slug}`} className="mt-3 text-xs font-bold text-neutral-900 underline">
+              <p className="text-sm font-bold text-neutral-700 dark:text-neutral-300">Couldn&apos;t load this product.</p>
+              <Link href={`/products/${slug}`} className="mt-3 text-xs font-bold text-neutral-900 underline dark:text-white">
                 Open full product page
               </Link>
             </div>
@@ -153,7 +153,7 @@ export function QuickViewModal({
           {status === 'ready' && product && (
             <div className="grid grid-cols-1 sm:grid-cols-2 overflow-y-auto">
               {/* Image */}
-              <div className="relative bg-neutral-50">
+              <div className="relative bg-neutral-50 dark:bg-white/[0.04]">
                 <div ref={imgRef} className="relative aspect-square w-full">
                   {product.images.length > 0 ? (
                     <Image
@@ -176,7 +176,7 @@ export function QuickViewModal({
                         key={img.id}
                         onClick={() => setActiveImage(i)}
                         className={`relative w-12 h-12 shrink-0 rounded-lg overflow-hidden border-2 cursor-pointer ${
-                          i === activeImage ? 'border-neutral-900' : 'border-transparent'
+                          i === activeImage ? 'border-neutral-900 dark:border-white/30' : 'border-transparent'
                         }`}
                       >
                         <Image src={img.imageUrl} alt="" fill className="object-cover" referrerPolicy="no-referrer" />
@@ -188,19 +188,19 @@ export function QuickViewModal({
 
               {/* Details */}
               <div className="p-5 sm:p-6 flex flex-col">
-                <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">{product.brand}</span>
-                <h2 className="text-lg font-black text-neutral-950 leading-snug mt-0.5 mb-2">{product.name}</h2>
+                <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider dark:text-neutral-400">{product.brand}</span>
+                <h2 className="text-lg font-bold text-neutral-950 leading-snug mt-0.5 mb-2 dark:text-white">{product.name}</h2>
 
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="flex items-center gap-1 bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.5 rounded-md text-[11px] font-extrabold">
+                  <div className="flex items-center gap-1 bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.5 rounded-md text-[11px] font-semibold dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/25">
                     <span>{Number(product.rating) > 0 ? Number(product.rating).toFixed(1) : 'New'}</span>
-                    <Star className="w-3 h-3 fill-emerald-700 text-emerald-700" />
+                    <Star className="w-3 h-3 fill-emerald-700 text-emerald-700 dark:text-emerald-300" />
                   </div>
                   <span className="text-[11px] text-neutral-400 font-medium">({product.reviewCount} reviews)</span>
                 </div>
 
                 <div className="flex items-baseline gap-2 mb-1">
-                  <span className="text-2xl font-black text-neutral-950">{formatINR(product.discountPrice)}</span>
+                  <span className="text-2xl font-bold text-neutral-950 dark:text-white">{formatINR(product.discountPrice)}</span>
                   {product.basePrice > product.discountPrice && (
                     <span className="text-sm text-neutral-400 line-through font-medium">
                       {formatINR(product.basePrice)}
@@ -208,18 +208,18 @@ export function QuickViewModal({
                   )}
                 </div>
                 {product.basePrice > product.discountPrice && (
-                  <p className="text-xs font-bold text-emerald-700 mb-3">
+                  <p className="text-xs font-bold text-emerald-700 mb-3 dark:text-emerald-300">
                     You save {formatINR(product.basePrice - product.discountPrice)}
                   </p>
                 )}
 
-                <p className="text-xs text-neutral-600 line-clamp-3 mb-4">{product.description}</p>
+                <p className="text-xs text-neutral-600 line-clamp-3 mb-4 dark:text-neutral-300">{product.description}</p>
 
-                <div className="flex items-center gap-1.5 text-[11px] text-neutral-500 mb-4">
+                <div className="flex items-center gap-1.5 text-[11px] text-neutral-500 mb-4 dark:text-neutral-400">
                   <Truck className="w-3.5 h-3.5" />
                   {product.stock > 0 ? (
                     <span>
-                      In stock — <strong className="text-neutral-700">{product.stock} left</strong>
+                      In stock — <strong className="text-neutral-700 dark:text-neutral-300">{product.stock} left</strong>
                     </span>
                   ) : (
                     <span className="text-red-600 font-bold">Out of stock</span>
@@ -228,11 +228,11 @@ export function QuickViewModal({
 
                 {/* Qty */}
                 <div className="flex items-center gap-3 mb-4">
-                  <span className="text-xs font-bold text-neutral-700">Qty</span>
-                  <div className="flex items-center border border-neutral-300 rounded-xl overflow-hidden">
+                  <span className="text-xs font-bold text-neutral-700 dark:text-neutral-300">Qty</span>
+                  <div className="flex items-center border border-neutral-300 rounded-xl overflow-hidden dark:border-white/10">
                     <button
                       onClick={() => setQty((q) => Math.max(1, q - 1))}
-                      className="p-2 hover:bg-neutral-100 text-neutral-700 cursor-pointer"
+                      className="p-2 hover:bg-neutral-100 text-neutral-700 cursor-pointer dark:hover:bg-white/10 dark:text-neutral-300"
                       aria-label="Decrease quantity"
                     >
                       <Minus className="w-3.5 h-3.5" />
@@ -240,7 +240,7 @@ export function QuickViewModal({
                     <span className="px-3 text-sm font-bold min-w-[2rem] text-center">{qty}</span>
                     <button
                       onClick={() => setQty((q) => Math.min(product.stock || 1, q + 1))}
-                      className="p-2 hover:bg-neutral-100 text-neutral-700 cursor-pointer"
+                      className="p-2 hover:bg-neutral-100 text-neutral-700 cursor-pointer dark:hover:bg-white/10 dark:text-neutral-300"
                       aria-label="Increase quantity"
                     >
                       <Plus className="w-3.5 h-3.5" />
@@ -252,7 +252,7 @@ export function QuickViewModal({
                   <button
                     onClick={handleAddToCart}
                     disabled={product.stock <= 0 || isCartLoading}
-                    className="flex-1 py-3 px-4 bg-[#FFD21F] hover:bg-[#ebc21a] text-neutral-950 font-bold text-sm rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                    className="flex-1 py-3 px-4 bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm rounded-xl shadow-soft transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                   >
                     <ShoppingBag className="w-4 h-4" />
                     {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
@@ -262,8 +262,8 @@ export function QuickViewModal({
                     whileTap={{ scale: 0.85 }}
                     className={`p-3 rounded-xl border cursor-pointer ${
                       isFav
-                        ? 'bg-red-50 text-red-600 border-red-200'
-                        : 'bg-white text-neutral-600 border-neutral-300 hover:border-red-300 hover:text-red-600'
+                        ? 'bg-red-50 text-red-600 border-red-200 dark:bg-red-500/15 dark:border-red-500/25'
+                        : 'bg-white text-neutral-600 border-neutral-300 hover:border-red-300 hover:text-red-600 dark:bg-[#13131a] dark:text-neutral-300 dark:border-white/10'
                     }`}
                     aria-label="Toggle wishlist"
                   >
@@ -282,7 +282,7 @@ export function QuickViewModal({
                 <Link
                   href={`/products/${product.slug}`}
                   onClick={onClose}
-                  className="mt-3 text-center text-xs font-bold text-neutral-500 hover:text-neutral-900 flex items-center justify-center gap-1"
+                  className="mt-3 text-center text-xs font-bold text-neutral-500 hover:text-neutral-900 flex items-center justify-center gap-1 dark:text-neutral-400 dark:hover:text-white"
                 >
                   View full details <ExternalLink className="w-3 h-3" />
                 </Link>

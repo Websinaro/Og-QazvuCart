@@ -39,7 +39,7 @@ import {
   PackageCheck,
   AlertCircle,
   Check,
-} from 'lucide-react';
+} from '@/src/components/ui/icons';
 import { formatINR } from '@/src/lib/date';
 
 interface ProductVariant {
@@ -436,10 +436,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-8">
+      <div className="min-h-screen flex items-center justify-center p-8">
         <div className="text-center space-y-3">
-          <div className="w-10 h-10 border-4 border-neutral-900 border-t-[#FFD21F] rounded-full animate-spin mx-auto" />
-          <p className="text-xs font-bold text-neutral-600">Loading product details...</p>
+          <div className="w-10 h-10 border-4 border-neutral-900 border-t-brand-500 rounded-full animate-spin mx-auto dark:border-white/30" />
+          <p className="text-xs font-bold text-neutral-600 dark:text-neutral-300">Loading product details...</p>
         </div>
       </div>
     );
@@ -447,15 +447,15 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-8">
-        <div className="text-center max-w-md bg-white p-8 rounded-3xl border border-neutral-200 shadow-sm">
-          <h2 className="text-xl font-black text-neutral-900 mb-2">Product Not Found</h2>
-          <p className="text-xs text-neutral-500 mb-6">
+      <div className="min-h-screen flex items-center justify-center p-8">
+        <div className="text-center max-w-md bg-white p-8 rounded-3xl border border-neutral-200 shadow-sm dark:bg-[#13131a] dark:border-white/10">
+          <h2 className="text-xl font-bold text-neutral-900 mb-2 dark:text-white">Product Not Found</h2>
+          <p className="text-xs text-neutral-500 mb-6 dark:text-neutral-400">
             The item you are looking for is currently unavailable or has been removed.
           </p>
           <Link
             href="/products"
-            className="px-6 py-2.5 bg-neutral-900 text-[#FFD21F] font-bold text-xs rounded-xl shadow transition-colors"
+            className="px-6 py-2.5 bg-neutral-900 text-brand-300 font-bold text-xs rounded-xl shadow transition-colors"
           >
             Browse All Products
           </Link>
@@ -465,31 +465,31 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 pb-24 sm:pb-20">
+    <div className="min-h-screen pb-24 sm:pb-20">
       {/* 1. Breadcrumbs Header */}
-      <div className="bg-white border-b border-neutral-200 py-3 text-xs">
+      <div className="bg-white border-b border-neutral-200 py-3 text-xs dark:bg-[#13131a] dark:border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-neutral-500 overflow-x-auto whitespace-nowrap">
-            <Link href="/" className="hover:text-neutral-900 transition-colors">
+          <div className="flex items-center gap-2 text-neutral-500 overflow-x-auto whitespace-nowrap dark:text-neutral-400">
+            <Link href="/" className="hover:text-neutral-900 transition-colors dark:hover:text-white">
               Home
             </Link>
             <ChevronRight className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
-            <Link href="/products" className="hover:text-neutral-900 transition-colors">
+            <Link href="/products" className="hover:text-neutral-900 transition-colors dark:hover:text-white">
               Products
             </Link>
             <ChevronRight className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
-            <Link href={`/products?category=${product.categorySlug}`} className="hover:text-neutral-900 transition-colors font-medium">
+            <Link href={`/products?category=${product.categorySlug}`} className="hover:text-neutral-900 transition-colors font-medium dark:hover:text-white">
               {product.categoryName}
             </Link>
             <ChevronRight className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
-            <span className="font-bold text-neutral-900 truncate max-w-[200px] sm:max-w-md">
+            <span className="font-bold text-neutral-900 truncate max-w-[200px] sm:max-w-md dark:text-white">
               {product.name}
             </span>
           </div>
 
           <button
             onClick={handleShare}
-            className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-neutral-600 hover:text-neutral-900 px-3 py-1 bg-neutral-100 rounded-lg transition-colors cursor-pointer"
+            className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-neutral-600 hover:text-neutral-900 px-3 py-1 bg-neutral-100 rounded-lg transition-colors cursor-pointer dark:bg-white/10 dark:text-neutral-300 dark:hover:text-white"
           >
             <Share2 className="w-3.5 h-3.5" />
             <span>Share</span>
@@ -499,19 +499,19 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
       {/* 2. Main Product Hero (Gallery + Buy Box) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
-        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-neutral-200 shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-neutral-200 shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 dark:bg-[#13131a] dark:border-white/10">
           {/* Left: Gallery (5 cols) */}
           <div className="lg:col-span-5 flex flex-col-reverse sm:flex-row gap-4">
             {/* Thumbnails */}
             {imagesList.length > 1 && (
-              <div className="flex sm:flex-col gap-3 overflow-x-auto sm:overflow-y-auto max-h-[480px] scrollbar-none pb-2 sm:pb-0">
+              <div className="flex sm:flex-col gap-3 overflow-x-auto sm:overflow-y-auto max-h-[480px] no-scrollbar pb-2 sm:pb-0">
                 {imagesList.map((imgUrl, idx) => (
                   <button
                     key={idx}
                     type="button"
                     onClick={() => setSelectedImage(imgUrl)}
-                    className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 bg-neutral-50 shrink-0 transition-all cursor-pointer ${
-                      activeMainImage === imgUrl ? 'border-neutral-900 ring-2 ring-[#FFD21F]' : 'border-neutral-200 hover:border-neutral-400'
+                    className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 bg-neutral-50 shrink-0 transition-all cursor-pointer dark:bg-white/[0.04] ${
+                      activeMainImage === imgUrl ? 'border-neutral-900 ring-2 ring-brand-500 dark:border-white/30' : 'border-neutral-200 hover:border-neutral-400 dark:border-white/10'
                     }`}
                   >
                     <Image
@@ -528,7 +528,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
             )}
 
             {/* Primary Main Image with Zoom Trigger */}
-            <div ref={mainImageRef} className="flex-1 relative aspect-square bg-neutral-50 rounded-2xl overflow-hidden border border-neutral-200 group">
+            <div ref={mainImageRef} className="flex-1 relative aspect-square bg-neutral-50 rounded-2xl overflow-hidden border border-neutral-200 group dark:bg-white/[0.04] dark:border-white/10">
               <Image
                 src={activeMainImage}
                 alt={product.name}
@@ -542,7 +542,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
               {/* Discount Badge */}
               {effectiveDiscountPercent > 0 && (
-                <div className="absolute top-4 left-4 bg-[#E50914] text-white text-xs font-black px-2.5 py-1 rounded-md shadow-md uppercase tracking-wider flex items-center gap-1">
+                <div className="absolute top-4 left-4 bg-rose-600 text-white text-xs font-bold px-2.5 py-1 rounded-md shadow-md uppercase tracking-wider flex items-center gap-1">
                   <Tag className="w-3 h-3" />
                   <span>{effectiveDiscountPercent}% OFF</span>
                 </div>
@@ -552,7 +552,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               <button
                 onClick={handleWishlistToggle}
                 className={`absolute top-4 right-4 p-2.5 rounded-full shadow-md backdrop-blur-md transition-all cursor-pointer ${
-                  isFav ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-white/90 text-neutral-600 hover:text-red-600 border border-neutral-200'
+                  isFav ? 'bg-red-50 text-red-600 border border-red-200 dark:bg-red-500/15 dark:border-red-500/25' : 'bg-white/90 text-neutral-600 hover:text-red-600 border border-neutral-200 dark:bg-neutral-900/80 dark:text-neutral-300 dark:border-white/10'
                 }`}
                 aria-label="Wishlist"
               >
@@ -564,7 +564,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 onClick={() => setIsLightboxOpen(true)}
                 className="absolute bottom-4 right-4 p-2 bg-neutral-950/80 hover:bg-neutral-950 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 backdrop-blur-xs transition-opacity opacity-0 group-hover:opacity-100 cursor-pointer shadow-md"
               >
-                <ZoomIn className="w-3.5 h-3.5 text-[#FFD21F]" />
+                <ZoomIn className="w-3.5 h-3.5 text-brand-300" />
                 <span>Enlarge</span>
               </button>
             </div>
@@ -575,16 +575,16 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
             <div>
               {/* Brand & In-Stock Status */}
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-black text-neutral-500 uppercase tracking-widest">
-                  Brand: <strong className="text-neutral-900">{product.brand}</strong>
+                <span className="text-xs font-bold text-neutral-500 uppercase tracking-widest dark:text-neutral-400">
+                  Brand: <strong className="text-neutral-900 dark:text-white">{product.brand}</strong>
                 </span>
                 {product.inStock && availableStock > 0 ? (
-                  <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                  <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/25">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
                     In Stock ({availableStock} units available)
                   </span>
                 ) : (
-                  <span className="bg-red-50 text-red-800 border border-red-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                  <span className="bg-red-50 text-red-800 border border-red-200 text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 dark:bg-red-500/15 dark:text-red-300 dark:border-red-500/25">
                     <AlertCircle className="w-3 h-3 text-red-600" />
                     Currently Out of Stock
                   </span>
@@ -592,47 +592,47 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               </div>
 
               {/* Product Title */}
-              <h1 className="text-2xl sm:text-3xl font-black text-neutral-950 tracking-tight leading-tight mb-3">
+              <h1 className="text-2xl sm:text-3xl font-bold text-neutral-950 tracking-tight leading-tight mb-3 dark:text-white">
                 {product.name}
               </h1>
 
               {/* Ratings & Q&A Summary Bar */}
-              <div className="flex flex-wrap items-center gap-3 pb-4 border-b border-neutral-100">
-                <div className="flex items-center gap-1 bg-emerald-50 text-emerald-900 border border-emerald-200 px-2 py-0.5 rounded-lg text-xs font-extrabold">
+              <div className="flex flex-wrap items-center gap-3 pb-4 border-b border-neutral-100 dark:border-white/10">
+                <div className="flex items-center gap-1 bg-emerald-50 text-emerald-900 border border-emerald-200 px-2 py-0.5 rounded-lg text-xs font-semibold dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/25">
                   <span>{product.rating > 0 ? product.rating.toFixed(1) : '4.6'}</span>
-                  <Star className="w-3.5 h-3.5 fill-emerald-700 text-emerald-700" />
+                  <Star className="w-3.5 h-3.5 fill-emerald-700 text-emerald-700 dark:text-emerald-300" />
                 </div>
                 <button
                   onClick={() => setActiveTab('reviews')}
-                  className="text-xs font-semibold text-neutral-600 hover:text-neutral-950 underline transition-colors cursor-pointer"
+                  className="text-xs font-semibold text-neutral-600 hover:text-neutral-950 underline transition-colors cursor-pointer dark:text-neutral-300 dark:hover:text-white"
                 >
                   {product.reviewCount} Ratings & {product.reviews?.length || 0} Reviews
                 </button>
                 <span className="text-neutral-300">|</span>
                 <button
                   onClick={() => setActiveTab('qa')}
-                  className="text-xs font-semibold text-neutral-600 hover:text-neutral-950 transition-colors flex items-center gap-1 cursor-pointer"
+                  className="text-xs font-semibold text-neutral-600 hover:text-neutral-950 transition-colors flex items-center gap-1 cursor-pointer dark:text-neutral-300 dark:hover:text-white"
                 >
-                  <HelpCircle className="w-3.5 h-3.5 text-neutral-500" />
+                  <HelpCircle className="w-3.5 h-3.5 text-neutral-500 dark:text-neutral-400" />
                   <span>{product.questions?.length || 0} Q&As</span>
                 </button>
                 <span className="text-neutral-300">|</span>
-                <span className="text-xs text-neutral-500 font-medium">SKU: {selectedVariant?.sku || `PROD-${product.id}`}</span>
+                <span className="text-xs text-neutral-500 font-medium dark:text-neutral-400">SKU: {selectedVariant?.sku || `PROD-${product.id}`}</span>
               </div>
 
               {/* Sold By */}
               {product.seller?.slug && (
                 <div className="flex items-center gap-2 pt-3 text-xs">
                   <Store className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
-                  <span className="text-neutral-500 font-medium">Sold by</span>
+                  <span className="text-neutral-500 font-medium dark:text-neutral-400">Sold by</span>
                   <Link
                     href={`/seller/${product.seller.slug}`}
-                    className="font-bold text-neutral-900 hover:text-[#c9a300] underline decoration-neutral-300 underline-offset-2 transition-colors"
+                    className="font-bold text-neutral-900 hover:text-brand-600 underline decoration-neutral-300 underline-offset-2 transition-colors dark:text-white"
                   >
                     {product.seller.name}
                   </Link>
                   {product.seller.rating > 0 && (
-                    <span className="flex items-center gap-0.5 text-emerald-700 font-bold">
+                    <span className="flex items-center gap-0.5 text-emerald-700 font-bold dark:text-emerald-300">
                       <Star className="w-3 h-3 fill-emerald-700" />
                       {product.seller.rating.toFixed(1)}
                     </span>
@@ -641,10 +641,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               )}
 
               {/* 3. Original Price, Discount & Discounted Price Box */}
-              <div className="py-4 space-y-1.5 bg-neutral-50/70 p-4 rounded-2xl border border-neutral-100 my-4">
+              <div className="py-4 space-y-1.5 bg-neutral-50/70 p-4 rounded-2xl border border-neutral-100 my-4 dark:border-white/10">
                 <div className="flex flex-wrap items-baseline gap-3">
                   {/* Final Discounted Price */}
-                  <span className="text-3xl sm:text-4xl font-black text-neutral-950 tracking-tight">
+                  <span className="text-3xl sm:text-4xl font-bold text-neutral-950 tracking-tight dark:text-white">
                     {formatINR(currentDiscountPrice)}
                   </span>
 
@@ -655,23 +655,23 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                         {formatINR(currentBasePrice)}
                       </span>
                       {/* Discount Percentage Pill */}
-                      <span className="text-xs font-black text-red-700 bg-red-100/90 px-2.5 py-1 rounded-md border border-red-200 uppercase tracking-wide">
+                      <span className="text-xs font-bold text-red-700 bg-red-100/90 px-2.5 py-1 rounded-md border border-red-200 uppercase tracking-wide dark:text-red-300 dark:border-red-500/25">
                         Save {formatINR(totalSavings)} ({effectiveDiscountPercent}% OFF)
                       </span>
                     </>
                   )}
                 </div>
-                <p className="text-[11px] text-neutral-500 font-medium">
+                <p className="text-[11px] text-neutral-500 font-medium dark:text-neutral-400">
                   Inclusive of all taxes. Free shipping on orders over ₹999.
                 </p>
 
                 {/* Bank / EMI Offer Highlights */}
-                <div className="pt-3 border-t border-neutral-200/60 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                  <div className="flex items-start gap-2 text-neutral-700 bg-white p-2 rounded-xl border border-neutral-200/70">
+                <div className="pt-3 border-t border-neutral-200/60 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs dark:border-white/10">
+                  <div className="flex items-start gap-2 text-neutral-700 bg-white p-2 rounded-xl border border-neutral-200/70 dark:bg-[#13131a] dark:text-neutral-300 dark:border-white/10">
                     <Zap className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5 fill-amber-400" />
                     <span><strong>Bank Offer:</strong> 10% instant discount up to ₹1,500 on major cards</span>
                   </div>
-                  <div className="flex items-start gap-2 text-neutral-700 bg-white p-2 rounded-xl border border-neutral-200/70">
+                  <div className="flex items-start gap-2 text-neutral-700 bg-white p-2 rounded-xl border border-neutral-200/70 dark:bg-[#13131a] dark:text-neutral-300 dark:border-white/10">
                     <Tag className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
                     <span><strong>No Cost EMI:</strong> Available starting from {formatINR(Math.round(currentDiscountPrice / 6))}/mo</span>
                   </div>
@@ -680,9 +680,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
               {/* 4. Variant Selection */}
               {product.variants && product.variants.length > 0 && (
-                <div className="pt-2 pb-4 border-t border-neutral-100">
-                  <label className="block text-xs font-extrabold text-neutral-800 uppercase tracking-wider mb-2">
-                    Select Option / Edition: <span className="text-neutral-500 font-medium">{selectedVariant?.name || selectedVariant?.variantName}</span>
+                <div className="pt-2 pb-4 border-t border-neutral-100 dark:border-white/10">
+                  <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-2 dark:text-neutral-100">
+                    Select Option / Edition: <span className="text-neutral-500 font-medium dark:text-neutral-400">{selectedVariant?.name || selectedVariant?.variantName}</span>
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {product.variants.map((v) => {
@@ -696,8 +696,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                           onClick={() => setSelectedVariant(v)}
                           className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all flex items-center gap-2 cursor-pointer ${
                             isSelected
-                              ? 'bg-neutral-950 text-[#FFD21F] border-neutral-950 shadow-sm ring-2 ring-[#FFD21F]/30'
-                              : 'bg-neutral-50 hover:bg-neutral-100 text-neutral-800 border-neutral-200'
+                              ? 'bg-neutral-950 text-brand-300 border-neutral-950 shadow-sm ring-2 ring-brand-500/30'
+                              : 'bg-neutral-50 hover:bg-neutral-100 text-neutral-800 border-neutral-200 dark:bg-white/[0.04] dark:hover:bg-white/10 dark:text-neutral-100 dark:border-white/10'
                           }`}
                         >
                           <span>{vName}</span>
@@ -714,7 +714,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               )}
 
               {/* 5. Interactive Pincode & Delivery Checker */}
-              <div className="bg-neutral-50 p-4 rounded-2xl border border-neutral-200/80 space-y-3">
+              <div className="bg-neutral-50 p-4 rounded-2xl border border-neutral-200/80 space-y-3 dark:bg-white/[0.04] dark:border-white/10">
                 <form onSubmit={handleCheckPincode} className="flex flex-col sm:flex-row gap-2">
                   <div className="relative flex-1">
                     <input
@@ -723,12 +723,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                       value={pincode}
                       onChange={(e) => setPincode(e.target.value.replace(/\D/g, ''))}
                       placeholder="Enter 6-digit delivery pincode (e.g. 560001)"
-                      className="w-full pl-3 pr-20 py-2 bg-white border border-neutral-300 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#FFD21F]"
+                      className="w-full pl-3 pr-20 py-2 bg-white border border-neutral-300 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand-500/40 dark:bg-[#13131a] dark:border-white/10"
                     />
                     <button
                       type="submit"
                       disabled={pincode.length !== 6 || pincodeStatus === 'checking'}
-                      className="absolute right-1 top-1 bottom-1 px-3 bg-neutral-900 hover:bg-neutral-800 text-[#FFD21F] font-bold text-xs rounded-lg transition-colors disabled:opacity-40 cursor-pointer"
+                      className="absolute right-1 top-1 bottom-1 px-3 bg-neutral-900 hover:bg-neutral-800 text-brand-300 font-bold text-xs rounded-lg transition-colors disabled:opacity-40 cursor-pointer"
                     >
                       {pincodeStatus === 'checking' ? 'Checking...' : 'Check'}
                     </button>
@@ -736,7 +736,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 </form>
 
                 {pincodeStatus === 'valid' && (
-                  <div className="flex items-center gap-2 text-xs font-bold text-emerald-800 bg-emerald-50 p-2.5 rounded-xl border border-emerald-200">
+                  <div className="flex items-center gap-2 text-xs font-bold text-emerald-800 bg-emerald-50 p-2.5 rounded-xl border border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/25">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                     <span>
                       Delivery available to {pincode} by <strong>{pincodeDeliveryDate || product.deliveryInfo.dateString}</strong> • Cash on Delivery Available
@@ -749,13 +749,13 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 )}
 
                 {pincodeStatus === 'idle' && (
-                  <div className="flex items-start gap-2.5 text-xs text-neutral-800">
-                    <Truck className="w-4 h-4 text-[#FFD21F] shrink-0 mt-0.5 fill-[#FFD21F]" />
+                  <div className="flex items-start gap-2.5 text-xs text-neutral-800 dark:text-neutral-100">
+                    <Truck className="w-4 h-4 text-brand-300 shrink-0 mt-0.5 fill-brand-300" />
                     <div>
-                      <span className="font-semibold text-neutral-900">
-                        Standard Delivery by <strong className="text-neutral-950 font-black">{product.deliveryInfo.dateString}</strong>
+                      <span className="font-semibold text-neutral-900 dark:text-white">
+                        Standard Delivery by <strong className="text-neutral-950 font-bold dark:text-white">{product.deliveryInfo.dateString}</strong>
                       </span>
-                      <p className="text-[11px] text-neutral-500 mt-0.5">
+                      <p className="text-[11px] text-neutral-500 mt-0.5 dark:text-neutral-400">
                         Free delivery on all orders over ₹999. Dispatched within 24 hours.
                       </p>
                     </div>
@@ -763,40 +763,40 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 )}
 
                 {/* Trust Badges */}
-                <div className="flex flex-wrap items-center gap-4 pt-2 border-t border-neutral-200/60 text-[11px] text-neutral-600 font-medium">
+                <div className="flex flex-wrap items-center gap-4 pt-2 border-t border-neutral-200/60 text-[11px] text-neutral-600 font-medium dark:text-neutral-300 dark:border-white/10">
                   <span className="flex items-center gap-1">
-                    <RotateCcw className="w-3.5 h-3.5 text-neutral-500" /> 7-Day Replacement
+                    <RotateCcw className="w-3.5 h-3.5 text-neutral-500 dark:text-neutral-400" /> 7-Day Replacement
                   </span>
                   <span className="flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5 text-neutral-500" /> {product.warranty || '1 Year Brand Warranty'}
+                    <ShieldCheck className="w-3.5 h-3.5 text-neutral-500 dark:text-neutral-400" /> {product.warranty || '1 Year Brand Warranty'}
                   </span>
                   <span className="flex items-center gap-1">
-                    <Store className="w-3.5 h-3.5 text-neutral-500" /> Verified Merchant
+                    <Store className="w-3.5 h-3.5 text-neutral-500 dark:text-neutral-400" /> Verified Merchant
                   </span>
                 </div>
               </div>
             </div>
 
             {/* 6. Quantity Stepper & Main CTAs */}
-            <div className="pt-4 border-t border-neutral-100 space-y-4">
+            <div className="pt-4 border-t border-neutral-100 space-y-4 dark:border-white/10">
               <div className="flex items-center gap-4">
-                <span className="text-xs font-extrabold text-neutral-800 uppercase tracking-wider">Quantity:</span>
-                <div className="flex items-center border border-neutral-300 rounded-xl bg-white shadow-xs overflow-hidden">
+                <span className="text-xs font-semibold text-neutral-800 uppercase tracking-wider dark:text-neutral-100">Quantity:</span>
+                <div className="flex items-center border border-neutral-300 rounded-xl bg-white shadow-soft overflow-hidden dark:bg-[#13131a] dark:border-white/10">
                   <button
                     onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                     disabled={quantity <= 1}
-                    className="p-2 hover:bg-neutral-100 text-neutral-700 transition-colors disabled:opacity-40 cursor-pointer"
+                    className="p-2 hover:bg-neutral-100 text-neutral-700 transition-colors disabled:opacity-40 cursor-pointer dark:hover:bg-white/10 dark:text-neutral-300"
                     aria-label="Decrease quantity"
                   >
                     <Minus className="w-3.5 h-3.5" />
                   </button>
-                  <span className="px-3.5 text-xs font-bold text-neutral-950 min-w-8 text-center">
+                  <span className="px-3.5 text-xs font-bold text-neutral-950 min-w-8 text-center dark:text-white">
                     {quantity}
                   </span>
                   <button
                     onClick={() => setQuantity((q) => Math.min(availableStock, q + 1))}
                     disabled={quantity >= availableStock}
-                    className="p-2 hover:bg-neutral-100 text-neutral-700 transition-colors disabled:opacity-40 cursor-pointer"
+                    className="p-2 hover:bg-neutral-100 text-neutral-700 transition-colors disabled:opacity-40 cursor-pointer dark:hover:bg-white/10 dark:text-neutral-300"
                     aria-label="Increase quantity"
                   >
                     <Plus className="w-3.5 h-3.5" />
@@ -814,8 +814,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 <button
                   onClick={handleAddToCart}
                   disabled={!product.inStock || isCartLoading || availableStock <= 0}
-                  className={`py-3.5 px-5 font-black text-sm rounded-xl shadow-md transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer ${
-                    justAddedToCart ? 'bg-emerald-500 text-white' : 'bg-[#FFD21F] hover:bg-[#ebc21a] text-neutral-950'
+                  className={`py-3.5 px-5 font-bold text-sm rounded-xl shadow-md transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer ${
+                    justAddedToCart ? 'bg-emerald-500 text-white' : 'bg-brand-600 hover:bg-brand-700 text-white'
                   }`}
                 >
                   <AnimatePresence mode="wait" initial={false}>
@@ -848,9 +848,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 <button
                   onClick={handleBuyNow}
                   disabled={!product.inStock || isCartLoading || availableStock <= 0}
-                  className="py-3.5 px-5 bg-neutral-950 hover:bg-neutral-800 text-white font-black text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                  className="py-3.5 px-5 bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
                 >
-                  <Zap className="w-4 h-4 text-[#FFD21F] fill-[#FFD21F]" />
+                  <Zap className="w-4 h-4 text-brand-300 fill-brand-300" />
                   <span>Buy Now</span>
                 </button>
               </div>
@@ -861,15 +861,15 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
       {/* 3. Tabbed Content: Description, Specifications, Reviews & Q&A */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10">
-        <div className="bg-white rounded-3xl border border-neutral-200 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-3xl border border-neutral-200 shadow-sm overflow-hidden dark:bg-[#13131a] dark:border-white/10">
           {/* Tab Headers */}
-          <div className="flex border-b border-neutral-200 bg-neutral-50 px-4 sm:px-6 overflow-x-auto scrollbar-none">
+          <div className="flex border-b border-neutral-200 bg-neutral-50 px-4 sm:px-6 overflow-x-auto no-scrollbar dark:bg-white/[0.04] dark:border-white/10">
             <button
               onClick={() => setActiveTab('specs')}
               className={`py-4 px-5 text-sm font-bold border-b-2 transition-colors whitespace-nowrap cursor-pointer ${
                 activeTab === 'specs'
-                  ? 'border-neutral-950 text-neutral-950 bg-white font-black'
-                  : 'border-transparent text-neutral-500 hover:text-neutral-900'
+                  ? 'border-neutral-950 text-neutral-950 bg-white font-bold dark:bg-[#13131a] dark:text-white'
+                  : 'border-transparent text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
               }`}
             >
               Description & Specifications
@@ -878,12 +878,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               onClick={() => setActiveTab('reviews')}
               className={`py-4 px-5 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer ${
                 activeTab === 'reviews'
-                  ? 'border-neutral-950 text-neutral-950 bg-white font-black'
-                  : 'border-transparent text-neutral-500 hover:text-neutral-900'
+                  ? 'border-neutral-950 text-neutral-950 bg-white font-bold dark:bg-[#13131a] dark:text-white'
+                  : 'border-transparent text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
               }`}
             >
               <span>Customer Reviews</span>
-              <span className="bg-neutral-200 text-neutral-800 text-xs px-2 py-0.5 rounded-full font-bold">
+              <span className="bg-neutral-200 text-neutral-800 text-xs px-2 py-0.5 rounded-full font-bold dark:bg-white/10 dark:text-neutral-100">
                 {product.reviews?.length || product.reviewCount || 0}
               </span>
             </button>
@@ -891,12 +891,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               onClick={() => setActiveTab('qa')}
               className={`py-4 px-5 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer ${
                 activeTab === 'qa'
-                  ? 'border-neutral-950 text-neutral-950 bg-white font-black'
-                  : 'border-transparent text-neutral-500 hover:text-neutral-900'
+                  ? 'border-neutral-950 text-neutral-950 bg-white font-bold dark:bg-[#13131a] dark:text-white'
+                  : 'border-transparent text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white'
               }`}
             >
               <span>Questions & Answers</span>
-              <span className="bg-neutral-200 text-neutral-800 text-xs px-2 py-0.5 rounded-full font-bold">
+              <span className="bg-neutral-200 text-neutral-800 text-xs px-2 py-0.5 rounded-full font-bold dark:bg-white/10 dark:text-neutral-100">
                 {product.questions?.length || 0}
               </span>
             </button>
@@ -907,98 +907,98 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
             <div className="p-6 sm:p-10 space-y-10">
               {/* Description Section */}
               <div>
-                <h3 className="text-lg font-black text-neutral-950 mb-3 flex items-center gap-2">
+                <h3 className="text-lg font-bold text-neutral-950 mb-3 flex items-center gap-2 dark:text-white">
                   <PackageCheck className="w-5 h-5 text-amber-500" />
                   <span>Product Description & Features</span>
                 </h3>
-                <div className="text-sm text-neutral-700 leading-relaxed max-w-4xl whitespace-pre-line space-y-4">
+                <div className="text-sm text-neutral-700 leading-relaxed max-w-4xl whitespace-pre-line space-y-4 dark:text-neutral-300">
                   <p>{product.description}</p>
                 </div>
 
                 {/* Key Highlight Badges */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-neutral-100">
-                  <div className="p-3.5 bg-neutral-50 rounded-2xl border border-neutral-200/80 text-center space-y-1">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-neutral-100 dark:border-white/10">
+                  <div className="p-3.5 bg-neutral-50 rounded-2xl border border-neutral-200/80 text-center space-y-1 dark:bg-white/[0.04] dark:border-white/10">
                     <ShieldCheck className="w-5 h-5 text-emerald-600 mx-auto" />
-                    <h5 className="text-xs font-bold text-neutral-900">100% Genuine</h5>
-                    <p className="text-[11px] text-neutral-500">Verified authentic item</p>
+                    <h5 className="text-xs font-bold text-neutral-900 dark:text-white">100% Genuine</h5>
+                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400">Verified authentic item</p>
                   </div>
-                  <div className="p-3.5 bg-neutral-50 rounded-2xl border border-neutral-200/80 text-center space-y-1">
+                  <div className="p-3.5 bg-neutral-50 rounded-2xl border border-neutral-200/80 text-center space-y-1 dark:bg-white/[0.04] dark:border-white/10">
                     <RotateCcw className="w-5 h-5 text-blue-600 mx-auto" />
-                    <h5 className="text-xs font-bold text-neutral-900">Easy Returns</h5>
-                    <p className="text-[11px] text-neutral-500">7-day replacement guarantee</p>
+                    <h5 className="text-xs font-bold text-neutral-900 dark:text-white">Easy Returns</h5>
+                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400">7-day replacement guarantee</p>
                   </div>
-                  <div className="p-3.5 bg-neutral-50 rounded-2xl border border-neutral-200/80 text-center space-y-1">
+                  <div className="p-3.5 bg-neutral-50 rounded-2xl border border-neutral-200/80 text-center space-y-1 dark:bg-white/[0.04] dark:border-white/10">
                     <Truck className="w-5 h-5 text-amber-600 mx-auto" />
-                    <h5 className="text-xs font-bold text-neutral-900">Express Delivery</h5>
-                    <p className="text-[11px] text-neutral-500">Fast pan-India dispatch</p>
+                    <h5 className="text-xs font-bold text-neutral-900 dark:text-white">Express Delivery</h5>
+                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400">Fast pan-India dispatch</p>
                   </div>
-                  <div className="p-3.5 bg-neutral-50 rounded-2xl border border-neutral-200/80 text-center space-y-1">
+                  <div className="p-3.5 bg-neutral-50 rounded-2xl border border-neutral-200/80 text-center space-y-1 dark:bg-white/[0.04] dark:border-white/10">
                     <Store className="w-5 h-5 text-purple-600 mx-auto" />
-                    <h5 className="text-xs font-bold text-neutral-900">Warranty Covered</h5>
-                    <p className="text-[11px] text-neutral-500">{product.warranty || '1 Year Brand Warranty'}</p>
+                    <h5 className="text-xs font-bold text-neutral-900 dark:text-white">Warranty Covered</h5>
+                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400">{product.warranty || '1 Year Brand Warranty'}</p>
                   </div>
                 </div>
               </div>
 
               {/* Technical Specifications Section */}
               <div>
-                <h3 className="text-lg font-black text-neutral-950 mb-4">Technical Specifications</h3>
+                <h3 className="text-lg font-bold text-neutral-950 mb-4 dark:text-white">Technical Specifications</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {/* Basic Specifications */}
-                  <div className="bg-neutral-50 rounded-2xl p-4 border border-neutral-200 space-y-2.5">
-                    <h4 className="text-xs font-black text-neutral-900 uppercase tracking-wider pb-2 border-b border-neutral-200">
+                  <div className="bg-neutral-50 rounded-2xl p-4 border border-neutral-200 space-y-2.5 dark:bg-white/[0.04] dark:border-white/10">
+                    <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-wider pb-2 border-b border-neutral-200 dark:text-white dark:border-white/10">
                       General Information
                     </h4>
-                    <div className="flex justify-between text-xs py-1 border-b border-neutral-200/50">
-                      <span className="text-neutral-500 font-semibold">Brand</span>
-                      <span className="text-neutral-900 font-bold">{product.brand}</span>
+                    <div className="flex justify-between text-xs py-1 border-b border-neutral-200/50 dark:border-white/10">
+                      <span className="text-neutral-500 font-semibold dark:text-neutral-400">Brand</span>
+                      <span className="text-neutral-900 font-bold dark:text-white">{product.brand}</span>
                     </div>
                     {product.model && (
-                      <div className="flex justify-between text-xs py-1 border-b border-neutral-200/50">
-                        <span className="text-neutral-500 font-semibold">Model</span>
-                        <span className="text-neutral-900 font-bold">{product.model}</span>
+                      <div className="flex justify-between text-xs py-1 border-b border-neutral-200/50 dark:border-white/10">
+                        <span className="text-neutral-500 font-semibold dark:text-neutral-400">Model</span>
+                        <span className="text-neutral-900 font-bold dark:text-white">{product.model}</span>
                       </div>
                     )}
-                    <div className="flex justify-between text-xs py-1 border-b border-neutral-200/50">
-                      <span className="text-neutral-500 font-semibold">Category</span>
-                      <span className="text-neutral-900 font-bold">{product.categoryName}</span>
+                    <div className="flex justify-between text-xs py-1 border-b border-neutral-200/50 dark:border-white/10">
+                      <span className="text-neutral-500 font-semibold dark:text-neutral-400">Category</span>
+                      <span className="text-neutral-900 font-bold dark:text-white">{product.categoryName}</span>
                     </div>
                     {product.warranty && (
-                      <div className="flex justify-between text-xs py-1 border-b border-neutral-200/50">
-                        <span className="text-neutral-500 font-semibold">Warranty</span>
-                        <span className="text-neutral-900 font-bold">{product.warranty}</span>
+                      <div className="flex justify-between text-xs py-1 border-b border-neutral-200/50 dark:border-white/10">
+                        <span className="text-neutral-500 font-semibold dark:text-neutral-400">Warranty</span>
+                        <span className="text-neutral-900 font-bold dark:text-white">{product.warranty}</span>
                       </div>
                     )}
                     {product.weight && (
                       <div className="flex justify-between text-xs py-1">
-                        <span className="text-neutral-500 font-semibold">Item Weight</span>
-                        <span className="text-neutral-900 font-bold">{product.weight}</span>
+                        <span className="text-neutral-500 font-semibold dark:text-neutral-400">Item Weight</span>
+                        <span className="text-neutral-900 font-bold dark:text-white">{product.weight}</span>
                       </div>
                     )}
                   </div>
 
                   {/* Dynamic Technical Specs */}
                   {product.specs && Object.keys(product.specs).length > 0 ? (
-                    <div className="bg-neutral-50 rounded-2xl p-4 border border-neutral-200 space-y-2.5">
-                      <h4 className="text-xs font-black text-neutral-900 uppercase tracking-wider pb-2 border-b border-neutral-200">
+                    <div className="bg-neutral-50 rounded-2xl p-4 border border-neutral-200 space-y-2.5 dark:bg-white/[0.04] dark:border-white/10">
+                      <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-wider pb-2 border-b border-neutral-200 dark:text-white dark:border-white/10">
                         Key Attributes & Hardware
                       </h4>
                       {Object.entries(product.specs).map(([key, val]) => (
-                        <div key={key} className="flex justify-between text-xs py-1 border-b border-neutral-200/50 last:border-0">
-                          <span className="text-neutral-500 font-semibold uppercase">{key}</span>
-                          <span className="text-neutral-900 font-bold text-right">{String(val)}</span>
+                        <div key={key} className="flex justify-between text-xs py-1 border-b border-neutral-200/50 last:border-0 dark:border-white/10">
+                          <span className="text-neutral-500 font-semibold uppercase dark:text-neutral-400">{key}</span>
+                          <span className="text-neutral-900 font-bold text-right dark:text-white">{String(val)}</span>
                         </div>
                       ))}
                     </div>
                   ) : product.specifications && product.specifications.length > 0 ? (
-                    <div className="bg-neutral-50 rounded-2xl p-4 border border-neutral-200 space-y-2.5">
-                      <h4 className="text-xs font-black text-neutral-900 uppercase tracking-wider pb-2 border-b border-neutral-200">
+                    <div className="bg-neutral-50 rounded-2xl p-4 border border-neutral-200 space-y-2.5 dark:bg-white/[0.04] dark:border-white/10">
+                      <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-wider pb-2 border-b border-neutral-200 dark:text-white dark:border-white/10">
                         Key Attributes & Hardware
                       </h4>
                       {product.specifications.map((s) => (
-                        <div key={s.id} className="flex justify-between text-xs py-1 border-b border-neutral-200/50 last:border-0">
-                          <span className="text-neutral-500 font-semibold uppercase">{s.key}</span>
-                          <span className="text-neutral-900 font-bold text-right">{s.value}</span>
+                        <div key={s.id} className="flex justify-between text-xs py-1 border-b border-neutral-200/50 last:border-0 dark:border-white/10">
+                          <span className="text-neutral-500 font-semibold uppercase dark:text-neutral-400">{s.key}</span>
+                          <span className="text-neutral-900 font-bold text-right dark:text-white">{s.value}</span>
                         </div>
                       ))}
                     </div>
@@ -1012,10 +1012,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
           {activeTab === 'reviews' && (
             <div className="p-6 sm:p-10 space-y-8">
               {/* Rating Summary Header */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pb-8 border-b border-neutral-100">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pb-8 border-b border-neutral-100 dark:border-white/10">
                 {/* Score */}
-                <div className="flex flex-col items-center justify-center p-6 bg-neutral-50 rounded-2xl border border-neutral-200/80 text-center">
-                  <div className="text-5xl font-black text-neutral-950 mb-2">
+                <div className="flex flex-col items-center justify-center p-6 bg-neutral-50 rounded-2xl border border-neutral-200/80 text-center dark:bg-white/[0.04] dark:border-white/10">
+                  <div className="text-5xl font-bold text-neutral-950 mb-2 dark:text-white">
                     {product.reviewCount > 0 ? product.rating.toFixed(1) : '—'}
                   </div>
                   <div className="flex items-center gap-1 text-amber-500 mb-2">
@@ -1026,7 +1026,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                       />
                     ))}
                   </div>
-                  <p className="text-xs text-neutral-500 font-semibold">
+                  <p className="text-xs text-neutral-500 font-semibold dark:text-neutral-400">
                     {product.reviewCount > 0
                       ? `Based on ${product.reviewCount} verified customer ratings`
                       : 'No reviews yet'}
@@ -1034,7 +1034,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 </div>
 
                 {/* Rating Distribution Bars */}
-                <div className="flex flex-col justify-center space-y-2 text-xs font-semibold text-neutral-700 bg-neutral-50 p-6 rounded-2xl border border-neutral-200/80">
+                <div className="flex flex-col justify-center space-y-2 text-xs font-semibold text-neutral-700 bg-neutral-50 p-6 rounded-2xl border border-neutral-200/80 dark:bg-white/[0.04] dark:text-neutral-300 dark:border-white/10">
                   {product.reviewCount > 0 ? (
                     ([5, 4, 3, 2, 1] as const).map((score) => {
                       const breakdownInfo = product.ratingBreakdown?.[score];
@@ -1047,9 +1047,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                           onClick={() => setStarFilter(starFilter === score ? 'ALL' : score)}
                           className="flex items-center gap-2 hover:opacity-80 transition-opacity text-left cursor-pointer"
                         >
-                          <span className="w-12 text-neutral-600 font-bold">{score} Stars</span>
-                          <div className="flex-1 bg-neutral-200 h-2 rounded-full overflow-hidden">
-                            <div className="bg-[#FFD21F] h-full rounded-full" style={{ width: `${percent}%` }} />
+                          <span className="w-12 text-neutral-600 font-bold dark:text-neutral-300">{score} Stars</span>
+                          <div className="flex-1 bg-neutral-200 h-2 rounded-full overflow-hidden dark:bg-white/10">
+                            <div className="bg-brand-600 h-full rounded-full" style={{ width: `${percent}%` }} />
                           </div>
                           <span className="w-10 text-[11px] text-neutral-400 text-right">{percent}%</span>
                         </button>
@@ -1061,10 +1061,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 </div>
 
                 {/* Write Review CTA */}
-                <div className="flex flex-col items-center justify-center text-center p-6 bg-amber-50/60 rounded-2xl border border-amber-200">
-                  <Sparkles className="w-6 h-6 text-amber-700 mb-2" />
-                  <h4 className="text-sm font-bold text-neutral-950 mb-1">Have you used this product?</h4>
-                  <p className="text-xs text-neutral-600 mb-4">
+                <div className="flex flex-col items-center justify-center text-center p-6 bg-amber-50/60 rounded-2xl border border-amber-200 dark:border-amber-500/25">
+                  <Sparkles className="w-6 h-6 text-amber-700 mb-2 dark:text-amber-300" />
+                  <h4 className="text-sm font-bold text-neutral-950 mb-1 dark:text-white">Have you used this product?</h4>
+                  <p className="text-xs text-neutral-600 mb-4 dark:text-neutral-300">
                     Share your verified feedback to assist fellow shoppers.
                   </p>
                   <button
@@ -1075,7 +1075,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                         setIsReviewModalOpen(true);
                       }
                     }}
-                    className="px-5 py-2.5 bg-neutral-950 hover:bg-neutral-800 text-[#FFD21F] font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
+                    className="px-5 py-2.5 bg-neutral-950 hover:bg-neutral-800 text-brand-300 font-bold text-xs rounded-xl shadow-soft transition-colors cursor-pointer"
                   >
                     Write a Customer Review
                   </button>
@@ -1085,13 +1085,13 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               {/* Review Filter Chips */}
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-neutral-500">Filter by:</span>
+                  <span className="text-xs font-bold text-neutral-500 dark:text-neutral-400">Filter by:</span>
                   <button
                     onClick={() => setStarFilter('ALL')}
                     className={`px-3 py-1 text-xs font-bold rounded-lg border transition-colors cursor-pointer ${
                       starFilter === 'ALL'
-                        ? 'bg-neutral-900 text-white border-neutral-900'
-                        : 'bg-white text-neutral-700 border-neutral-200 hover:bg-neutral-100'
+                        ? 'bg-neutral-900 text-white border-neutral-900 dark:border-white/30'
+                        : 'bg-white text-neutral-700 border-neutral-200 hover:bg-neutral-100 dark:bg-[#13131a] dark:hover:bg-white/10 dark:text-neutral-300 dark:border-white/10'
                     }`}
                   >
                     All Reviews ({product.reviews?.length || 0})
@@ -1102,8 +1102,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                       onClick={() => setStarFilter(st)}
                       className={`px-2.5 py-1 text-xs font-bold rounded-lg border flex items-center gap-1 transition-colors cursor-pointer ${
                         starFilter === st
-                          ? 'bg-neutral-900 text-white border-neutral-900'
-                          : 'bg-white text-neutral-700 border-neutral-200 hover:bg-neutral-100'
+                          ? 'bg-neutral-900 text-white border-neutral-900 dark:border-white/30'
+                          : 'bg-white text-neutral-700 border-neutral-200 hover:bg-neutral-100 dark:bg-[#13131a] dark:hover:bg-white/10 dark:text-neutral-300 dark:border-white/10'
                       }`}
                     >
                       <span>{st}</span>
@@ -1116,14 +1116,14 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               {/* Reviews List */}
               <div className="space-y-4">
                 {filteredReviews.length === 0 ? (
-                  <div className="text-center py-10 bg-neutral-50 rounded-2xl border border-neutral-200/60 space-y-3">
+                  <div className="text-center py-10 bg-neutral-50 rounded-2xl border border-neutral-200/60 space-y-3 dark:bg-white/[0.04] dark:border-white/10">
                     <MessageSquare className="w-8 h-8 text-neutral-300 mx-auto" />
-                    <p className="text-xs text-neutral-500 font-medium">
+                    <p className="text-xs text-neutral-500 font-medium dark:text-neutral-400">
                       No customer reviews found matching this filter.
                     </p>
                     <button
                       onClick={() => setStarFilter('ALL')}
-                      className="text-xs font-bold text-neutral-900 underline"
+                      className="text-xs font-bold text-neutral-900 underline dark:text-white"
                     >
                       Show all reviews
                     </button>
@@ -1134,18 +1134,18 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                     return (
                       <div
                         key={rev.id}
-                        className="p-5 rounded-2xl bg-neutral-50/70 border border-neutral-200/80 space-y-3"
+                        className="p-5 rounded-2xl bg-neutral-50/70 border border-neutral-200/80 space-y-3 dark:border-white/10"
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-full bg-neutral-900 text-[#FFD21F] font-black text-xs flex items-center justify-center">
+                            <div className="w-8 h-8 rounded-full bg-neutral-900 text-brand-300 font-bold text-xs flex items-center justify-center">
                               {rev.userName.charAt(0).toUpperCase()}
                             </div>
                             <div>
                               <div className="flex items-center gap-2">
-                                <span className="text-xs font-bold text-neutral-900">{rev.userName}</span>
+                                <span className="text-xs font-bold text-neutral-900 dark:text-white">{rev.userName}</span>
                                 {rev.verifiedPurchase && (
-                                  <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5">
+                                  <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5 dark:bg-emerald-500/15 dark:text-emerald-300">
                                     <CheckCircle2 className="w-2.5 h-2.5" />
                                     Verified Buyer
                                   </span>
@@ -1166,15 +1166,15 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                           </div>
                         </div>
 
-                        {rev.title && <h5 className="text-xs font-bold text-neutral-950">{rev.title}</h5>}
-                        <p className="text-xs text-neutral-700 leading-relaxed">{rev.comment}</p>
+                        {rev.title && <h5 className="text-xs font-bold text-neutral-950 dark:text-white">{rev.title}</h5>}
+                        <p className="text-xs text-neutral-700 leading-relaxed dark:text-neutral-300">{rev.comment}</p>
 
                         {/* Helpful vote */}
-                        <div className="flex items-center gap-3 pt-2 border-t border-neutral-200/60 text-[11px] text-neutral-500">
+                        <div className="flex items-center gap-3 pt-2 border-t border-neutral-200/60 text-[11px] text-neutral-500 dark:text-neutral-400 dark:border-white/10">
                           <span>Was this review helpful?</span>
                           <button
                             onClick={() => handleHelpfulVote(rev.id)}
-                            className="flex items-center gap-1 font-bold text-neutral-700 hover:text-neutral-950 px-2 py-0.5 bg-white rounded border border-neutral-200 transition-colors cursor-pointer"
+                            className="flex items-center gap-1 font-bold text-neutral-700 hover:text-neutral-950 px-2 py-0.5 bg-white rounded border border-neutral-200 transition-colors cursor-pointer dark:bg-[#13131a] dark:text-neutral-300 dark:hover:text-white dark:border-white/10"
                           >
                             <ThumbsUp className="w-3 h-3" />
                             <span>Helpful ({votes})</span>
@@ -1191,10 +1191,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
           {/* TAB 3: QUESTIONS & ANSWERS (Q&A) */}
           {activeTab === 'qa' && (
             <div className="p-6 sm:p-10 space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-neutral-100">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-neutral-100 dark:border-white/10">
                 <div>
-                  <h4 className="text-base font-black text-neutral-950">Customer Questions & Answers</h4>
-                  <p className="text-xs text-neutral-500">Have questions about compatibility, specs, or warranty? Ask verified sellers.</p>
+                  <h4 className="text-base font-bold text-neutral-950 dark:text-white">Customer Questions & Answers</h4>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400">Have questions about compatibility, specs, or warranty? Ask verified sellers.</p>
                 </div>
                 <button
                   onClick={() => {
@@ -1204,7 +1204,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                       setIsQuestionModalOpen(true);
                     }
                   }}
-                  className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-[#FFD21F] font-bold text-xs rounded-xl shadow-xs transition-colors whitespace-nowrap cursor-pointer"
+                  className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-brand-300 font-bold text-xs rounded-xl shadow-soft transition-colors whitespace-nowrap cursor-pointer"
                 >
                   Ask a Question
                 </button>
@@ -1218,36 +1218,36 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                   value={qaSearchQuery}
                   onChange={(e) => setQaSearchQuery(e.target.value)}
                   placeholder="Search questions by keyword..."
-                  className="w-full pl-9 pr-3 py-2 text-xs bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FFD21F] focus:bg-white"
+                  className="w-full pl-9 pr-3 py-2 text-xs bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:bg-white dark:bg-white/[0.04] dark:border-white/10"
                 />
               </div>
 
               {/* Questions List */}
               <div className="space-y-4">
                 {filteredQuestions.length === 0 ? (
-                  <div className="text-center py-10 bg-neutral-50 rounded-2xl border border-neutral-200/60 space-y-3">
+                  <div className="text-center py-10 bg-neutral-50 rounded-2xl border border-neutral-200/60 space-y-3 dark:bg-white/[0.04] dark:border-white/10">
                     <HelpCircle className="w-8 h-8 text-neutral-300 mx-auto" />
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400">
                       {qaSearchQuery ? 'No questions match your search.' : 'No questions have been asked yet for this item. Be the first to ask!'}
                     </p>
                   </div>
                 ) : (
                   filteredQuestions.map((qa) => (
-                    <div key={qa.id} className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 space-y-2.5">
+                    <div key={qa.id} className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 space-y-2.5 dark:bg-white/[0.04] dark:border-white/10">
                       <div className="flex items-start gap-2">
-                        <span className="font-black text-xs text-neutral-900 bg-neutral-200 px-1.5 py-0.5 rounded">Q</span>
+                        <span className="font-bold text-xs text-neutral-900 bg-neutral-200 px-1.5 py-0.5 rounded dark:bg-white/10 dark:text-white">Q</span>
                         <div className="flex-1">
-                          <p className="text-xs font-bold text-neutral-900">{qa.question}</p>
+                          <p className="text-xs font-bold text-neutral-900 dark:text-white">{qa.question}</p>
                           <span className="text-[10px] text-neutral-400">Asked by {qa.userName} on {new Date(qa.createdAt).toLocaleDateString()}</span>
                         </div>
                       </div>
 
                       {qa.answer ? (
-                        <div className="flex items-start gap-2 pl-4 border-l-2 border-[#FFD21F] mt-2">
-                          <span className="font-black text-xs text-amber-900 bg-[#FFD21F] px-1.5 py-0.5 rounded">A</span>
+                        <div className="flex items-start gap-2 pl-4 border-l-2 border-brand-500 mt-2">
+                          <span className="font-bold text-xs text-amber-900 bg-brand-600 px-1.5 py-0.5 rounded dark:text-amber-300">A</span>
                           <div>
-                            <p className="text-xs text-neutral-700 leading-relaxed">{qa.answer}</p>
-                            <span className="text-[10px] text-neutral-500 font-semibold flex items-center gap-1 mt-1">
+                            <p className="text-xs text-neutral-700 leading-relaxed dark:text-neutral-300">{qa.answer}</p>
+                            <span className="text-[10px] text-neutral-500 font-semibold flex items-center gap-1 mt-1 dark:text-neutral-400">
                               <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                               Answered by {qa.answeredBy || 'Verified Seller'}
                             </span>
@@ -1272,14 +1272,14 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-12">
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h3 className="text-xl font-black text-neutral-950 tracking-tight">
+              <h3 className="text-xl font-bold text-neutral-950 tracking-tight dark:text-white">
                 Customers Also Viewed & Suggested Items
               </h3>
-              <p className="text-xs text-neutral-500">Curated recommendations based on this item</p>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">Curated recommendations based on this item</p>
             </div>
             <Link
               href={`/products?category=${product.categorySlug}`}
-              className="text-xs font-bold text-neutral-900 hover:text-amber-600 transition-colors"
+              className="text-xs font-bold text-neutral-900 hover:text-amber-600 transition-colors dark:text-white"
             >
               Explore {product.categoryName} &rarr;
             </Link>
@@ -1300,15 +1300,15 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
       {/* Lightbox / Fullscreen Image Preview Modal */}
       {isLightboxOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm">
-          <div className="relative max-w-4xl w-full max-h-[90vh] bg-white rounded-3xl overflow-hidden p-4 sm:p-6 flex flex-col items-center">
+          <div className="relative max-w-4xl w-full max-h-[90vh] bg-white rounded-3xl overflow-hidden p-4 sm:p-6 flex flex-col items-center dark:bg-[#13131a]">
             <button
               onClick={() => setIsLightboxOpen(false)}
-              className="absolute top-4 right-4 p-2 bg-neutral-100 hover:bg-neutral-200 rounded-full text-neutral-800 transition-colors cursor-pointer z-10"
+              className="absolute top-4 right-4 p-2 bg-neutral-100 hover:bg-neutral-200 rounded-full text-neutral-800 transition-colors cursor-pointer z-10 dark:bg-white/10 dark:hover:bg-white/10 dark:text-neutral-100"
               aria-label="Close modal"
             >
               <X className="w-5 h-5" />
             </button>
-            <div className="relative w-full aspect-square max-h-[65vh] bg-neutral-50 rounded-2xl overflow-hidden">
+            <div className="relative w-full aspect-square max-h-[65vh] bg-neutral-50 rounded-2xl overflow-hidden dark:bg-white/[0.04]">
               <Image
                 src={activeMainImage}
                 alt={product.name}
@@ -1325,7 +1325,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                     key={i}
                     onClick={() => setSelectedImage(img)}
                     className={`relative w-14 h-14 rounded-xl overflow-hidden border-2 shrink-0 cursor-pointer ${
-                      activeMainImage === img ? 'border-neutral-900 ring-2 ring-[#FFD21F]' : 'border-neutral-200'
+                      activeMainImage === img ? 'border-neutral-900 ring-2 ring-brand-500 dark:border-white/30' : 'border-neutral-200 dark:border-white/10'
                     }`}
                   >
                     <Image src={img} alt="thumb" fill sizes="56px" className="object-cover" referrerPolicy="no-referrer" />
@@ -1340,18 +1340,18 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
       {/* Write Review Modal */}
       {isReviewModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 border border-neutral-200">
-            <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
-              <h3 className="text-base font-bold text-neutral-950">Write a Customer Review</h3>
+          <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 border border-neutral-200 dark:bg-[#13131a] dark:border-white/10">
+            <div className="flex items-center justify-between pb-3 border-b border-neutral-100 dark:border-white/10">
+              <h3 className="text-base font-bold text-neutral-950 dark:text-white">Write a Customer Review</h3>
               <button onClick={() => setIsReviewModalOpen(false)} className="cursor-pointer">
-                <X className="w-5 h-5 text-neutral-500" />
+                <X className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
               </button>
             </div>
 
             <form onSubmit={handleReviewSubmit} className="space-y-4 pt-4">
               {/* Rating selection */}
               <div>
-                <label className="block text-xs font-bold text-neutral-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-neutral-700 uppercase tracking-wider mb-1 dark:text-neutral-300">
                   Overall Rating
                 </label>
                 <div className="flex items-center gap-2 text-amber-400">
@@ -1365,12 +1365,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                       <Star className={`w-7 h-7 ${s <= reviewRating ? 'fill-amber-400 text-amber-400' : 'text-neutral-200'}`} />
                     </button>
                   ))}
-                  <span className="text-xs font-bold text-neutral-800 ml-2">{reviewRating} of 5 Stars</span>
+                  <span className="text-xs font-bold text-neutral-800 ml-2 dark:text-neutral-100">{reviewRating} of 5 Stars</span>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-neutral-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-neutral-700 uppercase tracking-wider mb-1 dark:text-neutral-300">
                   Review Headline
                 </label>
                 <input
@@ -1379,12 +1379,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                   onChange={(e) => setReviewTitle(e.target.value)}
                   placeholder="e.g. Excellent build quality & fast delivery"
                   required
-                  className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FFD21F]"
+                  className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/40 dark:border-white/10"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-neutral-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-neutral-700 uppercase tracking-wider mb-1 dark:text-neutral-300">
                   Detailed Experience
                 </label>
                 <textarea
@@ -1393,14 +1393,14 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                   placeholder="Share details of your experience with this item..."
                   rows={4}
                   required
-                  className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FFD21F]"
+                  className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/40 dark:border-white/10"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmittingReview}
-                className="w-full py-3 bg-[#FFD21F] hover:bg-[#ebc21a] text-neutral-950 font-bold text-xs rounded-xl shadow transition-colors disabled:opacity-50 cursor-pointer"
+                className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow transition-colors disabled:opacity-50 cursor-pointer"
               >
                 {isSubmittingReview ? 'Submitting...' : 'Submit Verified Review'}
               </button>
@@ -1412,17 +1412,17 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
       {/* Ask Question Modal */}
       {isQuestionModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 border border-neutral-200">
-            <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
-              <h3 className="text-base font-bold text-neutral-950">Ask the Seller a Question</h3>
+          <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 border border-neutral-200 dark:bg-[#13131a] dark:border-white/10">
+            <div className="flex items-center justify-between pb-3 border-b border-neutral-100 dark:border-white/10">
+              <h3 className="text-base font-bold text-neutral-950 dark:text-white">Ask the Seller a Question</h3>
               <button onClick={() => setIsQuestionModalOpen(false)} className="cursor-pointer">
-                <X className="w-5 h-5 text-neutral-500" />
+                <X className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
               </button>
             </div>
 
             <form onSubmit={handleQuestionSubmit} className="space-y-4 pt-4">
               <div>
-                <label className="block text-xs font-bold text-neutral-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-neutral-700 uppercase tracking-wider mb-1 dark:text-neutral-300">
                   Your Question
                 </label>
                 <textarea
@@ -1431,14 +1431,14 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                   placeholder="e.g. Does this unit include a Type-C fast charging cable?"
                   rows={4}
                   required
-                  className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FFD21F]"
+                  className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/40 dark:border-white/10"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmittingQuestion}
-                className="w-full py-3 bg-neutral-900 hover:bg-neutral-800 text-[#FFD21F] font-bold text-xs rounded-xl shadow transition-colors disabled:opacity-50 cursor-pointer"
+                className="w-full py-3 bg-neutral-900 hover:bg-neutral-800 text-brand-300 font-bold text-xs rounded-xl shadow transition-colors disabled:opacity-50 cursor-pointer"
               >
                 {isSubmittingQuestion ? 'Posting...' : 'Post Question to Seller'}
               </button>
@@ -1450,17 +1450,17 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
       {/* Sticky mobile add-to-cart bar — mirrors the desktop buttons in the
           gallery/summary column above, but stays reachable with a thumb
           no matter how far the person has scrolled down the page. */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden bg-white border-t border-neutral-200 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] px-3 py-2.5 pb-[calc(0.625rem+env(safe-area-inset-bottom))] flex items-center gap-2.5">
+      <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden bg-white border-t border-neutral-200 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] px-3 py-2.5 pb-[calc(0.625rem+env(safe-area-inset-bottom))] flex items-center gap-2.5 dark:bg-[#13131a] dark:border-white/10">
         <div className="min-w-0 shrink-0">
           <div className="flex items-baseline gap-1.5">
-            <span className="text-base font-black text-neutral-950">{formatINR(currentDiscountPrice)}</span>
+            <span className="text-base font-bold text-neutral-950 dark:text-white">{formatINR(currentDiscountPrice)}</span>
             {currentBasePrice > currentDiscountPrice && (
               <span className="text-[10px] text-neutral-400 line-through font-medium">
                 {formatINR(currentBasePrice)}
               </span>
             )}
           </div>
-          <span className="text-[10px] text-neutral-500 font-medium">
+          <span className="text-[10px] text-neutral-500 font-medium dark:text-neutral-400">
             {product.inStock && availableStock > 0 ? `${availableStock} in stock` : 'Out of stock'}
           </span>
         </div>
@@ -1468,7 +1468,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
           onClick={handleAddToCart}
           disabled={!product.inStock || isCartLoading || availableStock <= 0}
           className={`flex-1 py-3 px-3 font-bold text-xs rounded-xl shadow-sm transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer ${
-            justAddedToCart ? 'bg-emerald-500 text-white' : 'bg-white border-2 border-neutral-900 text-neutral-900'
+            justAddedToCart ? 'bg-emerald-500 text-white' : 'bg-white border-2 border-neutral-900 text-neutral-900 dark:bg-[#13131a] dark:text-white dark:border-white/30'
           }`}
         >
           <AnimatePresence mode="wait" initial={false}>
@@ -1498,7 +1498,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
         <button
           onClick={handleBuyNow}
           disabled={!product.inStock || isCartLoading || availableStock <= 0}
-          className="flex-1 py-3 px-3 bg-[#FFD21F] hover:bg-[#ebc21a] text-neutral-950 font-black text-xs rounded-xl shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
+          className="flex-1 py-3 px-3 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
         >
           Buy Now
         </button>

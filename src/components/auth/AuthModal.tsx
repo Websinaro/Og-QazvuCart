@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/src/context/AuthContext';
 import { useToast } from '@/src/context/ToastContext';
-import { X, Mail, Lock, User, Phone, ArrowRight, ShieldCheck } from 'lucide-react';
+import { X, Mail, Lock, User, Phone, ArrowRight, ShieldCheck, Loader2 } from '@/src/components/ui/icons';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -74,112 +74,118 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
     }
   };
 
+  const inputCls =
+    'w-full h-12 pl-11 pr-4 text-sm rounded-xl bg-neutral-900/[0.04] dark:bg-white/[0.06] border border-transparent text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:bg-white dark:focus:bg-neutral-900 focus:border-brand-500/60 focus:ring-4 focus:ring-brand-500/15 transition-all';
+  const inputPlainCls =
+    'w-full h-12 px-4 text-sm rounded-xl bg-neutral-900/[0.04] dark:bg-white/[0.06] border border-transparent text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:bg-white dark:focus:bg-neutral-900 focus:border-brand-500/60 focus:ring-4 focus:ring-brand-500/15 transition-all';
+  const labelCls = 'block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1.5';
+  const iconCls = 'w-[18px] h-[18px] text-neutral-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none';
+  const submitCls =
+    'w-full h-12 px-5 rounded-full bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm shadow-glow active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed';
+
+  const spinner = <Loader2 className="w-[18px] h-[18px] animate-spin" />;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-neutral-100 overflow-hidden">
-        {/* Header with gradient badge */}
-        <div className="bg-neutral-900 text-white p-6 relative">
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-neutral-950/55 backdrop-blur-sm animate-in fade-in duration-200"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      role="dialog"
+      aria-modal="true"
+      aria-label={mode === 'login' ? 'Sign in' : 'Create account'}
+    >
+      <div className="relative w-full sm:max-w-[26rem] max-h-[96vh] overflow-y-auto bg-white dark:bg-[#0e0e14] rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl border border-neutral-900/5 dark:border-white/10 animate-in slide-in-from-bottom-6 sm:zoom-in-95 duration-300">
+        {/* Header */}
+        <div className="relative isolate overflow-hidden px-7 pt-8 pb-6 text-white bg-neutral-950">
+          <div className="absolute -top-16 -right-10 w-56 h-56 rounded-full bg-brand-600/50 blur-3xl -z-10" />
+          <div className="absolute -bottom-20 -left-10 w-48 h-48 rounded-full bg-sky-500/20 blur-3xl -z-10" />
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+            aria-label="Close"
+            className="absolute top-4 right-4 grid place-items-center w-9 h-9 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="bg-[#FFD21F] text-black font-extrabold text-xs px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-              QazvuCart
-            </span>
-            <span className="text-xs text-neutral-400 flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#FFD21F]" /> 100% Secure Auth
+          <div className="flex items-center gap-2.5 mb-5">
+            <span className="grid place-items-center w-9 h-9 rounded-xl bg-gradient-to-br from-brand-400 to-brand-700 font-bold text-lg shadow-glow">Q</span>
+            <span className="text-xs text-neutral-300 flex items-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-brand-300" /> Secure sign-in
             </span>
           </div>
-          <h2 className="text-2xl font-bold tracking-tight text-white">
-            {mode === 'login' ? 'Welcome Back' : 'Create Customer Account'}
+          <h2 className="text-[26px] font-semibold tracking-tight leading-tight">
+            {mode === 'login' ? 'Welcome back' : 'Create your account'}
           </h2>
-          <p className="text-xs text-neutral-300 mt-1">
+          <p className="text-[13px] text-neutral-400 mt-1.5 leading-relaxed">
             {mode === 'login'
-              ? 'Access your orders, saved addresses, and express checkout'
-              : 'Join thousands of shoppers enjoying verified multi-vendor deals'}
+              ? 'Access your orders, saved addresses and express checkout.'
+              : 'Join shoppers enjoying verified multi-vendor deals.'}
           </p>
         </div>
 
-        {/* Tab switch */}
-        <div className="flex border-b border-neutral-200 bg-neutral-50">
-          <button
-            type="button"
-            onClick={() => setMode('login')}
-            className={`flex-1 py-3 text-sm font-semibold text-center transition-colors ${
-              mode === 'login'
-                ? 'bg-white text-neutral-900 border-b-2 border-neutral-900'
-                : 'text-neutral-500 hover:text-neutral-900'
-            }`}
-          >
-            Sign In
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode('register')}
-            className={`flex-1 py-3 text-sm font-semibold text-center transition-colors ${
-              mode === 'register'
-                ? 'bg-white text-neutral-900 border-b-2 border-neutral-900'
-                : 'text-neutral-500 hover:text-neutral-900'
-            }`}
-          >
-            Create Account
-          </button>
+        {/* Segmented switch */}
+        <div className="px-7 pt-5">
+          <div className="grid grid-cols-2 p-1 rounded-full bg-neutral-900/[0.05] dark:bg-white/[0.07]">
+            {(['login', 'register'] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => setMode(m)}
+                className={`h-9 rounded-full text-[13px] font-semibold transition-all cursor-pointer ${
+                  mode === m
+                    ? 'bg-white dark:bg-neutral-800 text-neutral-950 dark:text-white shadow-sm'
+                    : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-200'
+                }`}
+              >
+                {m === 'login' ? 'Sign in' : 'Create account'}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Form Body */}
-        <div className="p-6">
+        {/* Form body */}
+        <div className="p-7 pt-5">
           {mode === 'login' ? (
             <form onSubmit={handleLoginSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1">
-                  Email or Username
-                </label>
+                <label className={labelCls}>Email or username</label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Mail className={iconCls} />
                   <input
                     type="text"
                     value={loginIdentifier}
                     onChange={(e) => setLoginIdentifier(e.target.value)}
                     placeholder="john@example.com or john_doe"
                     required
-                    className="w-full pl-10 pr-4 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFD21F] focus:border-neutral-900 transition-all text-neutral-900"
+                    autoComplete="username"
+                    className={inputCls}
                   />
                 </div>
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-semibold text-neutral-700 uppercase tracking-wider">
-                    Password
-                  </label>
-                </div>
+                <label className={labelCls}>Password</label>
                 <div className="relative">
-                  <Lock className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Lock className={iconCls} />
                   <input
                     type="password"
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
                     placeholder="••••••••"
                     required
-                    className="w-full pl-10 pr-4 py-2.5 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFD21F] focus:border-neutral-900 transition-all text-neutral-900"
+                    autoComplete="current-password"
+                    className={inputCls}
                   />
                 </div>
               </div>
 
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full py-3 px-4 bg-[#FFD21F] hover:bg-[#ebc21a] text-neutral-950 font-bold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-              >
+              <button type="submit" disabled={isLoading} className={`${submitCls} mt-2`}>
                 {isLoading ? (
-                  <span className="inline-block animate-spin w-4 h-4 border-2 border-neutral-900 border-t-transparent rounded-full" />
+                  spinner
                 ) : (
                   <>
-                    <span>Sign In to Account</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <span>Sign in</span>
+                    <ArrowRight className="w-4 h-4" weight="bold" />
                   </>
                 )}
               </button>
@@ -187,104 +193,95 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
           ) : (
             <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
               <div>
-                <label className="block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1">
-                  Full Name / Username
-                </label>
+                <label className={labelCls}>Full name / username</label>
                 <div className="relative">
-                  <User className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <User className={iconCls} />
                   <input
                     type="text"
                     value={regUsername}
                     onChange={(e) => setRegUsername(e.target.value)}
                     placeholder="e.g. sarah_connor"
                     required
-                    className="w-full pl-10 pr-4 py-2 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFD21F] text-neutral-900"
+                    autoComplete="username"
+                    className={inputCls}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1">
-                  Email Address
-                </label>
+                <label className={labelCls}>Email address</label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Mail className={iconCls} />
                   <input
                     type="email"
                     value={regEmail}
                     onChange={(e) => setRegEmail(e.target.value)}
                     placeholder="sarah@example.com"
                     required
-                    className="w-full pl-10 pr-4 py-2 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFD21F] text-neutral-900"
+                    autoComplete="email"
+                    className={inputCls}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1">
-                  Mobile Phone Number
-                </label>
+                <label className={labelCls}>Mobile number</label>
                 <div className="relative">
-                  <Phone className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Phone className={iconCls} />
                   <input
                     type="tel"
                     value={regPhone}
                     onChange={(e) => setRegPhone(e.target.value)}
                     placeholder="+91 9876543210"
                     required
-                    className="w-full pl-10 pr-4 py-2 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFD21F] text-neutral-900"
+                    autoComplete="tel"
+                    className={inputCls}
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1">
-                    Password
-                  </label>
+                  <label className={labelCls}>Password</label>
                   <input
                     type="password"
                     value={regPassword}
                     onChange={(e) => setRegPassword(e.target.value)}
                     placeholder="Min 6 chars"
                     required
-                    className="w-full px-3 py-2 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFD21F] text-neutral-900"
+                    autoComplete="new-password"
+                    className={inputPlainCls}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1">
-                    Confirm
-                  </label>
+                  <label className={labelCls}>Confirm</label>
                   <input
                     type="password"
                     value={regConfirmPassword}
                     onChange={(e) => setRegConfirmPassword(e.target.value)}
                     placeholder="Repeat"
                     required
-                    className="w-full px-3 py-2 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFD21F] text-neutral-900"
+                    autoComplete="new-password"
+                    className={inputPlainCls}
                   />
                 </div>
               </div>
 
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full mt-2 py-3 px-4 bg-[#FFD21F] hover:bg-[#ebc21a] text-neutral-950 font-bold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-              >
+              <button type="submit" disabled={isLoading} className={`${submitCls} mt-2`}>
                 {isLoading ? (
-                  <span className="inline-block animate-spin w-4 h-4 border-2 border-neutral-900 border-t-transparent rounded-full" />
+                  spinner
                 ) : (
                   <>
-                    <span>Create Customer Account</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <span>Create account</span>
+                    <ArrowRight className="w-4 h-4" weight="bold" />
                   </>
                 )}
               </button>
             </form>
           )}
 
-          <p className="text-[11px] text-center text-neutral-500 mt-4 leading-relaxed">
-            By continuing, you agree to QazvuCart&apos;s Terms of Service, Privacy Policy, and authentic customer guarantee.
+          <p className="text-[11px] text-center text-neutral-500 mt-5 leading-relaxed">
+            By continuing, you agree to QazvuCart&apos;s Terms of Service, Privacy Policy and authentic customer guarantee.
           </p>
         </div>
       </div>

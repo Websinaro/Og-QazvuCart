@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Info, X } from '@/src/components/ui/icons';
 
 export type ToastType = 'success' | 'error' | 'info';
 
@@ -47,44 +47,49 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     >
       {children}
       {/* Toast container */}
-      <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4">
+      <div className="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:right-6 sm:translate-x-0 z-[60] flex flex-col gap-2.5 w-full max-w-sm pointer-events-none px-4 sm:px-0" aria-live="polite">
         <AnimatePresence initial={false}>
           {toasts.map((t) => (
             <motion.div
               key={t.id}
               layout
-              initial={{ opacity: 0, y: 24, scale: 0.9 }}
+              initial={{ opacity: 0, y: 24, scale: 0.94 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, x: 60, scale: 0.9, transition: { duration: 0.2 } }}
+              exit={{ opacity: 0, y: 8, scale: 0.95, transition: { duration: 0.18 } }}
               transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-              className={`pointer-events-auto relative overflow-hidden flex items-center justify-between p-4 rounded-xl shadow-xl border text-sm font-medium ${
-                t.type === 'success'
-                  ? 'bg-neutral-900 text-white border-neutral-800'
-                  : t.type === 'error'
-                  ? 'bg-red-600 text-white border-red-700'
-                  : 'bg-neutral-900 text-white border-neutral-800'
-              }`}
+              role={t.type === 'error' ? 'alert' : 'status'}
+              className="pointer-events-auto relative overflow-hidden flex items-center justify-between gap-3 pl-4 pr-2.5 py-3 rounded-2xl text-[13px] font-medium bg-neutral-950/95 dark:bg-white/95 text-white dark:text-neutral-950 backdrop-blur-xl shadow-lift ring-1 ring-white/10 dark:ring-black/5"
             >
-              <div className="flex items-center gap-3">
-                {t.type === 'success' && <CheckCircle2 className="w-5 h-5 text-[#FFD21F] shrink-0" />}
-                {t.type === 'error' && <AlertCircle className="w-5 h-5 text-white shrink-0" />}
-                {t.type === 'info' && <Info className="w-5 h-5 text-[#FFD21F] shrink-0" />}
-                <span>{t.message}</span>
+              <div className="flex items-center gap-3 min-w-0">
+                <span
+                  className={`grid place-items-center w-7 h-7 rounded-full shrink-0 ${
+                    t.type === 'success'
+                      ? 'bg-emerald-500/20 text-emerald-400 dark:text-emerald-600'
+                      : t.type === 'error'
+                      ? 'bg-rose-500/20 text-rose-400 dark:text-rose-600'
+                      : 'bg-brand-500/25 text-brand-300 dark:text-brand-700'
+                  }`}
+                >
+                  {t.type === 'success' && <CheckCircle2 className="w-[18px] h-[18px]" weight="fill" />}
+                  {t.type === 'error' && <AlertCircle className="w-[18px] h-[18px]" weight="fill" />}
+                  {t.type === 'info' && <Info className="w-[18px] h-[18px]" weight="fill" />}
+                </span>
+                <span className="leading-snug">{t.message}</span>
               </div>
               <button
                 onClick={() => removeToast(t.id)}
-                className="p-1 hover:bg-white/10 rounded-lg text-white/70 hover:text-white transition-colors shrink-0 ml-2"
+                aria-label="Dismiss"
+                className="grid place-items-center w-8 h-8 hover:bg-white/10 dark:hover:bg-black/5 rounded-full text-white/60 dark:text-neutral-500 hover:text-white dark:hover:text-neutral-900 transition-colors shrink-0 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
-              {/* Countdown bar so the person can see how long they have to read/undo */}
               <motion.div
                 initial={{ scaleX: 1 }}
                 animate={{ scaleX: 0 }}
                 transition={{ duration: 4, ease: 'linear' }}
                 style={{ originX: 0 }}
-                className={`absolute bottom-0 left-0 h-0.5 w-full ${
-                  t.type === 'error' ? 'bg-white/40' : 'bg-[#FFD21F]/50'
+                className={`absolute bottom-0 left-0 h-[3px] w-full ${
+                  t.type === 'error' ? 'bg-rose-500/70' : t.type === 'success' ? 'bg-emerald-500/70' : 'bg-brand-500/70'
                 }`}
               />
             </motion.div>

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Sparkles } from 'lucide-react';
+import { Sparkles } from '@/src/components/ui/icons';
 import { ProductRail } from '@/src/components/product/ProductRail';
 import { useProductList } from '@/src/lib/useProductList';
 import { getRecentCategoryIds, getRecentlyViewed } from '@/src/lib/recentlyViewed';

@@ -82,3 +82,22 @@ clear cart → commit. Any failure rolls the whole transaction back.
 Order status transitions are validated against an explicit state machine
 (`src/lib/orderStateMachine.ts`) — e.g. `DELIVERED → PROCESSING` is always
 rejected, regardless of caller.
+
+## UI / design system
+
+The storefront UI was rebuilt with a modern, premium visual language. All
+business logic (contexts, API routes, services, DB) is unchanged.
+
+- **Icons:** [Phosphor Icons](https://phosphoricons.com) (`@phosphor-icons/react`), replacing `lucide-react`.
+  Every screen imports from `src/components/ui/icons.tsx`, a thin layer that keeps the
+  existing icon names (e.g. `ShoppingBag`, `Truck`) but renders Phosphor glyphs. Swap the
+  icon library again by editing that single file.
+- **Typography:** [Geist](https://vercel.com/font) via the `geist` package (`GeistSans` / `GeistMono`).
+- **Tokens:** defined in `app/globals.css` with Tailwind v4 `@theme`: `brand-50…950`
+  (indigo-violet), `shadow-soft / lift / glow`, plus reusable utilities `glass`, `surface`,
+  `text-gradient`, `no-scrollbar`, `shimmer-bg`.
+- **Dark mode:** class-based (`.dark`), toggled by `ThemeContext`; every screen has dark styling.
+- **Motion:** `motion` (already a dependency) for entrances, drawers and toasts;
+  respects `prefers-reduced-motion`.
+
+After pulling these changes run `npm install` to fetch the new packages.

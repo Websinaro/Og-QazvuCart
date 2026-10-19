@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef } from 'react';
-import { ChevronLeft, ChevronRight, LucideIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, type AppIcon } from '@/src/components/ui/icons';
 import { ProductCard, ProductCardProps } from '@/src/components/product/ProductCard';
 import { ProductCardSkeleton } from '@/src/components/product/ProductCardSkeleton';
 
@@ -16,7 +16,7 @@ export function ProductRail({
 }: {
   title: string;
   subtitle?: string;
-  icon?: LucideIcon;
+  icon?: AppIcon;
   products: ProductCardProps[];
   isLoading: boolean;
   skeletonCount?: number;
@@ -31,35 +31,37 @@ export function ProductRail({
   if (!isLoading && products.length === 0) return null;
 
   return (
-    <section className="py-6 sm:py-8">
-      <div className="flex items-center justify-between mb-3 sm:mb-4">
-        <div className="flex items-center gap-2">
+    <section className="py-8 sm:py-10">
+      <div className="flex items-end justify-between gap-4 mb-4 sm:mb-5">
+        <div className="flex items-center gap-3 min-w-0">
           {Icon && (
             <span
-              className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                accent === 'amber' ? 'bg-[#FFD21F] text-neutral-950' : 'bg-neutral-900 text-[#FFD21F]'
+              className={`grid place-items-center w-10 h-10 rounded-2xl shrink-0 ${
+                accent === 'amber'
+                  ? 'bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-glow'
+                  : 'bg-brand-500/10 text-brand-700 dark:text-brand-300'
               }`}
             >
-              <Icon className="w-4 h-4" />
+              <Icon className="w-5 h-5" />
             </span>
           )}
-          <div>
-            <h2 className="text-base sm:text-lg font-black text-neutral-950 leading-tight">{title}</h2>
-            {subtitle && <p className="text-[11px] text-neutral-500 font-medium">{subtitle}</p>}
+          <div className="min-w-0">
+            <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-neutral-950 dark:text-white leading-tight">{title}</h2>
+            {subtitle && <p className="text-xs sm:text-[13px] text-neutral-500 dark:text-neutral-400 mt-0.5">{subtitle}</p>}
           </div>
         </div>
-        <div className="hidden sm:flex items-center gap-1.5">
+        <div className="hidden sm:flex items-center gap-2 shrink-0">
           <button
             onClick={() => scrollBy(-320)}
             aria-label="Scroll left"
-            className="p-1.5 rounded-full border border-neutral-300 text-neutral-600 hover:bg-neutral-100 cursor-pointer"
+            className="grid place-items-center w-9 h-9 rounded-full border border-neutral-900/10 dark:border-white/15 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-950 hover:text-white dark:hover:bg-white dark:hover:text-neutral-950 hover:border-transparent active:scale-95 transition cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           <button
             onClick={() => scrollBy(320)}
             aria-label="Scroll right"
-            className="p-1.5 rounded-full border border-neutral-300 text-neutral-600 hover:bg-neutral-100 cursor-pointer"
+            className="grid place-items-center w-9 h-9 rounded-full border border-neutral-900/10 dark:border-white/15 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-950 hover:text-white dark:hover:bg-white dark:hover:text-neutral-950 hover:border-transparent active:scale-95 transition cursor-pointer"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -68,16 +70,16 @@ export function ProductRail({
 
       <div
         ref={scrollerRef}
-        className="flex gap-3.5 sm:gap-4 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex gap-3.5 sm:gap-5 overflow-x-auto pb-4 pt-1 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x snap-mandatory scroll-smooth no-scrollbar"
       >
         {isLoading
           ? Array.from({ length: skeletonCount }).map((_, i) => (
-              <div key={i} className="w-[46vw] sm:w-[240px] shrink-0 snap-start">
+              <div key={i} className="w-[46vw] sm:w-[250px] shrink-0 snap-start">
                 <ProductCardSkeleton />
               </div>
             ))
           : products.map((p) => (
-              <div key={p.id} className="w-[46vw] sm:w-[240px] shrink-0 snap-start">
+              <div key={p.id} className="w-[46vw] sm:w-[250px] shrink-0 snap-start">
                 <ProductCard {...p} />
               </div>
             ))}

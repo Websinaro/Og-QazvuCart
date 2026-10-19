@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Flame } from 'lucide-react';
+import { Flame } from '@/src/components/ui/icons';
 import { ProductRail } from '@/src/components/product/ProductRail';
 import { useProductList } from '@/src/lib/useProductList';
 

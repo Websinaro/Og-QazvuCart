@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import { GeistSans } from 'geist/font/sans';
+import { GeistMono } from 'geist/font/mono';
 import { AppProviders } from '@/src/components/providers/AppProviders';
 import { ThemeProvider } from '@/src/context/ThemeContext';
 
@@ -18,8 +20,8 @@ import { ThemeProvider } from '@/src/context/ThemeContext';
 export const viewport: Viewport = {
   colorScheme: 'light dark',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#0a0a0a' },
+    { media: '(prefers-color-scheme: light)', color: '#f6f6f8' },
+    { media: '(prefers-color-scheme: dark)', color: '#09090d' },
   ],
 };
 
@@ -58,13 +60,13 @@ const themeInitScript = `
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body
         suppressHydrationWarning
-        className="bg-neutral-50 text-neutral-900 antialiased font-sans dark:bg-neutral-950 dark:text-neutral-50"
+        className="font-sans antialiased"
       >
         <ThemeProvider>
           <AppProviders>{children}</AppProviders>

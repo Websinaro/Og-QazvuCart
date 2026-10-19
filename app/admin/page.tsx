@@ -35,7 +35,7 @@ import {
   ImagePlus,
   Loader2,
   BellRing,
-} from 'lucide-react';
+} from '@/src/components/ui/icons';
 
 interface AnalyticsData {
   totalRevenue: number;
@@ -782,27 +782,27 @@ export default function AdminDashboardPage() {
   // Access Denied State
   if (!isAuthLoading && (!isAuthenticated || user?.role !== 'ADMIN')) {
     return (
-      <div className="min-h-[80vh] flex items-center justify-center p-6 bg-neutral-50">
-        <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-neutral-200 shadow-xl text-center space-y-6">
-          <div className="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+      <div className="min-h-[80vh] flex items-center justify-center p-6 bg-neutral-50 dark:bg-white/[0.04]">
+        <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-neutral-200 shadow-xl text-center space-y-6 dark:bg-[#13131a] dark:border-white/10">
+          <div className="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner dark:bg-red-500/15">
             <Shield className="w-8 h-8" />
           </div>
           <div>
-            <h1 className="text-2xl font-black text-neutral-950">Administrative Access Required</h1>
-            <p className="text-sm text-neutral-600 mt-2">
-              You must be signed in with an Administrator account (<code className="bg-neutral-100 px-1.5 py-0.5 rounded text-neutral-900 font-mono text-xs">admin@qazvucart.com</code>) to access the Developer & Operations Management Console.
+            <h1 className="text-2xl font-bold text-neutral-950 dark:text-white">Administrative Access Required</h1>
+            <p className="text-sm text-neutral-600 mt-2 dark:text-neutral-300">
+              You must be signed in with an Administrator account (<code className="bg-neutral-100 px-1.5 py-0.5 rounded text-neutral-900 font-mono text-xs dark:bg-white/10 dark:text-white">admin@qazvucart.com</code>) to access the Developer & Operations Management Console.
             </p>
           </div>
           <div className="space-y-3 pt-2">
             <Link
               href="/account"
-              className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-neutral-950 text-[#FFD21F] font-bold rounded-xl hover:bg-neutral-800 transition-colors shadow-sm text-sm"
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-neutral-950 text-brand-300 font-bold rounded-xl hover:bg-neutral-800 transition-colors shadow-sm text-sm"
             >
               <ArrowLeft className="w-4 h-4" /> Return to My Profile
             </Link>
             <Link
               href="/"
-              className="w-full block py-2.5 px-4 text-xs font-semibold text-neutral-600 hover:text-neutral-950 transition-colors"
+              className="w-full block py-2.5 px-4 text-xs font-semibold text-neutral-600 hover:text-neutral-950 transition-colors dark:text-neutral-300 dark:hover:text-white"
             >
               Go to Storefront
             </Link>
@@ -833,7 +833,7 @@ export default function AdminDashboardPage() {
   });
 
   return (
-    <div className="min-h-screen bg-neutral-100 text-neutral-900 pb-20">
+    <div className="min-h-screen bg-neutral-100 text-neutral-900 pb-20 dark:bg-white/10 dark:text-white">
       {/* Top Header Bar */}
       <header className="bg-neutral-950 text-white border-b border-neutral-800 sticky top-0 z-30 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -848,13 +848,13 @@ export default function AdminDashboardPage() {
             </Link>
             <div className="h-6 w-px bg-neutral-800 hidden sm:block" />
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-[#FFD21F] text-neutral-950 flex items-center justify-center font-black shadow-xs">
+              <div className="w-9 h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center font-bold shadow-soft">
                 <Shield className="w-5 h-5" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-lg font-black tracking-tight text-white">QazvuCart Admin Panel</h1>
-                  <span className="bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase">
+                  <h1 className="text-lg font-bold tracking-tight text-white">QazvuCart Admin Panel</h1>
+                  <span className="bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase">
                     Live System
                   </span>
                 </div>
@@ -879,7 +879,7 @@ export default function AdminDashboardPage() {
 
             <button
               onClick={() => setIsAddProductOpen(true)}
-              className="flex items-center gap-1.5 py-2 px-3.5 bg-[#FFD21F] hover:bg-[#ffc800] text-neutral-950 font-extrabold rounded-xl transition-all shadow-sm text-xs"
+              className="flex items-center gap-1.5 py-2 px-3.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl transition-all shadow-sm text-xs"
             >
               <Plus className="w-4 h-4" /> Add Product
             </button>
@@ -901,7 +901,7 @@ export default function AdminDashboardPage() {
             onClick={() => setActiveTab('overview')}
             className={`flex items-center gap-2 py-3 px-4 text-xs font-bold border-b-2 transition-all whitespace-nowrap ${
               activeTab === 'overview'
-                ? 'border-[#FFD21F] text-[#FFD21F]'
+                ? 'border-brand-500 text-brand-300'
                 : 'border-transparent text-neutral-400 hover:text-neutral-200 hover:border-neutral-700'
             }`}
           >
@@ -911,7 +911,7 @@ export default function AdminDashboardPage() {
             onClick={() => setActiveTab('products')}
             className={`flex items-center gap-2 py-3 px-4 text-xs font-bold border-b-2 transition-all whitespace-nowrap ${
               activeTab === 'products'
-                ? 'border-[#FFD21F] text-[#FFD21F]'
+                ? 'border-brand-500 text-brand-300'
                 : 'border-transparent text-neutral-400 hover:text-neutral-200 hover:border-neutral-700'
             }`}
           >
@@ -921,7 +921,7 @@ export default function AdminDashboardPage() {
             onClick={() => setActiveTab('categories')}
             className={`flex items-center gap-2 py-3 px-4 text-xs font-bold border-b-2 transition-all whitespace-nowrap ${
               activeTab === 'categories'
-                ? 'border-[#FFD21F] text-[#FFD21F]'
+                ? 'border-brand-500 text-brand-300'
                 : 'border-transparent text-neutral-400 hover:text-neutral-200 hover:border-neutral-700'
             }`}
           >
@@ -931,7 +931,7 @@ export default function AdminDashboardPage() {
             onClick={() => setActiveTab('orders')}
             className={`flex items-center gap-2 py-3 px-4 text-xs font-bold border-b-2 transition-all whitespace-nowrap ${
               activeTab === 'orders'
-                ? 'border-[#FFD21F] text-[#FFD21F]'
+                ? 'border-brand-500 text-brand-300'
                 : 'border-transparent text-neutral-400 hover:text-neutral-200 hover:border-neutral-700'
             }`}
           >
@@ -941,7 +941,7 @@ export default function AdminDashboardPage() {
             onClick={() => setActiveTab('users')}
             className={`flex items-center gap-2 py-3 px-4 text-xs font-bold border-b-2 transition-all whitespace-nowrap ${
               activeTab === 'users'
-                ? 'border-[#FFD21F] text-[#FFD21F]'
+                ? 'border-brand-500 text-brand-300'
                 : 'border-transparent text-neutral-400 hover:text-neutral-200 hover:border-neutral-700'
             }`}
           >
@@ -951,7 +951,7 @@ export default function AdminDashboardPage() {
             onClick={() => setActiveTab('notifications')}
             className={`flex items-center gap-2 py-3 px-4 text-xs font-bold border-b-2 transition-all whitespace-nowrap ${
               activeTab === 'notifications'
-                ? 'border-[#FFD21F] text-[#FFD21F]'
+                ? 'border-brand-500 text-brand-300'
                 : 'border-transparent text-neutral-400 hover:text-neutral-200 hover:border-neutral-700'
             }`}
           >
@@ -961,7 +961,7 @@ export default function AdminDashboardPage() {
             onClick={() => setActiveTab('coupons')}
             className={`flex items-center gap-2 py-3 px-4 text-xs font-bold border-b-2 transition-all whitespace-nowrap ${
               activeTab === 'coupons'
-                ? 'border-[#FFD21F] text-[#FFD21F]'
+                ? 'border-brand-500 text-brand-300'
                 : 'border-transparent text-neutral-400 hover:text-neutral-200 hover:border-neutral-700'
             }`}
           >
@@ -977,14 +977,14 @@ export default function AdminDashboardPage() {
           <div className="space-y-6">
             {/* Metric KPI Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white rounded-2xl p-5 border border-neutral-200/90 shadow-xs">
-                <div className="flex items-center justify-between text-neutral-500 mb-2">
+              <div className="bg-white rounded-2xl p-5 border border-neutral-200/90 shadow-soft dark:bg-[#13131a] dark:border-white/10">
+                <div className="flex items-center justify-between text-neutral-500 mb-2 dark:text-neutral-400">
                   <span className="text-xs font-bold uppercase tracking-wider">Gross Sales</span>
-                  <div className="p-2 bg-emerald-100 text-emerald-700 rounded-xl">
+                  <div className="p-2 bg-emerald-100 text-emerald-700 rounded-xl dark:bg-emerald-500/15 dark:text-emerald-300">
                     <DollarSign className="w-4 h-4" />
                   </div>
                 </div>
-                <p className="text-2xl sm:text-3xl font-black text-neutral-950 tracking-tight">
+                <p className="text-2xl sm:text-3xl font-bold text-neutral-950 tracking-tight dark:text-white">
                   {formatINR(analytics?.totalRevenue || 0)}
                 </p>
                 <div className="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-emerald-600">
@@ -992,48 +992,48 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl p-5 border border-neutral-200/90 shadow-xs">
-                <div className="flex items-center justify-between text-neutral-500 mb-2">
+              <div className="bg-white rounded-2xl p-5 border border-neutral-200/90 shadow-soft dark:bg-[#13131a] dark:border-white/10">
+                <div className="flex items-center justify-between text-neutral-500 mb-2 dark:text-neutral-400">
                   <span className="text-xs font-bold uppercase tracking-wider">Total Orders</span>
-                  <div className="p-2 bg-blue-100 text-blue-700 rounded-xl">
+                  <div className="p-2 bg-blue-100 text-blue-700 rounded-xl dark:bg-blue-500/15 dark:text-blue-300">
                     <ShoppingBag className="w-4 h-4" />
                   </div>
                 </div>
-                <p className="text-2xl sm:text-3xl font-black text-neutral-950 tracking-tight">
+                <p className="text-2xl sm:text-3xl font-bold text-neutral-950 tracking-tight dark:text-white">
                   {analytics?.totalOrders || 0}
                 </p>
-                <div className="mt-2 flex items-center gap-2 text-[11px] font-semibold text-neutral-500">
+                <div className="mt-2 flex items-center gap-2 text-[11px] font-semibold text-neutral-500 dark:text-neutral-400">
                   <span className="text-amber-600 font-bold">{analytics?.pendingOrdersCount || 0} pending</span> •{' '}
                   <span className="text-emerald-600 font-bold">{analytics?.deliveredOrdersCount || 0} completed</span>
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl p-5 border border-neutral-200/90 shadow-xs">
-                <div className="flex items-center justify-between text-neutral-500 mb-2">
+              <div className="bg-white rounded-2xl p-5 border border-neutral-200/90 shadow-soft dark:bg-[#13131a] dark:border-white/10">
+                <div className="flex items-center justify-between text-neutral-500 mb-2 dark:text-neutral-400">
                   <span className="text-xs font-bold uppercase tracking-wider">Live Catalog</span>
-                  <div className="p-2 bg-purple-100 text-purple-700 rounded-xl">
+                  <div className="p-2 bg-purple-100 text-purple-700 rounded-xl dark:bg-purple-500/15 dark:text-purple-300">
                     <Package className="w-4 h-4" />
                   </div>
                 </div>
-                <p className="text-2xl sm:text-3xl font-black text-neutral-950 tracking-tight">
+                <p className="text-2xl sm:text-3xl font-bold text-neutral-950 tracking-tight dark:text-white">
                   {analytics?.totalProducts || 0}
                 </p>
-                <div className="mt-2 flex items-center gap-1 text-[11px] font-bold text-neutral-500">
+                <div className="mt-2 flex items-center gap-1 text-[11px] font-bold text-neutral-500 dark:text-neutral-400">
                   <span>Across all active categories</span>
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl p-5 border border-neutral-200/90 shadow-xs">
-                <div className="flex items-center justify-between text-neutral-500 mb-2">
+              <div className="bg-white rounded-2xl p-5 border border-neutral-200/90 shadow-soft dark:bg-[#13131a] dark:border-white/10">
+                <div className="flex items-center justify-between text-neutral-500 mb-2 dark:text-neutral-400">
                   <span className="text-xs font-bold uppercase tracking-wider">Registered Users</span>
-                  <div className="p-2 bg-amber-100 text-amber-700 rounded-xl">
+                  <div className="p-2 bg-amber-100 text-amber-700 rounded-xl dark:bg-amber-500/15 dark:text-amber-300">
                     <Users className="w-4 h-4" />
                   </div>
                 </div>
-                <p className="text-2xl sm:text-3xl font-black text-neutral-950 tracking-tight">
+                <p className="text-2xl sm:text-3xl font-bold text-neutral-950 tracking-tight dark:text-white">
                   {analytics?.totalUsers || 0}
                 </p>
-                <div className="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-neutral-500">
+                <div className="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-neutral-500 dark:text-neutral-400">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                   <span>{analytics?.activeSellers || 1} verified merchant stores</span>
                 </div>
@@ -1043,21 +1043,21 @@ export default function AdminDashboardPage() {
             {/* Two Column Section: Category Distribution & Low Stock Alerts */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* Category Breakdown (5 cols) */}
-              <div className="lg:col-span-5 bg-white rounded-2xl p-6 border border-neutral-200 shadow-xs space-y-4">
+              <div className="lg:col-span-5 bg-white rounded-2xl p-6 border border-neutral-200 shadow-soft space-y-4 dark:bg-[#13131a] dark:border-white/10">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-base font-extrabold text-neutral-950 flex items-center gap-2">
-                    <Tag className="w-4 h-4 text-neutral-600" /> Catalog Distribution
+                  <h2 className="text-base font-semibold text-neutral-950 flex items-center gap-2 dark:text-white">
+                    <Tag className="w-4 h-4 text-neutral-600 dark:text-neutral-300" /> Catalog Distribution
                   </h2>
                   <span className="text-xs font-bold text-neutral-400">By Category</span>
                 </div>
                 <div className="space-y-3 pt-1">
                   {analytics?.salesByCategory?.map((cat) => (
                     <div key={cat.categoryName} className="space-y-1">
-                      <div className="flex justify-between text-xs font-bold text-neutral-700">
+                      <div className="flex justify-between text-xs font-bold text-neutral-700 dark:text-neutral-300">
                         <span>{cat.categoryName}</span>
-                        <span className="text-neutral-950 font-black">{cat.productCount} items</span>
+                        <span className="text-neutral-950 font-bold dark:text-white">{cat.productCount} items</span>
                       </div>
-                      <div className="w-full h-2 bg-neutral-100 rounded-full overflow-hidden">
+                      <div className="w-full h-2 bg-neutral-100 rounded-full overflow-hidden dark:bg-white/10">
                         <div
                           className="h-full bg-neutral-900 rounded-full"
                           style={{
@@ -1071,33 +1071,33 @@ export default function AdminDashboardPage() {
               </div>
 
               {/* Low Stock Warning Box (7 cols) */}
-              <div className="lg:col-span-7 bg-white rounded-2xl p-6 border border-neutral-200 shadow-xs space-y-4">
+              <div className="lg:col-span-7 bg-white rounded-2xl p-6 border border-neutral-200 shadow-soft space-y-4 dark:bg-[#13131a] dark:border-white/10">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-base font-extrabold text-neutral-950 flex items-center gap-2">
+                  <h2 className="text-base font-semibold text-neutral-950 flex items-center gap-2 dark:text-white">
                     <AlertTriangle className="w-4 h-4 text-amber-500" /> Inventory Health & Alerts
                   </h2>
-                  <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
+                  <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200 dark:bg-amber-500/15 dark:border-amber-500/25">
                     {analytics?.lowStockProductsCount || 0} Low Stock Alerts
                   </span>
                 </div>
 
-                <div className="divide-y divide-neutral-100">
+                <div className="divide-y divide-neutral-100 dark:divide-white/10">
                   {products
                     .filter((p) => p.stock <= 10)
                     .slice(0, 4)
                     .map((item) => (
                       <div key={item.id} className="py-3 flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-neutral-100 flex-shrink-0 border border-neutral-200">
+                          <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-neutral-100 flex-shrink-0 border border-neutral-200 dark:bg-white/10 dark:border-white/10">
                             <Image src={item.primaryImage} alt={item.name} fill className="object-cover" />
                           </div>
                           <div className="min-w-0">
-                            <p className="text-xs font-bold text-neutral-950 truncate">{item.name}</p>
-                            <p className="text-[11px] text-neutral-500">{item.brand} • {item.categoryName}</p>
+                            <p className="text-xs font-bold text-neutral-950 truncate dark:text-white">{item.name}</p>
+                            <p className="text-[11px] text-neutral-500 dark:text-neutral-400">{item.brand} • {item.categoryName}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="text-xs font-extrabold text-red-600 bg-red-50 px-2 py-0.5 rounded-lg border border-red-200">
+                          <span className="text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-lg border border-red-200 dark:bg-red-500/15 dark:border-red-500/25">
                             {item.stock} left
                           </span>
                           <button
@@ -1105,7 +1105,7 @@ export default function AdminDashboardPage() {
                               setActiveTab('products');
                               setProductSearch(item.name);
                             }}
-                            className="text-xs font-bold text-neutral-700 hover:text-neutral-950 p-1.5 hover:bg-neutral-100 rounded-lg"
+                            className="text-xs font-bold text-neutral-700 hover:text-neutral-950 p-1.5 hover:bg-neutral-100 rounded-lg dark:hover:bg-white/10 dark:text-neutral-300 dark:hover:text-white"
                           >
                             Restock
                           </button>
@@ -1113,7 +1113,7 @@ export default function AdminDashboardPage() {
                       </div>
                     ))}
                   {products.filter((p) => p.stock <= 10).length === 0 && (
-                    <div className="py-8 text-center text-xs text-neutral-500 font-medium">
+                    <div className="py-8 text-center text-xs text-neutral-500 font-medium dark:text-neutral-400">
                       All products have optimal stock levels (&gt;10 units).
                     </div>
                   )}
@@ -1122,14 +1122,14 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* Recent Orders Table */}
-            <div className="bg-white rounded-2xl p-6 border border-neutral-200 shadow-xs space-y-4">
+            <div className="bg-white rounded-2xl p-6 border border-neutral-200 shadow-soft space-y-4 dark:bg-[#13131a] dark:border-white/10">
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-extrabold text-neutral-950 flex items-center gap-2">
-                  <ShoppingBag className="w-4 h-4 text-neutral-600" /> Recent Live Orders
+                <h2 className="text-base font-semibold text-neutral-950 flex items-center gap-2 dark:text-white">
+                  <ShoppingBag className="w-4 h-4 text-neutral-600 dark:text-neutral-300" /> Recent Live Orders
                 </h2>
                 <button
                   onClick={() => setActiveTab('orders')}
-                  className="text-xs font-bold text-neutral-700 hover:text-neutral-950 flex items-center gap-1"
+                  className="text-xs font-bold text-neutral-700 hover:text-neutral-950 flex items-center gap-1 dark:text-neutral-300 dark:hover:text-white"
                 >
                   View All Orders <ChevronRight className="w-3.5 h-3.5" />
                 </button>
@@ -1137,7 +1137,7 @@ export default function AdminDashboardPage() {
 
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-neutral-50 text-neutral-600 font-bold uppercase text-[10px] border-y border-neutral-200">
+                  <thead className="bg-neutral-50 text-neutral-600 font-bold uppercase text-[10px] border-y border-neutral-200 dark:bg-white/[0.04] dark:text-neutral-300 dark:border-white/10">
                     <tr>
                       <th className="py-3 px-3">Order ID</th>
                       <th className="py-3 px-3">Customer</th>
@@ -1147,30 +1147,30 @@ export default function AdminDashboardPage() {
                       <th className="py-3 px-3 text-right">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-neutral-100 font-medium">
+                  <tbody className="divide-y divide-neutral-100 font-medium dark:divide-white/10">
                     {analytics?.recentOrders?.map((ord) => (
                       <tr key={ord.id} className="hover:bg-neutral-50/70 transition-colors">
-                        <td className="py-3 px-3 font-mono font-bold text-neutral-950">{ord.orderNumber}</td>
+                        <td className="py-3 px-3 font-mono font-bold text-neutral-950 dark:text-white">{ord.orderNumber}</td>
                         <td className="py-3 px-3">
-                          <p className="font-bold text-neutral-950">{ord.customerName}</p>
+                          <p className="font-bold text-neutral-950 dark:text-white">{ord.customerName}</p>
                           <p className="text-[10px] text-neutral-400">{ord.customerEmail}</p>
                         </td>
-                        <td className="py-3 px-3 font-black text-neutral-950">{formatINR(ord.totalAmount)}</td>
+                        <td className="py-3 px-3 font-bold text-neutral-950 dark:text-white">{formatINR(ord.totalAmount)}</td>
                         <td className="py-3 px-3">
-                          <span className="bg-neutral-100 text-neutral-700 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                          <span className="bg-neutral-100 text-neutral-700 text-[10px] font-bold px-2 py-0.5 rounded-md dark:bg-white/10 dark:text-neutral-300">
                             {ord.paymentMethod} • {ord.paymentStatus}
                           </span>
                         </td>
                         <td className="py-3 px-3">
                           <span
-                            className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase ${
+                            className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full uppercase ${
                               ord.status === 'DELIVERED'
-                                ? 'bg-emerald-100 text-emerald-800'
+                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300'
                                 : ord.status === 'SHIPPED'
-                                ? 'bg-blue-100 text-blue-800'
+                                ? 'bg-blue-100 text-blue-800 dark:bg-blue-500/15 dark:text-blue-300'
                                 : ord.status === 'CANCELLED'
-                                ? 'bg-red-100 text-red-800'
-                                : 'bg-amber-100 text-amber-800'
+                                ? 'bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-300'
+                                : 'bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300'
                             }`}
                           >
                             {ord.status}
@@ -1200,7 +1200,7 @@ export default function AdminDashboardPage() {
         {activeTab === 'products' && (
           <div className="space-y-4">
             {/* Action Bar */}
-            <div className="bg-white rounded-2xl p-4 border border-neutral-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+            <div className="bg-white rounded-2xl p-4 border border-neutral-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-soft dark:bg-[#13131a] dark:border-white/10">
               <div className="relative flex-1 max-w-md">
                 <Search className="w-4 h-4 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
@@ -1208,15 +1208,15 @@ export default function AdminDashboardPage() {
                   placeholder="Search products by title, brand, or category..."
                   value={productSearch}
                   onChange={(e) => setProductSearch(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 bg-neutral-50 border border-neutral-200 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-950 font-medium"
+                  className="w-full pl-9 pr-4 py-2 bg-neutral-50 border border-neutral-200 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-950 font-medium dark:bg-white/[0.04] dark:text-white dark:border-white/10"
                 />
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-xs text-neutral-500 font-bold">{filteredProducts.length} Products</span>
+                <span className="text-xs text-neutral-500 font-bold dark:text-neutral-400">{filteredProducts.length} Products</span>
                 <button
                   onClick={() => setIsAddProductOpen(true)}
-                  className="flex items-center gap-1.5 py-2 px-4 bg-[#FFD21F] hover:bg-[#ffc800] text-neutral-950 font-extrabold rounded-xl transition-colors shadow-sm text-xs"
+                  className="flex items-center gap-1.5 py-2 px-4 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl transition-colors shadow-sm text-xs"
                 >
                   <Plus className="w-4 h-4" /> Add Product
                 </button>
@@ -1224,10 +1224,10 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* Products Table */}
-            <div className="bg-white rounded-2xl border border-neutral-200 shadow-xs overflow-hidden">
+            <div className="bg-white rounded-2xl border border-neutral-200 shadow-soft overflow-hidden dark:bg-[#13131a] dark:border-white/10">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-neutral-50 text-neutral-600 font-bold uppercase text-[10px] border-b border-neutral-200">
+                  <thead className="bg-neutral-50 text-neutral-600 font-bold uppercase text-[10px] border-b border-neutral-200 dark:bg-white/[0.04] dark:text-neutral-300 dark:border-white/10">
                     <tr>
                       <th className="py-3 px-4">Product Info</th>
                       <th className="py-3 px-3">Category</th>
@@ -1237,7 +1237,7 @@ export default function AdminDashboardPage() {
                       <th className="py-3 px-3 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-neutral-100 font-medium">
+                  <tbody className="divide-y divide-neutral-100 font-medium dark:divide-white/10">
                     {filteredProducts.map((prod) => {
                       const isEditing = editingProductId === prod.id;
                       return (
@@ -1245,12 +1245,12 @@ export default function AdminDashboardPage() {
                           {/* Product Info */}
                           <td className="py-3.5 px-4">
                             <div className="flex items-center gap-3">
-                              <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-neutral-100 flex-shrink-0 border border-neutral-200">
+                              <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-neutral-100 flex-shrink-0 border border-neutral-200 dark:bg-white/10 dark:border-white/10">
                                 <Image src={prod.primaryImage} alt={prod.name} fill className="object-cover" />
                               </div>
                               <div className="min-w-0 max-w-xs">
-                                <p className="font-extrabold text-neutral-950 truncate">{prod.name}</p>
-                                <p className="text-[11px] text-neutral-500 font-medium">
+                                <p className="font-semibold text-neutral-950 truncate dark:text-white">{prod.name}</p>
+                                <p className="text-[11px] text-neutral-500 font-medium dark:text-neutral-400">
                                   {prod.brand} • Store: {prod.sellerStoreName}
                                 </p>
                               </div>
@@ -1259,7 +1259,7 @@ export default function AdminDashboardPage() {
 
                           {/* Category */}
                           <td className="py-3.5 px-3">
-                            <span className="bg-neutral-100 text-neutral-700 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                            <span className="bg-neutral-100 text-neutral-700 text-[10px] font-bold px-2 py-0.5 rounded-md dark:bg-white/10 dark:text-neutral-300">
                               {prod.categoryName}
                             </span>
                           </td>
@@ -1276,12 +1276,12 @@ export default function AdminDashboardPage() {
                                     const v = e.target.value;
                                     if (v === '' || /^\d*\.?\d*$/.test(v)) setEditPrice(v);
                                   }}
-                                  className="w-24 px-2 py-1 bg-white border border-neutral-300 rounded text-xs font-bold"
+                                  className="w-24 px-2 py-1 bg-white border border-neutral-300 rounded text-xs font-bold dark:bg-[#13131a] dark:border-white/10"
                                 />
                               </div>
                             ) : (
                               <div>
-                                <span className="font-black text-neutral-950">{formatINR(prod.discountPrice)}</span>
+                                <span className="font-bold text-neutral-950 dark:text-white">{formatINR(prod.discountPrice)}</span>
                                 <span className="text-[10px] text-neutral-400 line-through ml-1.5">
                                   {formatINR(prod.basePrice)}
                                 </span>
@@ -1300,14 +1300,14 @@ export default function AdminDashboardPage() {
                                   const v = e.target.value;
                                   if (v === '' || /^\d*$/.test(v)) setEditStock(v);
                                 }}
-                                className="w-20 px-2 py-1 bg-white border border-neutral-300 rounded text-xs font-bold"
+                                className="w-20 px-2 py-1 bg-white border border-neutral-300 rounded text-xs font-bold dark:bg-[#13131a] dark:border-white/10"
                               />
                             ) : (
                               <span
                                 className={`font-bold px-2 py-0.5 rounded-md text-[11px] ${
                                   prod.stock <= 10
-                                    ? 'bg-red-50 text-red-600 border border-red-200'
-                                    : 'bg-neutral-100 text-neutral-800'
+                                    ? 'bg-red-50 text-red-600 border border-red-200 dark:bg-red-500/15 dark:border-red-500/25'
+                                    : 'bg-neutral-100 text-neutral-800 dark:bg-white/10 dark:text-neutral-100'
                                 }`}
                               >
                                 {prod.stock} units
@@ -1319,10 +1319,10 @@ export default function AdminDashboardPage() {
                           <td className="py-3.5 px-3">
                             <button
                               onClick={() => handleToggleProductStatus(prod)}
-                              className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase transition-colors ${
+                              className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full uppercase transition-colors ${
                                 prod.status === 'ACTIVE'
-                                  ? 'bg-emerald-100 text-emerald-800 hover:bg-red-100 hover:text-red-800'
-                                  : 'bg-neutral-200 text-neutral-600 hover:bg-emerald-100 hover:text-emerald-800'
+                                  ? 'bg-emerald-100 text-emerald-800 hover:bg-red-100 hover:text-red-800 dark:bg-emerald-500/15 dark:text-emerald-300'
+                                  : 'bg-neutral-200 text-neutral-600 hover:bg-emerald-100 hover:text-emerald-800 dark:bg-white/10 dark:text-neutral-300'
                               }`}
                               title="Click to toggle status"
                             >
@@ -1336,13 +1336,13 @@ export default function AdminDashboardPage() {
                               <div className="flex items-center justify-end gap-1.5">
                                 <button
                                   onClick={() => handleSaveProductEdit(prod.id)}
-                                  className="px-2.5 py-1 bg-neutral-950 text-white font-bold rounded-lg text-xs hover:bg-neutral-800"
+                                  className="px-2.5 py-1 bg-neutral-950 text-white font-bold rounded-lg text-xs hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
                                 >
                                   Save
                                 </button>
                                 <button
                                   onClick={() => setEditingProductId(null)}
-                                  className="px-2 py-1 text-neutral-500 font-bold hover:text-neutral-800"
+                                  className="px-2 py-1 text-neutral-500 font-bold hover:text-neutral-800 dark:text-neutral-400"
                                 >
                                   Cancel
                                 </button>
@@ -1355,7 +1355,7 @@ export default function AdminDashboardPage() {
                                     setEditPrice(String(prod.discountPrice));
                                     setEditStock(String(prod.stock));
                                   }}
-                                  className="p-1.5 text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100 rounded-lg transition-colors"
+                                  className="p-1.5 text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100 rounded-lg transition-colors dark:hover:bg-white/10 dark:text-neutral-300 dark:hover:text-white"
                                   title="Quick edit stock & price"
                                 >
                                   <Edit2 className="w-3.5 h-3.5" />
@@ -1363,7 +1363,7 @@ export default function AdminDashboardPage() {
                                 <Link
                                   href={`/products/${prod.slug}`}
                                   target="_blank"
-                                  className="p-1.5 text-neutral-400 hover:text-neutral-950 hover:bg-neutral-100 rounded-lg transition-colors"
+                                  className="p-1.5 text-neutral-400 hover:text-neutral-950 hover:bg-neutral-100 rounded-lg transition-colors dark:hover:bg-white/10 dark:hover:text-white"
                                   title="View in Storefront"
                                 >
                                   <ExternalLink className="w-3.5 h-3.5" />
@@ -1385,7 +1385,7 @@ export default function AdminDashboardPage() {
         {activeTab === 'categories' && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <h2 className="text-lg font-extrabold text-neutral-900">Category Management</h2>
+              <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Category Management</h2>
               <button
                 onClick={() => {
                   resetCategoryForm();
@@ -1398,24 +1398,24 @@ export default function AdminDashboardPage() {
             </div>
 
             {adminCategoriesStatus === 'loading' && (
-              <div className="bg-white rounded-2xl border border-neutral-200 p-8 text-center text-sm text-neutral-500">
+              <div className="bg-white rounded-2xl border border-neutral-200 p-8 text-center text-sm text-neutral-500 dark:bg-[#13131a] dark:text-neutral-400 dark:border-white/10">
                 Loading categories…
               </div>
             )}
 
             {adminCategoriesStatus === 'error' && (
-              <div className="bg-red-50 border border-red-200 rounded-2xl p-8 text-center space-y-2">
-                <p className="text-sm font-bold text-red-700">Couldn&apos;t load categories</p>
-                <button onClick={loadAdminCategories} className="text-xs font-bold underline text-red-800">
+              <div className="bg-red-50 border border-red-200 rounded-2xl p-8 text-center space-y-2 dark:bg-red-500/15 dark:border-red-500/25">
+                <p className="text-sm font-bold text-red-700 dark:text-red-300">Couldn&apos;t load categories</p>
+                <button onClick={loadAdminCategories} className="text-xs font-bold underline text-red-800 dark:text-red-300">
                   Retry
                 </button>
               </div>
             )}
 
             {adminCategoriesStatus === 'empty' && (
-              <div className="bg-white rounded-2xl border border-dashed border-neutral-300 p-10 text-center space-y-2">
-                <p className="text-sm font-bold text-neutral-700">No categories created yet</p>
-                <p className="text-xs text-neutral-500">
+              <div className="bg-white rounded-2xl border border-dashed border-neutral-300 p-10 text-center space-y-2 dark:bg-[#13131a] dark:border-white/10">
+                <p className="text-sm font-bold text-neutral-700 dark:text-neutral-300">No categories created yet</p>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">
                   Sellers and admins need at least one active category before products can be listed.
                 </p>
                 <button
@@ -1423,7 +1423,7 @@ export default function AdminDashboardPage() {
                     resetCategoryForm();
                     setIsAddCategoryOpen(true);
                   }}
-                  className="inline-flex items-center gap-1.5 mt-2 py-2 px-4 bg-[#FFD21F] text-neutral-950 font-extrabold rounded-xl text-xs"
+                  className="inline-flex items-center gap-1.5 mt-2 py-2 px-4 bg-brand-600 text-white font-semibold rounded-xl text-xs"
                 >
                   <Plus className="w-4 h-4" /> Create Category
                 </button>
@@ -1431,11 +1431,11 @@ export default function AdminDashboardPage() {
             )}
 
             {adminCategoriesStatus === 'ready' && (
-              <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden">
+              <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden dark:bg-[#13131a] dark:border-white/10">
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs">
-                    <thead className="bg-neutral-50 border-b border-neutral-200">
-                      <tr className="text-left text-neutral-500 uppercase tracking-wider">
+                    <thead className="bg-neutral-50 border-b border-neutral-200 dark:bg-white/[0.04] dark:border-white/10">
+                      <tr className="text-left text-neutral-500 uppercase tracking-wider dark:text-neutral-400">
                         <th className="px-4 py-3 font-bold">Category</th>
                         <th className="px-4 py-3 font-bold">Slug</th>
                         <th className="px-4 py-3 font-bold">Order</th>
@@ -1444,16 +1444,16 @@ export default function AdminDashboardPage() {
                         <th className="px-4 py-3 font-bold text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-neutral-100">
+                    <tbody className="divide-y divide-neutral-100 dark:divide-white/10">
                       {adminCategories.map((cat) => (
-                        <tr key={cat.id} className="hover:bg-neutral-50">
+                        <tr key={cat.id} className="hover:bg-neutral-50 dark:hover:bg-white/10">
                           {editingCategoryId === cat.id ? (
                             <>
                               <td className="px-4 py-3">
                                 <input
                                   defaultValue={cat.name}
                                   id={`cat-name-${cat.id}`}
-                                  className="w-full px-2 py-1 border border-neutral-300 rounded font-bold"
+                                  className="w-full px-2 py-1 border border-neutral-300 rounded font-bold dark:border-white/10"
                                 />
                               </td>
                               <td className="px-4 py-3 text-neutral-400">{cat.slug}</td>
@@ -1462,10 +1462,10 @@ export default function AdminDashboardPage() {
                                   defaultValue={cat.displayOrder}
                                   id={`cat-order-${cat.id}`}
                                   inputMode="numeric"
-                                  className="w-16 px-2 py-1 border border-neutral-300 rounded"
+                                  className="w-16 px-2 py-1 border border-neutral-300 rounded dark:border-white/10"
                                 />
                               </td>
-                              <td className="px-4 py-3 text-neutral-500">{cat.productCount}</td>
+                              <td className="px-4 py-3 text-neutral-500 dark:text-neutral-400">{cat.productCount}</td>
                               <td className="px-4 py-3 text-neutral-400">—</td>
                               <td className="px-4 py-3 text-right space-x-2">
                                 <button
@@ -1478,13 +1478,13 @@ export default function AdminDashboardPage() {
                                       displayOrder: Number.isNaN(nextOrder) ? cat.displayOrder : nextOrder,
                                     });
                                   }}
-                                  className="text-emerald-700 font-bold hover:underline"
+                                  className="text-emerald-700 font-bold hover:underline dark:text-emerald-300"
                                 >
                                   Save
                                 </button>
                                 <button
                                   onClick={() => setEditingCategoryId(null)}
-                                  className="text-neutral-500 font-bold hover:underline"
+                                  className="text-neutral-500 font-bold hover:underline dark:text-neutral-400"
                                 >
                                   Cancel
                                 </button>
@@ -1492,17 +1492,17 @@ export default function AdminDashboardPage() {
                             </>
                           ) : (
                             <>
-                              <td className="px-4 py-3 font-bold text-neutral-900">{cat.name}</td>
+                              <td className="px-4 py-3 font-bold text-neutral-900 dark:text-white">{cat.name}</td>
                               <td className="px-4 py-3 text-neutral-400">{cat.slug}</td>
-                              <td className="px-4 py-3 text-neutral-500">{cat.displayOrder}</td>
-                              <td className="px-4 py-3 text-neutral-500">{cat.productCount}</td>
+                              <td className="px-4 py-3 text-neutral-500 dark:text-neutral-400">{cat.displayOrder}</td>
+                              <td className="px-4 py-3 text-neutral-500 dark:text-neutral-400">{cat.productCount}</td>
                               <td className="px-4 py-3">
                                 <button
                                   onClick={() => handleUpdateCategory(cat.id, { isActive: !cat.isActive })}
-                                  className={`px-2 py-1 rounded-full text-[10px] font-extrabold uppercase ${
+                                  className={`px-2 py-1 rounded-full text-[10px] font-semibold uppercase ${
                                     cat.isActive
-                                      ? 'bg-emerald-100 text-emerald-700'
-                                      : 'bg-neutral-200 text-neutral-500'
+                                      ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300'
+                                      : 'bg-neutral-200 text-neutral-500 dark:bg-white/10 dark:text-neutral-400'
                                   }`}
                                   title="Click to toggle active/inactive"
                                 >
@@ -1512,7 +1512,7 @@ export default function AdminDashboardPage() {
                               <td className="px-4 py-3 text-right space-x-3">
                                 <button
                                   onClick={() => setEditingCategoryId(cat.id)}
-                                  className="text-neutral-700 font-bold hover:underline"
+                                  className="text-neutral-700 font-bold hover:underline dark:text-neutral-300"
                                 >
                                   Edit
                                 </button>
@@ -1537,11 +1537,11 @@ export default function AdminDashboardPage() {
               <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setIsAddCategoryOpen(false)}>
                 <div
                   onClick={(e) => e.stopPropagation()}
-                  className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl"
+                  className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl dark:bg-[#13131a]"
                 >
                   <div className="flex items-center justify-between px-5 py-4 bg-[#111111] rounded-t-2xl sticky top-0">
-                    <h3 className="text-white font-extrabold flex items-center gap-2">
-                      <Plus className="w-4 h-4 text-[#FFD21F]" /> Add New Category
+                    <h3 className="text-white font-semibold flex items-center gap-2">
+                      <Plus className="w-4 h-4 text-brand-300" /> Add New Category
                     </h3>
                     <button onClick={() => setIsAddCategoryOpen(false)} className="text-neutral-400 hover:text-white">
                       <X className="w-5 h-5" />
@@ -1549,43 +1549,43 @@ export default function AdminDashboardPage() {
                   </div>
                   <div className="p-5 space-y-3 text-xs">
                     <div>
-                      <label className="block text-neutral-700 font-bold mb-1">Category Name *</label>
+                      <label className="block text-neutral-700 font-bold mb-1 dark:text-neutral-300">Category Name *</label>
                       <input
                         value={catName}
                         onChange={(e) => setCatName(e.target.value)}
                         placeholder="e.g. Home Audio"
-                        className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900"
+                        className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900 dark:text-white dark:border-white/10"
                       />
                     </div>
                     <div>
-                      <label className="block text-neutral-700 font-bold mb-1">Icon (lucide-react name)</label>
+                      <label className="block text-neutral-700 font-bold mb-1 dark:text-neutral-300">Icon name</label>
                       <input
                         value={catIcon}
                         onChange={(e) => setCatIcon(e.target.value)}
                         placeholder="e.g. Headphones"
-                        className="w-full px-3 py-2 border border-neutral-300 rounded-xl text-neutral-900"
+                        className="w-full px-3 py-2 border border-neutral-300 rounded-xl text-neutral-900 dark:text-white dark:border-white/10"
                       />
                     </div>
                     <div>
-                      <label className="block text-neutral-700 font-bold mb-1">Category Image URL</label>
+                      <label className="block text-neutral-700 font-bold mb-1 dark:text-neutral-300">Category Image URL</label>
                       <input
                         value={catImageUrl}
                         onChange={(e) => setCatImageUrl(e.target.value)}
                         placeholder="https://res.cloudinary.com/..."
-                        className="w-full px-3 py-2 border border-neutral-300 rounded-xl text-neutral-900"
+                        className="w-full px-3 py-2 border border-neutral-300 rounded-xl text-neutral-900 dark:text-white dark:border-white/10"
                       />
                     </div>
                     <div>
-                      <label className="block text-neutral-700 font-bold mb-1">Description</label>
+                      <label className="block text-neutral-700 font-bold mb-1 dark:text-neutral-300">Description</label>
                       <textarea
                         value={catDescription}
                         onChange={(e) => setCatDescription(e.target.value)}
                         rows={2}
-                        className="w-full px-3 py-2 border border-neutral-300 rounded-xl text-neutral-900"
+                        className="w-full px-3 py-2 border border-neutral-300 rounded-xl text-neutral-900 dark:text-white dark:border-white/10"
                       />
                     </div>
                     <div>
-                      <label className="block text-neutral-700 font-bold mb-1">Display Order</label>
+                      <label className="block text-neutral-700 font-bold mb-1 dark:text-neutral-300">Display Order</label>
                       <input
                         type="text"
                         inputMode="numeric"
@@ -1594,23 +1594,23 @@ export default function AdminDashboardPage() {
                           const v = e.target.value;
                           if (v === '' || /^-?\d*$/.test(v)) setCatDisplayOrder(v);
                         }}
-                        className="w-full px-3 py-2 border border-neutral-300 rounded-xl text-neutral-900"
+                        className="w-full px-3 py-2 border border-neutral-300 rounded-xl text-neutral-900 dark:text-white dark:border-white/10"
                       />
                     </div>
                     <p className="text-[11px] text-neutral-400">
                       Slug is generated automatically from the name and must be unique.
                     </p>
                   </div>
-                  <div className="flex gap-2 p-5 pt-0 sticky bottom-0 bg-white">
+                  <div className="flex gap-2 p-5 pt-0 sticky bottom-0 bg-white dark:bg-[#13131a]">
                     <button
                       onClick={() => setIsAddCategoryOpen(false)}
-                      className="flex-1 py-2.5 border border-neutral-300 rounded-xl font-bold text-neutral-700"
+                      className="flex-1 py-2.5 border border-neutral-300 rounded-xl font-bold text-neutral-700 dark:text-neutral-300 dark:border-white/10"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleCreateCategory}
-                      className="flex-1 py-2.5 bg-[#FFD21F] rounded-xl font-extrabold text-neutral-950"
+                      className="flex-1 py-2.5 bg-brand-600 rounded-xl font-semibold text-white"
                     >
                       Create Category
                     </button>
@@ -1625,7 +1625,7 @@ export default function AdminDashboardPage() {
         {activeTab === 'orders' && (
           <div className="space-y-4">
             {/* Filter Row */}
-            <div className="bg-white rounded-2xl p-4 border border-neutral-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+            <div className="bg-white rounded-2xl p-4 border border-neutral-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-soft dark:bg-[#13131a] dark:border-white/10">
               <div className="relative flex-1 max-w-md">
                 <Search className="w-4 h-4 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
@@ -1633,7 +1633,7 @@ export default function AdminDashboardPage() {
                   placeholder="Search by order ID, customer name, or email..."
                   value={orderSearch}
                   onChange={(e) => setOrderSearch(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 bg-neutral-50 border border-neutral-200 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-950 font-medium"
+                  className="w-full pl-9 pr-4 py-2 bg-neutral-50 border border-neutral-200 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-950 font-medium dark:bg-white/[0.04] dark:text-white dark:border-white/10"
                 />
               </div>
 
@@ -1646,7 +1646,7 @@ export default function AdminDashboardPage() {
                     className={`px-3 py-1.5 rounded-xl transition-colors whitespace-nowrap text-[11px] ${
                       orderStatusFilter === st
                         ? 'bg-neutral-950 text-white'
-                        : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                        : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-white/10 dark:hover:bg-white/10 dark:text-neutral-300'
                     }`}
                   >
                     {st}
@@ -1660,33 +1660,33 @@ export default function AdminDashboardPage() {
               {filteredOrders.map((ord) => (
                 <div
                   key={ord.id}
-                  className="bg-white rounded-2xl p-5 border border-neutral-200 shadow-xs space-y-4"
+                  className="bg-white rounded-2xl p-5 border border-neutral-200 shadow-soft space-y-4 dark:bg-[#13131a] dark:border-white/10"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-neutral-100 pb-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-neutral-100 pb-3 dark:border-white/10">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono font-black text-neutral-950 text-sm">{ord.orderNumber}</span>
+                        <span className="font-mono font-bold text-neutral-950 text-sm dark:text-white">{ord.orderNumber}</span>
                         <span
-                          className={`text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase ${
+                          className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase ${
                             ord.status === 'DELIVERED'
-                              ? 'bg-emerald-100 text-emerald-800'
+                              ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300'
                               : ord.status === 'SHIPPED'
-                              ? 'bg-blue-100 text-blue-800'
+                              ? 'bg-blue-100 text-blue-800 dark:bg-blue-500/15 dark:text-blue-300'
                               : ord.status === 'CANCELLED'
-                              ? 'bg-red-100 text-red-800'
-                              : 'bg-amber-100 text-amber-800'
+                              ? 'bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-300'
+                              : 'bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300'
                           }`}
                         >
                           {ord.status}
                         </span>
                       </div>
-                      <p className="text-xs text-neutral-500 mt-0.5 font-medium">
-                        Placed by <strong className="text-neutral-900">{ord.customerName}</strong> ({ord.customerEmail} • {ord.customerPhone})
+                      <p className="text-xs text-neutral-500 mt-0.5 font-medium dark:text-neutral-400">
+                        Placed by <strong className="text-neutral-900 dark:text-white">{ord.customerName}</strong> ({ord.customerEmail} • {ord.customerPhone})
                       </p>
                     </div>
 
                     <div className="text-left sm:text-right">
-                      <p className="text-base font-black text-neutral-950">{formatINR(ord.totalAmount)}</p>
+                      <p className="text-base font-bold text-neutral-950 dark:text-white">{formatINR(ord.totalAmount)}</p>
                       <p className="text-[11px] text-neutral-400 font-medium">
                         {ord.paymentMethod} • {ord.paymentStatus}
                       </p>
@@ -1696,13 +1696,13 @@ export default function AdminDashboardPage() {
                   {/* Order Items */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                     {ord.items.map((it) => (
-                      <div key={it.id} className="flex items-center gap-2.5 bg-neutral-50 p-2.5 rounded-xl border border-neutral-200/60">
-                        <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-white flex-shrink-0 border border-neutral-200">
+                      <div key={it.id} className="flex items-center gap-2.5 bg-neutral-50 p-2.5 rounded-xl border border-neutral-200/60 dark:bg-white/[0.04] dark:border-white/10">
+                        <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-white flex-shrink-0 border border-neutral-200 dark:bg-[#13131a] dark:border-white/10">
                           <Image src={it.productImage} alt={it.productName} fill className="object-cover" />
                         </div>
                         <div className="min-w-0 text-xs">
-                          <p className="font-bold text-neutral-950 truncate">{it.productName}</p>
-                          <p className="text-neutral-500 font-medium text-[11px]">
+                          <p className="font-bold text-neutral-950 truncate dark:text-white">{it.productName}</p>
+                          <p className="text-neutral-500 font-medium text-[11px] dark:text-neutral-400">
                             Qty: {it.quantity} × {formatINR(it.unitPrice)}
                           </p>
                         </div>
@@ -1711,7 +1711,7 @@ export default function AdminDashboardPage() {
                   </div>
 
                   {/* Advance Status Controls */}
-                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-neutral-100">
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-neutral-100 dark:border-white/10">
                     <span className="text-[11px] text-neutral-400 font-medium">
                       Est. Delivery: {new Date(ord.estimatedDeliveryDate).toLocaleDateString()}
                     </span>
@@ -1762,7 +1762,7 @@ export default function AdminDashboardPage() {
                 </div>
               ))}
               {filteredOrders.length === 0 && (
-                <div className="bg-white rounded-2xl p-12 text-center text-neutral-500 text-xs font-medium border border-neutral-200">
+                <div className="bg-white rounded-2xl p-12 text-center text-neutral-500 text-xs font-medium border border-neutral-200 dark:bg-[#13131a] dark:text-neutral-400 dark:border-white/10">
                   No orders match the selected filters.
                 </div>
               )}
@@ -1773,7 +1773,7 @@ export default function AdminDashboardPage() {
         {/* TAB 4: USERS & ROLES */}
         {activeTab === 'users' && (
           <div className="space-y-4">
-            <div className="bg-white rounded-2xl p-4 border border-neutral-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+            <div className="bg-white rounded-2xl p-4 border border-neutral-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-soft dark:bg-[#13131a] dark:border-white/10">
               <div className="relative flex-1 max-w-md">
                 <Search className="w-4 h-4 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
@@ -1781,16 +1781,16 @@ export default function AdminDashboardPage() {
                   placeholder="Search users by name, email, phone, or role..."
                   value={userSearch}
                   onChange={(e) => setUserSearch(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 bg-neutral-50 border border-neutral-200 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-950 font-medium"
+                  className="w-full pl-9 pr-4 py-2 bg-neutral-50 border border-neutral-200 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-950 font-medium dark:bg-white/[0.04] dark:text-white dark:border-white/10"
                 />
               </div>
-              <span className="text-xs text-neutral-500 font-bold">{filteredUsers.length} Registered Accounts</span>
+              <span className="text-xs text-neutral-500 font-bold dark:text-neutral-400">{filteredUsers.length} Registered Accounts</span>
             </div>
 
-            <div className="bg-white rounded-2xl border border-neutral-200 shadow-xs overflow-hidden">
+            <div className="bg-white rounded-2xl border border-neutral-200 shadow-soft overflow-hidden dark:bg-[#13131a] dark:border-white/10">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-neutral-50 text-neutral-600 font-bold uppercase text-[10px] border-b border-neutral-200">
+                  <thead className="bg-neutral-50 text-neutral-600 font-bold uppercase text-[10px] border-b border-neutral-200 dark:bg-white/[0.04] dark:text-neutral-300 dark:border-white/10">
                     <tr>
                       <th className="py-3 px-4">User</th>
                       <th className="py-3 px-3">Contact</th>
@@ -1799,32 +1799,32 @@ export default function AdminDashboardPage() {
                       <th className="py-3 px-3 text-right">Assign Role</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-neutral-100 font-medium">
+                  <tbody className="divide-y divide-neutral-100 font-medium dark:divide-white/10">
                     {filteredUsers.map((u) => (
                       <tr key={u.id} className="hover:bg-neutral-50/70 transition-colors">
                         <td className="py-3.5 px-4">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-full bg-neutral-950 text-[#FFD21F] font-black text-xs flex items-center justify-center">
+                            <div className="w-8 h-8 rounded-full bg-neutral-950 text-brand-300 font-bold text-xs flex items-center justify-center">
                               {u.username.charAt(0).toUpperCase()}
                             </div>
                             <div>
-                              <p className="font-extrabold text-neutral-950">{u.username}</p>
+                              <p className="font-semibold text-neutral-950 dark:text-white">{u.username}</p>
                               <p className="text-[10px] text-neutral-400">Joined {new Date(u.createdAt).toLocaleDateString()}</p>
                             </div>
                           </div>
                         </td>
                         <td className="py-3.5 px-3">
-                          <p className="font-bold text-neutral-900">{u.email}</p>
-                          <p className="text-[11px] text-neutral-500">{u.phone || 'No phone'}</p>
+                          <p className="font-bold text-neutral-900 dark:text-white">{u.email}</p>
+                          <p className="text-[11px] text-neutral-500 dark:text-neutral-400">{u.phone || 'No phone'}</p>
                         </td>
                         <td className="py-3.5 px-3">
                           <span
-                            className={`text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase ${
+                            className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase ${
                               u.role === 'ADMIN'
-                                ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                                ? 'bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/25'
                                 : u.role === 'SELLER'
-                                ? 'bg-blue-100 text-blue-900 border border-blue-300'
-                                : 'bg-neutral-100 text-neutral-700'
+                                ? 'bg-blue-100 text-blue-900 border border-blue-300 dark:bg-blue-500/15 dark:text-blue-300 dark:border-blue-500/25'
+                                : 'bg-neutral-100 text-neutral-700 dark:bg-white/10 dark:text-neutral-300'
                             }`}
                           >
                             {u.role}
@@ -1839,7 +1839,7 @@ export default function AdminDashboardPage() {
                           <select
                             value={u.role}
                             onChange={(e) => handleChangeUserRole(u.id, e.target.value as 'CUSTOMER' | 'SELLER' | 'ADMIN')}
-                            className="text-xs font-bold bg-neutral-100 border border-neutral-300 rounded-lg px-2.5 py-1 text-neutral-800 focus:outline-none"
+                            className="text-xs font-bold bg-neutral-100 border border-neutral-300 rounded-lg px-2.5 py-1 text-neutral-800 focus:outline-none dark:bg-white/10 dark:text-neutral-100 dark:border-white/10"
                           >
                             <option value="CUSTOMER">Customer</option>
                             <option value="SELLER">Seller</option>
@@ -1860,17 +1860,17 @@ export default function AdminDashboardPage() {
           <div className="pb-10 grid grid-cols-1 lg:grid-cols-5 gap-6">
             {/* Compose Panel */}
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-2xl border border-neutral-200 shadow-xs p-5 sticky top-6">
+              <div className="bg-white rounded-2xl border border-neutral-200 shadow-soft p-5 sticky top-6 dark:bg-[#13131a] dark:border-white/10">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="w-8 h-8 rounded-lg bg-neutral-900 text-[#FFD21F] flex items-center justify-center">
+                  <span className="w-8 h-8 rounded-lg bg-neutral-900 text-brand-300 flex items-center justify-center">
                     <BellRing className="w-4 h-4" />
                   </span>
-                  <h3 className="font-black text-sm text-neutral-950">Send Notification</h3>
+                  <h3 className="font-bold text-sm text-neutral-950 dark:text-white">Send Notification</h3>
                 </div>
 
                 <form onSubmit={handleSendNotification} className="space-y-4 text-xs font-medium">
                   <div>
-                    <label className="block text-neutral-700 font-bold mb-1">Title *</label>
+                    <label className="block text-neutral-700 font-bold mb-1 dark:text-neutral-300">Title *</label>
                     <input
                       type="text"
                       required
@@ -1878,11 +1878,11 @@ export default function AdminDashboardPage() {
                       placeholder="e.g. Flash Sale — 50% off electronics!"
                       value={notifTitle}
                       onChange={(e) => setNotifTitle(e.target.value)}
-                      className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900"
+                      className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900 dark:text-white dark:border-white/10"
                     />
                   </div>
                   <div>
-                    <label className="block text-neutral-700 font-bold mb-1">Message *</label>
+                    <label className="block text-neutral-700 font-bold mb-1 dark:text-neutral-300">Message *</label>
                     <textarea
                       required
                       rows={4}
@@ -1890,24 +1890,24 @@ export default function AdminDashboardPage() {
                       placeholder="Keep it short — this is what shows in the notification bell and push alert."
                       value={notifBody}
                       onChange={(e) => setNotifBody(e.target.value)}
-                      className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900"
+                      className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900 dark:text-white dark:border-white/10"
                     />
                   </div>
                   <div>
-                    <label className="block text-neutral-700 font-bold mb-1">Link (optional)</label>
+                    <label className="block text-neutral-700 font-bold mb-1 dark:text-neutral-300">Link (optional)</label>
                     <input
                       type="text"
                       placeholder="/products?isDeal=true"
                       value={notifLink}
                       onChange={(e) => setNotifLink(e.target.value)}
-                      className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900"
+                      className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900 dark:text-white dark:border-white/10"
                     />
                     <p className="text-[10px] text-neutral-400 mt-1">
                       Where tapping the notification takes the customer, e.g. a deals page or specific product.
                     </p>
                   </div>
                   <div>
-                    <label className="block text-neutral-700 font-bold mb-2">Send to</label>
+                    <label className="block text-neutral-700 font-bold mb-2 dark:text-neutral-300">Send to</label>
                     <div className="grid grid-cols-3 gap-2">
                       {(['ALL', 'CUSTOMERS', 'SELLERS'] as const).map((t) => (
                         <button
@@ -1916,8 +1916,8 @@ export default function AdminDashboardPage() {
                           onClick={() => setNotifTarget(t)}
                           className={`py-2 rounded-xl border text-[11px] font-bold transition-colors cursor-pointer ${
                             notifTarget === t
-                              ? 'bg-neutral-900 text-[#FFD21F] border-neutral-900'
-                              : 'bg-white text-neutral-600 border-neutral-300 hover:border-neutral-400'
+                              ? 'bg-neutral-900 text-brand-300 border-neutral-900 dark:border-white/30'
+                              : 'bg-white text-neutral-600 border-neutral-300 hover:border-neutral-400 dark:bg-[#13131a] dark:text-neutral-300 dark:border-white/10'
                           }`}
                         >
                           {t === 'ALL' ? 'Everyone' : t === 'CUSTOMERS' ? 'Customers' : 'Sellers'}
@@ -1928,7 +1928,7 @@ export default function AdminDashboardPage() {
                   <button
                     type="submit"
                     disabled={isSendingNotif}
-                    className="w-full py-3 bg-[#FFD21F] hover:bg-[#ebc21a] text-neutral-950 font-black text-xs rounded-xl shadow-sm transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+                    className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow-sm transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
                   >
                     <BellRing className="w-4 h-4" />
                     {isSendingNotif ? 'Sending…' : 'Send Notification'}
@@ -1943,12 +1943,12 @@ export default function AdminDashboardPage() {
 
             {/* History Panel */}
             <div className="lg:col-span-3">
-              <div className="bg-white rounded-2xl border border-neutral-200 shadow-xs overflow-hidden">
-                <div className="p-4 border-b border-neutral-100 flex items-center justify-between">
-                  <h3 className="font-black text-sm text-neutral-950">Broadcast History</h3>
+              <div className="bg-white rounded-2xl border border-neutral-200 shadow-soft overflow-hidden dark:bg-[#13131a] dark:border-white/10">
+                <div className="p-4 border-b border-neutral-100 flex items-center justify-between dark:border-white/10">
+                  <h3 className="font-bold text-sm text-neutral-950 dark:text-white">Broadcast History</h3>
                   <button
                     onClick={loadNotificationsData}
-                    className="flex items-center gap-1 text-[11px] font-bold text-neutral-500 hover:text-neutral-900 cursor-pointer"
+                    className="flex items-center gap-1 text-[11px] font-bold text-neutral-500 hover:text-neutral-900 cursor-pointer dark:text-neutral-400 dark:hover:text-white"
                   >
                     <RefreshCw className="w-3.5 h-3.5" /> Refresh
                   </button>
@@ -1961,25 +1961,25 @@ export default function AdminDashboardPage() {
                 ) : notifHistory.length === 0 ? (
                   <div className="p-10 text-center">
                     <BellRing className="w-8 h-8 text-neutral-300 mx-auto mb-2" />
-                    <p className="text-xs text-neutral-500 font-medium">No notifications sent yet</p>
+                    <p className="text-xs text-neutral-500 font-medium dark:text-neutral-400">No notifications sent yet</p>
                   </div>
                 ) : (
-                  <div className="divide-y divide-neutral-100 max-h-[32rem] overflow-y-auto">
+                  <div className="divide-y divide-neutral-100 max-h-[32rem] overflow-y-auto dark:divide-white/10">
                     {notifHistory.map((n) => (
                       <div key={n.id} className="p-4">
                         <div className="flex items-start justify-between gap-2 mb-1">
-                          <h4 className="text-xs font-bold text-neutral-900">{n.title}</h4>
-                          <span className="shrink-0 text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-md bg-neutral-100 text-neutral-600">
+                          <h4 className="text-xs font-bold text-neutral-900 dark:text-white">{n.title}</h4>
+                          <span className="shrink-0 text-[9px] font-semibold uppercase px-1.5 py-0.5 rounded-md bg-neutral-100 text-neutral-600 dark:bg-white/10 dark:text-neutral-300">
                             {n.target}
                           </span>
                         </div>
-                        <p className="text-[11px] text-neutral-600 mb-2 line-clamp-2">{n.body}</p>
+                        <p className="text-[11px] text-neutral-600 mb-2 line-clamp-2 dark:text-neutral-300">{n.body}</p>
                         <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-[10px] text-neutral-400 font-medium">
                           <span>{new Date(n.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</span>
                           <span>·</span>
                           <span>By {n.sentByUsername || 'Admin'}</span>
                           <span>·</span>
-                          <span className="text-neutral-600 font-bold">{n.recipientCount} recipients</span>
+                          <span className="text-neutral-600 font-bold dark:text-neutral-300">{n.recipientCount} recipients</span>
                           {n.pushDeliveredCount > 0 && (
                             <span className="text-emerald-600 font-bold">{n.pushDeliveredCount} push delivered</span>
                           )}
@@ -2001,18 +2001,18 @@ export default function AdminDashboardPage() {
           <div className="pb-10">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="font-black text-lg text-neutral-950">Coupons</h2>
-                <p className="text-xs text-neutral-500">Create and manage discount codes for checkout.</p>
+                <h2 className="font-bold text-lg text-neutral-950 dark:text-white">Coupons</h2>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">Create and manage discount codes for checkout.</p>
               </div>
               <button
                 onClick={() => setIsAddCouponOpen(true)}
-                className="flex items-center gap-1.5 px-4 py-2.5 bg-[#FFD21F] hover:bg-[#ebc21a] text-neutral-950 font-bold text-xs rounded-xl shadow-sm transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow-sm transition-colors cursor-pointer"
               >
                 <Plus className="w-4 h-4" /> New Coupon
               </button>
             </div>
 
-            <div className="bg-white rounded-2xl border border-neutral-200 shadow-xs overflow-hidden">
+            <div className="bg-white rounded-2xl border border-neutral-200 shadow-soft overflow-hidden dark:bg-[#13131a] dark:border-white/10">
               {couponsStatus === 'loading' ? (
                 <div className="p-8 text-center text-xs text-neutral-400 font-medium">Loading coupons…</div>
               ) : couponsStatus === 'error' ? (
@@ -2020,13 +2020,13 @@ export default function AdminDashboardPage() {
               ) : coupons.length === 0 ? (
                 <div className="p-10 text-center">
                   <Tag className="w-8 h-8 text-neutral-300 mx-auto mb-2" />
-                  <p className="text-xs text-neutral-500 font-medium">No coupons created yet</p>
+                  <p className="text-xs text-neutral-500 font-medium dark:text-neutral-400">No coupons created yet</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs">
                     <thead>
-                      <tr className="border-b border-neutral-100 text-neutral-400 uppercase text-[10px] font-bold">
+                      <tr className="border-b border-neutral-100 text-neutral-400 uppercase text-[10px] font-bold dark:border-white/10">
                         <th className="text-left py-3 px-4">Code</th>
                         <th className="text-left py-3 px-4">Discount</th>
                         <th className="text-left py-3 px-4">Min Order</th>
@@ -2042,10 +2042,10 @@ export default function AdminDashboardPage() {
                         return (
                           <tr key={c.id} className="border-b border-neutral-50 last:border-0 hover:bg-neutral-50/50">
                             <td className="py-3 px-4">
-                              <div className="font-black text-neutral-900">{c.code}</div>
+                              <div className="font-bold text-neutral-900 dark:text-white">{c.code}</div>
                               {c.description && <div className="text-[10px] text-neutral-400">{c.description}</div>}
                             </td>
-                            <td className="py-3 px-4 font-bold text-neutral-700">
+                            <td className="py-3 px-4 font-bold text-neutral-700 dark:text-neutral-300">
                               {c.type === 'PERCENT' ? `${c.value}% off` : `${formatINR(c.value)} off`}
                               {c.type === 'PERCENT' && c.maxDiscountAmount && (
                                 <div className="text-[10px] text-neutral-400 font-medium">
@@ -2053,13 +2053,13 @@ export default function AdminDashboardPage() {
                                 </div>
                               )}
                             </td>
-                            <td className="py-3 px-4 text-neutral-600">{c.minOrderValue > 0 ? formatINR(c.minOrderValue) : '—'}</td>
-                            <td className="py-3 px-4 text-neutral-600">
+                            <td className="py-3 px-4 text-neutral-600 dark:text-neutral-300">{c.minOrderValue > 0 ? formatINR(c.minOrderValue) : '—'}</td>
+                            <td className="py-3 px-4 text-neutral-600 dark:text-neutral-300">
                               {c.usedCount}
                               {c.usageLimit ? ` / ${c.usageLimit}` : ''} total
                               <div className="text-[10px] text-neutral-400">{c.perUserLimit}/customer</div>
                             </td>
-                            <td className="py-3 px-4 text-neutral-600">
+                            <td className="py-3 px-4 text-neutral-600 dark:text-neutral-300">
                               {c.expiresAt ? (
                                 <span className={isExpired ? 'text-red-500 font-bold' : ''}>
                                   {new Date(c.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -2071,10 +2071,10 @@ export default function AdminDashboardPage() {
                             <td className="py-3 px-4">
                               <button
                                 onClick={() => handleToggleCoupon(c.id, !c.isActive)}
-                                className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase cursor-pointer ${
+                                className={`px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase cursor-pointer ${
                                   c.isActive && !isExpired
-                                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                                    : 'bg-neutral-100 text-neutral-500 border border-neutral-300'
+                                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/25'
+                                    : 'bg-neutral-100 text-neutral-500 border border-neutral-300 dark:bg-white/10 dark:text-neutral-400 dark:border-white/10'
                                 }`}
                               >
                                 {isExpired ? 'Expired' : c.isActive ? 'Active' : 'Paused'}
@@ -2103,12 +2103,12 @@ export default function AdminDashboardPage() {
 
       {/* Add Product Modal */}
       {isAddProductOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
-          <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-neutral-200 overflow-hidden max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-300">
+          <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-neutral-200 overflow-hidden max-h-[90vh] flex flex-col dark:bg-[#13131a] dark:border-white/10">
             <div className="p-5 bg-neutral-950 text-white flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Plus className="w-5 h-5 text-[#FFD21F]" />
-                <h3 className="font-black text-base">Add New Product to Catalog</h3>
+                <Plus className="w-5 h-5 text-brand-300" />
+                <h3 className="font-bold text-base">Add New Product to Catalog</h3>
               </div>
               <button onClick={() => setIsAddProductOpen(false)} className="text-neutral-400 hover:text-white">
                 <X className="w-5 h-5" />
@@ -2118,53 +2118,53 @@ export default function AdminDashboardPage() {
             <form onSubmit={handleCreateProduct} className="p-6 overflow-y-auto space-y-4 flex-1 text-xs font-medium">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-neutral-700 font-bold mb-1">Product Title *</label>
+                  <label className="block text-neutral-700 font-bold mb-1 dark:text-neutral-300">Product Title *</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Sony WH-1000XM5 Wireless Headphones"
                     value={newProdName}
                     onChange={(e) => setNewProdName(e.target.value)}
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900"
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900 dark:text-white dark:border-white/10"
                   />
                 </div>
                 <div>
-                  <label className="block text-neutral-700 font-bold mb-1">Brand Name *</label>
+                  <label className="block text-neutral-700 font-bold mb-1 dark:text-neutral-300">Brand Name *</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Sony, Apple, Nike"
                     value={newProdBrand}
                     onChange={(e) => setNewProdBrand(e.target.value)}
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900"
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900 dark:text-white dark:border-white/10"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-neutral-700 font-bold mb-1">Category</label>
+                  <label className="block text-neutral-700 font-bold mb-1 dark:text-neutral-300">Category</label>
                   {categoriesStatus === 'loading' && (
-                    <div className="w-full px-3 py-2 border border-neutral-300 rounded-xl bg-neutral-50 text-neutral-400 text-sm">
+                    <div className="w-full px-3 py-2 border border-neutral-300 rounded-xl bg-neutral-50 text-neutral-400 text-sm dark:bg-white/[0.04] dark:border-white/10">
                       Loading categories…
                     </div>
                   )}
                   {categoriesStatus === 'error' && (
                     <div className="space-y-1.5">
-                      <div className="w-full px-3 py-2 border border-red-300 bg-red-50 rounded-xl text-red-700 text-sm font-semibold">
+                      <div className="w-full px-3 py-2 border border-red-300 bg-red-50 rounded-xl text-red-700 text-sm font-semibold dark:bg-red-500/15 dark:text-red-300 dark:border-red-500/25">
                         Couldn&apos;t load categories
                       </div>
                       <button
                         type="button"
                         onClick={retryLoadCategories}
-                        className="text-xs font-bold text-neutral-900 underline underline-offset-2"
+                        className="text-xs font-bold text-neutral-900 underline underline-offset-2 dark:text-white"
                       >
                         Retry
                       </button>
                     </div>
                   )}
                   {categoriesStatus === 'empty' && (
-                    <div className="w-full px-3 py-2 border border-neutral-300 bg-neutral-50 rounded-xl text-neutral-500 text-sm">
+                    <div className="w-full px-3 py-2 border border-neutral-300 bg-neutral-50 rounded-xl text-neutral-500 text-sm dark:bg-white/[0.04] dark:text-neutral-400 dark:border-white/10">
                       No categories created yet
                     </div>
                   )}
@@ -2173,7 +2173,7 @@ export default function AdminDashboardPage() {
                       required
                       value={newProdCategoryId}
                       onChange={(e) => setNewProdCategoryId(e.target.value ? Number(e.target.value) : '')}
-                      className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900"
+                      className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900 dark:text-white dark:border-white/10"
                     >
                       <option value="">Select a category</option>
                       {categories.map((c) => (
@@ -2185,7 +2185,7 @@ export default function AdminDashboardPage() {
                   )}
                 </div>
                 <div>
-                  <label className="block text-neutral-700 font-bold mb-1">Original Price (₹) *</label>
+                  <label className="block text-neutral-700 font-bold mb-1 dark:text-neutral-300">Original Price (₹) *</label>
                   <input
                     type="text"
                     inputMode="decimal"
@@ -2195,11 +2195,11 @@ export default function AdminDashboardPage() {
                       const v = e.target.value;
                       if (v === '' || /^\d*\.?\d*$/.test(v)) setNewProdBasePrice(v);
                     }}
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900"
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900 dark:text-white dark:border-white/10"
                   />
                 </div>
                 <div>
-                  <label className="block text-neutral-700 font-bold mb-1">Deal Price (₹) *</label>
+                  <label className="block text-neutral-700 font-bold mb-1 dark:text-neutral-300">Deal Price (₹) *</label>
                   <input
                     type="text"
                     inputMode="decimal"
@@ -2209,14 +2209,14 @@ export default function AdminDashboardPage() {
                       const v = e.target.value;
                       if (v === '' || /^\d*\.?\d*$/.test(v)) setNewProdDiscountPrice(v);
                     }}
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900"
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900 dark:text-white dark:border-white/10"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-neutral-700 font-bold mb-1">Initial Stock Units *</label>
+                  <label className="block text-neutral-700 font-bold mb-1 dark:text-neutral-300">Initial Stock Units *</label>
                   <input
                     type="text"
                     inputMode="numeric"
@@ -2226,13 +2226,13 @@ export default function AdminDashboardPage() {
                       const v = e.target.value;
                       if (v === '' || /^\d*$/.test(v)) setNewProdStock(v);
                     }}
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900"
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900 dark:text-white dark:border-white/10"
                   />
                 </div>
                 <div>
-                  <label className="block text-neutral-700 font-bold mb-1">Product Image (Optional)</label>
+                  <label className="block text-neutral-700 font-bold mb-1 dark:text-neutral-300">Product Image (Optional)</label>
                   <div className="flex items-center gap-3">
-                    <div className="relative w-16 h-16 shrink-0 rounded-xl border border-neutral-300 bg-neutral-50 overflow-hidden flex items-center justify-center">
+                    <div className="relative w-16 h-16 shrink-0 rounded-xl border border-neutral-300 bg-neutral-50 overflow-hidden flex items-center justify-center dark:bg-white/[0.04] dark:border-white/10">
                       {newProdImage ? (
                         <Image src={newProdImage} alt="Product preview" fill className="object-cover" />
                       ) : (
@@ -2240,7 +2240,7 @@ export default function AdminDashboardPage() {
                       )}
                     </div>
                     <label className="flex-1">
-                      <span className="inline-flex items-center gap-2 px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-700 cursor-pointer hover:bg-neutral-50 w-full justify-center">
+                      <span className="inline-flex items-center gap-2 px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-700 cursor-pointer hover:bg-neutral-50 w-full justify-center dark:hover:bg-white/10 dark:text-neutral-300 dark:border-white/10">
                         {newProdImageUploading ? (
                           <>
                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -2267,19 +2267,19 @@ export default function AdminDashboardPage() {
                     placeholder="or paste an image URL directly"
                     value={newProdImage}
                     onChange={(e) => setNewProdImage(e.target.value)}
-                    className="mt-2 w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900 text-sm"
+                    className="mt-2 w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900 text-sm dark:text-white dark:border-white/10"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-neutral-700 font-bold mb-1">Description</label>
+                <label className="block text-neutral-700 font-bold mb-1 dark:text-neutral-300">Description</label>
                 <textarea
                   rows={3}
                   placeholder="Detailed specs, highlights and features..."
                   value={newProdDescription}
                   onChange={(e) => setNewProdDescription(e.target.value)}
-                  className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900"
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900 dark:text-white dark:border-white/10"
                 />
               </div>
 
@@ -2289,32 +2289,32 @@ export default function AdminDashboardPage() {
                     type="checkbox"
                     checked={newProdIsDeal}
                     onChange={(e) => setNewProdIsDeal(e.target.checked)}
-                    className="w-4 h-4 rounded text-neutral-950"
+                    className="w-4 h-4 rounded text-neutral-950 dark:text-white"
                   />
-                  <span className="font-bold text-neutral-800">Featured in Today&apos;s Deals</span>
+                  <span className="font-bold text-neutral-800 dark:text-neutral-100">Featured in Today&apos;s Deals</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={newProdIsFeatured}
                     onChange={(e) => setNewProdIsFeatured(e.target.checked)}
-                    className="w-4 h-4 rounded text-neutral-950"
+                    className="w-4 h-4 rounded text-neutral-950 dark:text-white"
                   />
-                  <span className="font-bold text-neutral-800">Spotlight Hero Product</span>
+                  <span className="font-bold text-neutral-800 dark:text-neutral-100">Spotlight Hero Product</span>
                 </label>
               </div>
 
-              <div className="pt-4 flex items-center justify-end gap-3 border-t border-neutral-200">
+              <div className="pt-4 flex items-center justify-end gap-3 border-t border-neutral-200 dark:border-white/10">
                 <button
                   type="button"
                   onClick={() => setIsAddProductOpen(false)}
-                  className="px-4 py-2.5 font-bold text-neutral-600 hover:text-neutral-900"
+                  className="px-4 py-2.5 font-bold text-neutral-600 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-white"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 bg-neutral-950 hover:bg-neutral-800 text-[#FFD21F] font-extrabold rounded-xl transition-all shadow-md"
+                  className="px-6 py-2.5 bg-neutral-950 hover:bg-neutral-800 text-brand-300 font-semibold rounded-xl transition-all shadow-md"
                 >
                   Publish Product
                 </button>
@@ -2335,11 +2335,11 @@ export default function AdminDashboardPage() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl"
+            className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl dark:bg-[#13131a]"
           >
             <div className="flex items-center justify-between px-5 py-4 bg-[#111111] rounded-t-2xl sticky top-0">
-              <h3 className="text-white font-extrabold flex items-center gap-2">
-                <Tag className="w-4 h-4 text-[#FFD21F]" /> New Coupon
+              <h3 className="text-white font-semibold flex items-center gap-2">
+                <Tag className="w-4 h-4 text-brand-300" /> New Coupon
               </h3>
               <button
                 onClick={() => {
@@ -2354,30 +2354,30 @@ export default function AdminDashboardPage() {
 
             <form onSubmit={handleCreateCoupon} className="p-5 space-y-3.5 text-xs">
               <div>
-                <label className="block text-neutral-700 font-bold mb-1">Coupon Code *</label>
+                <label className="block text-neutral-700 font-bold mb-1 dark:text-neutral-300">Coupon Code *</label>
                 <input
                   value={newCouponCode}
                   onChange={(e) => setNewCouponCode(e.target.value.toUpperCase())}
                   placeholder="e.g. WELCOME50"
                   maxLength={30}
                   required
-                  className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-black uppercase text-neutral-900 tracking-wide"
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold uppercase text-neutral-900 tracking-wide dark:text-white dark:border-white/10"
                 />
               </div>
 
               <div>
-                <label className="block text-neutral-700 font-bold mb-1">Description (optional, internal note)</label>
+                <label className="block text-neutral-700 font-bold mb-1 dark:text-neutral-300">Description (optional, internal note)</label>
                 <input
                   value={newCouponDescription}
                   onChange={(e) => setNewCouponDescription(e.target.value)}
                   placeholder="e.g. New customer welcome offer"
-                  className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900"
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900 dark:text-white dark:border-white/10"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-neutral-700 font-bold mb-1">Discount Type</label>
+                  <label className="block text-neutral-700 font-bold mb-1 dark:text-neutral-300">Discount Type</label>
                   <div className="grid grid-cols-2 gap-1.5">
                     {(['PERCENT', 'FIXED'] as const).map((t) => (
                       <button
@@ -2386,8 +2386,8 @@ export default function AdminDashboardPage() {
                         onClick={() => setNewCouponType(t)}
                         className={`py-2 rounded-xl border text-[11px] font-bold cursor-pointer ${
                           newCouponType === t
-                            ? 'bg-neutral-900 text-[#FFD21F] border-neutral-900'
-                            : 'bg-white text-neutral-600 border-neutral-300'
+                            ? 'bg-neutral-900 text-brand-300 border-neutral-900 dark:border-white/30'
+                            : 'bg-white text-neutral-600 border-neutral-300 dark:bg-[#13131a] dark:text-neutral-300 dark:border-white/10'
                         }`}
                       >
                         {t === 'PERCENT' ? '% Off' : '₹ Off'}
@@ -2396,7 +2396,7 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-neutral-700 font-bold mb-1">
+                  <label className="block text-neutral-700 font-bold mb-1 dark:text-neutral-300">
                     Value * {newCouponType === 'PERCENT' ? '(%)' : '(₹)'}
                   </label>
                   <input
@@ -2406,32 +2406,32 @@ export default function AdminDashboardPage() {
                     value={newCouponValue}
                     onChange={(e) => setNewCouponValue(e.target.value)}
                     required
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900"
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-bold text-neutral-900 dark:text-white dark:border-white/10"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-neutral-700 font-bold mb-1">Min Order Value (₹)</label>
+                  <label className="block text-neutral-700 font-bold mb-1 dark:text-neutral-300">Min Order Value (₹)</label>
                   <input
                     type="number"
                     min={0}
                     value={newCouponMinOrder}
                     onChange={(e) => setNewCouponMinOrder(e.target.value)}
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900"
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900 dark:text-white dark:border-white/10"
                   />
                 </div>
                 {newCouponType === 'PERCENT' && (
                   <div>
-                    <label className="block text-neutral-700 font-bold mb-1">Max Discount (₹, optional)</label>
+                    <label className="block text-neutral-700 font-bold mb-1 dark:text-neutral-300">Max Discount (₹, optional)</label>
                     <input
                       type="number"
                       min={0}
                       placeholder="No cap"
                       value={newCouponMaxDiscount}
                       onChange={(e) => setNewCouponMaxDiscount(e.target.value)}
-                      className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900"
+                      className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900 dark:text-white dark:border-white/10"
                     />
                   </div>
                 )}
@@ -2439,35 +2439,35 @@ export default function AdminDashboardPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-neutral-700 font-bold mb-1">Total Usage Limit</label>
+                  <label className="block text-neutral-700 font-bold mb-1 dark:text-neutral-300">Total Usage Limit</label>
                   <input
                     type="number"
                     min={1}
                     placeholder="Unlimited"
                     value={newCouponUsageLimit}
                     onChange={(e) => setNewCouponUsageLimit(e.target.value)}
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900"
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900 dark:text-white dark:border-white/10"
                   />
                 </div>
                 <div>
-                  <label className="block text-neutral-700 font-bold mb-1">Uses Per Customer</label>
+                  <label className="block text-neutral-700 font-bold mb-1 dark:text-neutral-300">Uses Per Customer</label>
                   <input
                     type="number"
                     min={1}
                     value={newCouponPerUserLimit}
                     onChange={(e) => setNewCouponPerUserLimit(e.target.value)}
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900"
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900 dark:text-white dark:border-white/10"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-neutral-700 font-bold mb-1">Expires On (optional)</label>
+                <label className="block text-neutral-700 font-bold mb-1 dark:text-neutral-300">Expires On (optional)</label>
                 <input
                   type="date"
                   value={newCouponExpiresAt}
                   onChange={(e) => setNewCouponExpiresAt(e.target.value)}
-                  className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900"
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-xl font-medium text-neutral-900 dark:text-white dark:border-white/10"
                 />
               </div>
 
@@ -2478,14 +2478,14 @@ export default function AdminDashboardPage() {
                     setIsAddCouponOpen(false);
                     resetCouponForm();
                   }}
-                  className="flex-1 py-2.5 border border-neutral-300 rounded-xl font-bold text-neutral-700 hover:bg-neutral-50 cursor-pointer"
+                  className="flex-1 py-2.5 border border-neutral-300 rounded-xl font-bold text-neutral-700 hover:bg-neutral-50 cursor-pointer dark:hover:bg-white/10 dark:text-neutral-300 dark:border-white/10"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isCreatingCoupon}
-                  className="flex-1 py-2.5 bg-[#FFD21F] hover:bg-[#ebc21a] text-neutral-950 font-extrabold rounded-xl shadow-sm disabled:opacity-50 cursor-pointer"
+                  className="flex-1 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl shadow-sm disabled:opacity-50 cursor-pointer"
                 >
                   {isCreatingCoupon ? 'Creating…' : 'Create Coupon'}
                 </button>

@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import Link from 'next/link';
-import { AlertCircle, RotateCcw, Home } from 'lucide-react';
+import { AlertCircle, RotateCcw, Home } from '@/src/components/ui/icons';
 
 export default function ErrorPage({
   error,
@@ -16,13 +16,13 @@ export default function ErrorPage({
   }, [error]);
 
   return (
-    <div id="error-boundary-view" className="min-h-screen bg-neutral-50 flex items-center justify-center p-4">
-      <div id="error-card" className="max-w-md w-full bg-white rounded-2xl border border-neutral-200 p-8 text-center shadow-sm">
-        <div className="w-12 h-12 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-          <AlertCircle className="w-6 h-6" />
+    <div id="error-boundary-view" className="min-h-[80vh] flex items-center justify-center p-4">
+      <div id="error-card" className="surface max-w-md w-full rounded-[2rem] p-10 text-center shadow-lift">
+        <div className="grid place-items-center w-16 h-16 rounded-[1.25rem] bg-rose-500/10 text-rose-600 dark:text-rose-400 mx-auto mb-6">
+          <AlertCircle className="w-8 h-8" />
         </div>
-        <h2 className="text-xl font-black text-neutral-900 mb-2">Something went wrong</h2>
-        <p className="text-xs text-neutral-600 mb-6 leading-relaxed">
+        <h2 className="text-2xl font-semibold tracking-tight text-neutral-950 dark:text-white mb-2">Something went wrong</h2>
+        <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-8 leading-relaxed">
           {error?.message || 'An unexpected error occurred while loading this page. Please try refreshing.'}
         </p>
 
@@ -30,18 +30,18 @@ export default function ErrorPage({
           <button
             id="retry-btn"
             onClick={() => reset()}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold rounded-xl transition-colors"
+            className="w-full flex items-center justify-center gap-2 h-12 px-5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-sm font-semibold hover:bg-brand-600 dark:hover:bg-brand-200 transition-colors cursor-pointer"
           >
             <RotateCcw className="w-4 h-4" />
-            Try Again
+            Try again
           </button>
           <Link
             id="error-home-link"
             href="/"
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-bold rounded-xl transition-colors"
+            className="w-full flex items-center justify-center gap-2 h-12 px-5 rounded-full bg-neutral-900/5 dark:bg-white/10 hover:bg-neutral-900/10 dark:hover:bg-white/15 text-neutral-800 dark:text-neutral-100 text-sm font-semibold transition-colors"
           >
             <Home className="w-4 h-4" />
-            Back to Home
+            Back home
           </Link>
         </div>
       </div>

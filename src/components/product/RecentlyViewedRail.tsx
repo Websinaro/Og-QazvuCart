@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { History } from 'lucide-react';
+import { History } from '@/src/components/ui/icons';
 import { ProductRail } from '@/src/components/product/ProductRail';
 import { useProductList } from '@/src/lib/useProductList';
 import { getRecentlyViewed } from '@/src/lib/recentlyViewed';
