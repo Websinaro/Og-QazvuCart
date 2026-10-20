@@ -79,6 +79,7 @@ export default function AdminSellersPanel({ onChanged }: { onChanged?: () => voi
                         {s.status === 'PENDING' && <button className={btnDanger} onClick={() => setAction({ kind: 'reject', seller: s })}>Reject</button>}
                         {s.status === 'APPROVED' && <button className={btnDanger} onClick={() => setAction({ kind: 'suspend', seller: s })}>Suspend</button>}
                         {s.status === 'SUSPENDED' && <button className={btnPrimary} disabled={busy === s.id} onClick={() => act(s.id, { action: 'reinstate' }, `${s.storeName} reinstated`)}>Reinstate</button>}
+                        <a className={btnGhost} href={`/seller-center?seller=${s.id}`}>Open Seller Center</a>
                         <button className={btnGhost} onClick={() => setAction({ kind: 'commission', seller: s })}>Commission</button>
                       </div>
                     </td>

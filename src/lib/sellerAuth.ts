@@ -31,6 +31,17 @@ export async function requireSeller(
 ): Promise<SellerContext> {
   const user = await getAuthUser(req);
   if (!user) return { ok: false, response: apiError('UNAUTHORIZED', 'Please log in to continue', 401) };
+  // Admins may open any seller's Seller Center by sending the target seller id
+  // in `x-view-seller-id`. Honoured ONLY for ADMIN users; sellers cannot use it.
+  if (user.role === 'ADMIN') {
+    const target = parseId(req.headers.get('x-view-seller-id'));
+    if (!target) {
+      return { ok: false, response: apiError('FORBIDDEN', 'Choose a seller to view from Admin → Sellers', 403) };
+    }
+    const [asSeller] = await db.select().from(sellers).where(eq(sellers.id, target)).limit(1);
+    if (!asSeller) return { ok: false, response: apiError('NOT_FOUND', 'Seller not found', 404) };
+    return { ok: true, user, seller: asSeller };
+  }
   if (user.role !== 'SELLER') {
     return { ok: false, response: apiError('FORBIDDEN', 'A seller account is required', 403) };
   }

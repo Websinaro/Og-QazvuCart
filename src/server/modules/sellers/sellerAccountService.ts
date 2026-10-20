@@ -177,6 +177,12 @@ export class SellerAccountService {
     return row ? toSellerProfile(row) : null;
   }
 
+  /** Any seller's profile by id (admin "view as seller" only). */
+  static async getById(sellerId: number) {
+    const [row] = await db.select().from(sellers).where(eq(sellers.id, sellerId)).limit(1);
+    return row ? toSellerProfile(row) : null;
+  }
+
   static async updateProfile(sellerId: number, input: Partial<SellerApplicationInput>) {
     const updates: Partial<typeof sellers.$inferInsert> = { updatedAt: new Date() };
 

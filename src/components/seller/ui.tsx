@@ -9,9 +9,19 @@ import { authFetch } from '@/src/lib/api';
 import { X, Loader2 } from '@/src/components/ui/icons';
 
 export async function api<T = unknown>(url: string, init: RequestInit = {}): Promise<T> {
+  // Admin "view as seller": /seller-center?seller=<id> -> x-view-seller-id header
+  // (the server only honours it for ADMIN users).
+  let viewSeller: string | null = null;
+  if (typeof window !== 'undefined' && window.location.pathname.startsWith('/seller-center')) {
+    viewSeller = new URLSearchParams(window.location.search).get('seller');
+  }
   const res = await authFetch(url, {
     ...init,
-    headers: { 'Content-Type': 'application/json', ...(init.headers || {}) },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(viewSeller ? { 'x-view-seller-id': viewSeller } : {}),
+      ...(init.headers || {}),
+    },
   });
   const json = await res.json().catch(() => null);
   if (!res.ok || !json?.success) {

@@ -13,6 +13,11 @@ import { sellerProfileUpdateSchema } from '@/src/server/validators/seller';
 export async function GET(req: NextRequest) {
   const user = await getAuthUser(req);
   if (!user) return apiError('UNAUTHORIZED', 'Please log in to continue', 401);
+  if (user.role === 'ADMIN') {
+    const id = Number(req.headers.get('x-view-seller-id'));
+    const seller = Number.isInteger(id) && id > 0 ? await SellerAccountService.getById(id) : null;
+    return apiSuccess({ seller });
+  }
   const seller = await SellerAccountService.getMine(user.userId);
   return apiSuccess({ seller });
 }

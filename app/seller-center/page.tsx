@@ -28,6 +28,8 @@ function SellerCenter() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const params = useSearchParams();
+  const viewSellerId = params.get('seller');
+  const isAdminView = user?.role === 'ADMIN' && !!viewSellerId;
   const initial = (params.get('tab') as SellerTab) || 'overview';
   const [tab, setTab] = useState<SellerTab>(TABS.some((t) => t.id === initial) ? initial : 'overview');
   const [seller, setSeller] = useState<SellerProfile | null>(null);
@@ -50,7 +52,7 @@ function SellerCenter() {
     void loadSeller();
   }, [isLoading, user, loadSeller]);
 
-  const go = (t: SellerTab) => { setTab(t); router.replace(`/seller-center?tab=${t}`, { scroll: false }); };
+  const go = (t: SellerTab) => { setTab(t); router.replace(`/seller-center?tab=${t}${viewSellerId ? `&seller=${viewSellerId}` : ''}`, { scroll: false }); };
 
   if (isLoading || !loaded) return <div className="max-w-5xl mx-auto px-4 py-10"><Spinner /></div>;
   if (!user) {
@@ -67,8 +69,18 @@ function SellerCenter() {
   if (error) return <div className="max-w-3xl mx-auto px-4 py-10"><ErrorNote message={error} onRetry={loadSeller} /></div>;
 
   // Signed in but not an active seller yet: send them to the application page.
-  const isSellerRole = user?.role === 'SELLER';
-  if (!seller || !isSellerRole || seller.status === 'PENDING' || seller.status === 'REJECTED') {
+  if (user.role === 'ADMIN' && !viewSellerId) {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-16 text-center space-y-4">
+        <Store className="w-10 h-10 mx-auto text-neutral-400" />
+        <h1 className="text-xl font-bold text-neutral-950 dark:text-white">Seller Center</h1>
+        <p className="text-sm text-neutral-600 dark:text-neutral-300">Pick a seller from the admin Sellers tab to open their Seller Center.</p>
+        <Link href="/admin" className="inline-block px-5 py-2.5 rounded-xl bg-neutral-950 text-white text-sm font-bold dark:bg-brand-300 dark:text-neutral-950">Go to admin panel</Link>
+      </div>
+    );
+  }
+  const isSellerRole = user?.role === 'SELLER' || isAdminView;
+  if (!seller || !isSellerRole || (!isAdminView && (seller.status === 'PENDING' || seller.status === 'REJECTED'))) {
     return (
       <div className="max-w-xl mx-auto px-4 py-16 text-center space-y-4">
         <Store className="w-10 h-10 mx-auto text-neutral-400" />
@@ -82,7 +94,7 @@ function SellerCenter() {
   }
 
   const suspended = seller.status === 'SUSPENDED';
-  const canEdit = !suspended;
+  const canEdit = isAdminView || !suspended;
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 space-y-5">
@@ -97,7 +109,13 @@ function SellerCenter() {
         <Link href={`/seller/${seller.slug}`} className="text-xs font-bold underline">View public store</Link>
       </div>
 
-      {suspended && (
+      {isAdminView && (
+        <div className="rounded-xl border border-sky-300 bg-sky-50 text-sky-900 text-sm p-3 flex items-center justify-between gap-3 dark:bg-sky-500/10 dark:border-sky-500/30 dark:text-sky-200">
+          <span>Admin view: you are managing <b>{seller.storeName}</b> on the seller&apos;s behalf.</span>
+          <Link href="/admin" className="font-bold underline whitespace-nowrap">Back to admin</Link>
+        </div>
+      )}
+      {suspended && !isAdminView && (
         <div className="rounded-xl border border-red-300 bg-red-50 text-red-800 text-sm p-3 dark:bg-red-500/10 dark:border-red-500/30 dark:text-red-300">
           Your store is suspended{seller.suspensionReason ? `: ${seller.suspensionReason}` : ''}. Your products are hidden, but you can still fulfil open orders and see your earnings.
         </div>

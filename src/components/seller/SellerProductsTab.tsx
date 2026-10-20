@@ -3,6 +3,8 @@
 import React, { useMemo, useState } from 'react';
 import { formatINR } from '@/src/lib/date';
 import { useToast } from '@/src/context/ToastContext';
+import { uploadImageToCloudinary } from '@/src/lib/cloudinary';
+import { ImagePlus, Loader2 } from '@/src/components/ui/icons';
 import { api, useLoad, Spinner, ErrorNote, Empty, Badge, Pager, Modal, Field, inputCls, btnPrimary, btnGhost, btnDanger, cardCls } from './ui';
 
 interface ProductRow {
@@ -164,6 +166,21 @@ function ProductForm({ id, canEdit, onClose, onSaved }: { id: number | 'new'; ca
   }, [id]);
 
   const set = <K extends keyof typeof blank>(k: K, v: (typeof blank)[K]) => setForm((f) => ({ ...f, [k]: v }));
+  const [uploadingIdx, setUploadingIdx] = useState<number | null>(null);
+  const [uploadPct, setUploadPct] = useState(0);
+  async function handleUpload(i: number, e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setUploadingIdx(i); setUploadPct(0);
+    try {
+      const r = await uploadImageToCloudinary(file, { folder: 'qazvucart/products', onProgress: setUploadPct });
+      setForm((f) => ({ ...f, imageUrls: f.imageUrls.map((x, j) => (j === i ? r.url : x)) }));
+      toast.success('Image uploaded');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Image upload failed');
+    } finally { setUploadingIdx(null); setUploadPct(0); }
+  }
   const rate = cats.data?.categories.find((c) => c.categoryId === Number(form.categoryId));
   const earn = rate ? form.discountPrice - Math.round((form.discountPrice * rate.percent) / 100) : null;
 
@@ -220,11 +237,18 @@ function ProductForm({ id, canEdit, onClose, onSaved }: { id: number | 'new'; ca
             <Field label="Delivery days"><input type="number" min={1} max={30} className={inputCls} value={form.estimatedDays} onChange={(e) => set('estimatedDays', num(e.target.value))} /></Field>
           </div>
 
-          <Field label="Image URLs" hint="First image is the main one.">
+          <Field label="Product images" hint="Upload photos (JPEG, PNG, WEBP, up to 8 MB each) or paste a URL. First image is the main one.">
             <div className="space-y-2">
               {form.imageUrls.map((u, i) => (
-                <div key={i} className="flex gap-2">
-                  <input className={inputCls} value={u} placeholder="https://…" onChange={(e) => set('imageUrls', form.imageUrls.map((x, j) => (j === i ? e.target.value : x)))} />
+                <div key={i} className="flex gap-2 items-center">
+                  <div className="w-12 h-12 shrink-0 rounded-lg border border-neutral-200 bg-neutral-50 overflow-hidden flex items-center justify-center dark:border-white/10 dark:bg-white/[0.04]">
+                    {u.trim() ? <img src={u} alt="" className="w-full h-full object-cover" /> : <ImagePlus className="w-5 h-5 text-neutral-400" />}
+                  </div>
+                  <input className={inputCls} value={u} placeholder="https://… or upload →" onChange={(e) => set('imageUrls', form.imageUrls.map((x, j) => (j === i ? e.target.value : x)))} />
+                  <label className={`${btnGhost} cursor-pointer whitespace-nowrap ${uploadingIdx !== null ? 'opacity-50 pointer-events-none' : ''}`}>
+                    {uploadingIdx === i ? <><Loader2 className="w-4 h-4 animate-spin" /> {uploadPct}%</> : <><ImagePlus className="w-4 h-4" /> Upload</>}
+                    <input type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/avif" className="hidden" disabled={uploadingIdx !== null} onChange={(e) => handleUpload(i, e)} />
+                  </label>
                   <button type="button" className={btnGhost} onClick={() => set('imageUrls', form.imageUrls.filter((_, j) => j !== i))}>✕</button>
                 </div>
               ))}
