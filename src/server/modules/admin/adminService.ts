@@ -7,9 +7,11 @@ import {
   users,
   categories,
   sellers,
+  sellerOrders,
   productImages,
 } from '@/src/db/schema';
 import { OrderService } from '../orders/orderService';
+import { SellerAccountService } from '../sellers/sellerAccountService';
 
 export class AdminService {
   static async getDashboardStats() {
@@ -22,7 +24,13 @@ export class AdminService {
       .where(sql`${orders.paymentStatus} = 'PAID'`);
 
     const [userStats] = await db.select({ totalUsers: sql<number>`count(*)::int` }).from(users).where(eq(users.role, 'CUSTOMER'));
-    const [sellerStats] = await db.select({ activeSellers: sql<number>`count(*)::int` }).from(sellers).where(eq(sellers.isVerified, true));
+    const [sellerStats] = await db.select({ activeSellers: sql<number>`count(*)::int` }).from(sellers).where(eq(sellers.status, 'APPROVED'));
+    const [pendingSellerStats] = await db.select({ count: sql<number>`count(*)::int` }).from(sellers).where(eq(sellers.status, 'PENDING'));
+    // Platform commission actually earned: delivered parcels that haven't been voided.
+    const [commissionStats] = await db
+      .select({ total: sql<number>`coalesce(sum(${sellerOrders.commissionAmount}), 0)::int` })
+      .from(sellerOrders)
+      .where(sql`${sellerOrders.status} = 'DELIVERED' AND ${sellerOrders.settlementStatus} <> 'LEGACY'`);
     const [productStats] = await db.select({ totalProducts: sql<number>`count(*)::int` }).from(products).where(eq(products.status, 'ACTIVE'));
 
     const [pendingStats] = await db
@@ -67,6 +75,8 @@ export class AdminService {
       totalProducts: productStats?.totalProducts || 0,
       totalUsers: userStats?.totalUsers || 0,
       activeSellers: sellerStats?.activeSellers || 0,
+      pendingSellerApplications: pendingSellerStats?.count || 0,
+      platformCommissionEarned: commissionStats?.total || 0,
       pendingOrdersCount: pendingStats?.count || 0,
       deliveredOrdersCount: deliveredStats?.count || 0,
       lowStockProductsCount: lowStockStats?.count || 0,
@@ -117,8 +127,18 @@ export class AdminService {
   }
 
   /** Validated through the same state machine used by customer-facing cancellation. */
-  static async updateOrderStatus(orderId: number, nextStatus: string) {
-    return OrderService.adminUpdateStatus(orderId, nextStatus);
+  static async updateOrderStatus(orderId: number, nextStatus: string, adminUserId = 0, sellerOrderId?: number) {
+    if (sellerOrderId !== undefined) {
+      // Make sure the parcel really belongs to the order named in the URL.
+      const [parcel] = await db
+        .select({ id: sellerOrders.id })
+        .from(sellerOrders)
+        .where(sql`${sellerOrders.id} = ${sellerOrderId} AND ${sellerOrders.orderId} = ${orderId}`)
+        .limit(1);
+      if (!parcel) throw new Error('That seller parcel does not belong to this order.');
+      return OrderService.adminUpdateParcelStatus(sellerOrderId, nextStatus, adminUserId);
+    }
+    return OrderService.adminUpdateStatus(orderId, nextStatus, adminUserId);
   }
 
   static async getAllProducts() {
@@ -130,6 +150,7 @@ export class AdminService {
         brand: products.brand,
         categoryName: categories.name,
         sellerStoreName: sellers.storeName,
+        sellerStatus: sellers.status,
         basePrice: products.basePrice,
         discountPrice: products.discountPrice,
         stock: products.stock,
@@ -187,7 +208,11 @@ export class AdminService {
           slug,
           rating: '5.0',
           reviewCount: 0,
+          // The platform's own store needs no approval workflow.
           isVerified: true,
+          status: 'APPROVED',
+          approvedAt: new Date(),
+          approvedBy: adminUserId,
         })
         .returning({ id: sellers.id });
 
@@ -326,7 +351,25 @@ export class AdminService {
     return rows.map((u) => ({ ...u, createdAt: u.createdAt.toISOString() }));
   }
 
-  static async updateUserRole(userId: number, role: 'CUSTOMER' | 'SELLER' | 'ADMIN') {
+  static async updateUserRole(actingAdminId: number, userId: number, role: 'CUSTOMER' | 'SELLER' | 'ADMIN') {
+    if (userId === actingAdminId) {
+      throw new Error('You cannot change your own role.');
+    }
+    const [target] = await db.select({ id: users.id, role: users.role }).from(users).where(eq(users.id, userId)).limit(1);
+    if (!target) throw new Error('User not found');
+
+    // SELLER is no longer something you can hand out with a dropdown: it is
+    // granted only by approving a seller application, which also creates the
+    // store profile. A SELLER role without a store would be a dangling account.
+    if (role === 'SELLER' && target.role !== 'SELLER') {
+      throw new Error('Sellers must apply and be approved from the Sellers tab.');
+    }
+
+    // Demoting a seller also suspends their store so their products leave the storefront.
+    if (target.role === 'SELLER' && role !== 'SELLER') {
+      await SellerAccountService.suspendBecauseRoleRemoved(userId);
+    }
+
     await db.update(users).set({ role, updatedAt: new Date() }).where(eq(users.id, userId));
     return { success: true };
   }

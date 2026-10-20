@@ -77,9 +77,15 @@ export const categories = pgTable('categories', {
   description: text('description'),
   displayOrder: integer('display_order').default(0).notNull(),
   isActive: boolean('is_active').default(true).notNull(),
+  // Commission override for this category in basis points (1% = 100). NULL =
+  // fall back to the platform default. A seller-level override beats this.
+  commissionBps: integer('commission_bps'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const SELLER_STATUSES = ['PENDING', 'APPROVED', 'REJECTED', 'SUSPENDED'] as const;
+export type SellerStatus = (typeof SELLER_STATUSES)[number];
 
 export const sellers = pgTable('sellers', {
   id: serial('id').primaryKey(),
@@ -88,9 +94,34 @@ export const sellers = pgTable('sellers', {
   slug: varchar('slug', { length: 150 }).notNull().unique(),
   rating: numeric('rating', { precision: 3, scale: 2 }).default('4.8').notNull(),
   reviewCount: integer('review_count').default(0).notNull(),
-  isVerified: boolean('is_verified').default(true).notNull(),
+  // Mirrors `status === 'APPROVED'`; kept for the public storefront badge.
+  isVerified: boolean('is_verified').default(false).notNull(),
+  // Approval workflow. Only APPROVED sellers appear on the storefront.
+  status: varchar('status', { length: 20 }).default('PENDING').notNull(),
+  description: text('description'),
+  supportEmail: varchar('support_email', { length: 255 }),
+  supportPhone: varchar('support_phone', { length: 20 }),
+  businessAddress: text('business_address'),
+  taxId: varchar('tax_id', { length: 30 }),
+  // Per-seller commission override in basis points. NULL = category/platform default.
+  commissionBps: integer('commission_bps'),
+  // Payout destination (account number is AES-GCM encrypted at app level).
+  payoutAccountHolder: varchar('payout_account_holder', { length: 150 }),
+  payoutBankName: varchar('payout_bank_name', { length: 150 }),
+  payoutIfsc: varchar('payout_ifsc', { length: 20 }),
+  payoutAccountEnc: text('payout_account_enc'),
+  payoutAccountLast4: varchar('payout_account_last4', { length: 4 }),
+  payoutUpiId: varchar('payout_upi_id', { length: 100 }),
+  rejectionReason: text('rejection_reason'),
+  suspensionReason: text('suspension_reason'),
+  approvedAt: timestamp('approved_at', { withTimezone: true }),
+  approvedBy: integer('approved_by').references(() => users.id, { onDelete: 'set null' }),
+  statusChangedAt: timestamp('status_changed_at', { withTimezone: true }).defaultNow().notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-});
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  statusIdx: index('sellers_status_idx').on(table.status),
+}));
 
 export const products = pgTable('products', {
   id: serial('id').primaryKey(),
@@ -247,8 +278,16 @@ export const orderItems = pgTable('order_items', {
   unitPrice: integer('unit_price').notNull(),
   quantity: integer('quantity').notNull(),
   totalPrice: integer('total_price').notNull(),
+  // Seller attribution + commission snapshot taken when the order was placed.
+  sellerId: integer('seller_id').notNull().references(() => sellers.id),
+  sellerOrderId: integer('seller_order_id').notNull().references(() => sellerOrders.id, { onDelete: 'cascade' }),
+  commissionBps: integer('commission_bps').default(0).notNull(),
+  commissionAmount: integer('commission_amount').default(0).notNull(),
+  sellerEarning: integer('seller_earning').default(0).notNull(),
 }, (table) => ({
   orderIdx: index('order_items_order_id_idx').on(table.orderId),
+  sellerIdx: index('order_items_seller_idx').on(table.sellerId),
+  sellerOrderIdx: index('order_items_seller_order_idx').on(table.sellerOrderId),
 }));
 
 export const orderTimeline = pgTable('order_timeline', {
@@ -261,6 +300,88 @@ export const orderTimeline = pgTable('order_timeline', {
   occurredAt: timestamp('occurred_at', { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   orderIdx: index('order_timeline_order_id_idx').on(table.orderId),
+}));
+
+// =========================================================================
+// MULTI-VENDOR: SUB-ORDERS, PAYOUTS, ADJUSTMENTS, PLATFORM SETTINGS
+// =========================================================================
+
+export const SETTLEMENT_STATUSES = ['UNSETTLED', 'IN_PAYOUT', 'PAID', 'VOID', 'LEGACY'] as const;
+export type SettlementStatus = (typeof SETTLEMENT_STATUSES)[number];
+
+export const PAYOUT_STATUSES = ['PROCESSING', 'PAID', 'FAILED'] as const;
+export type PayoutStatus = (typeof PAYOUT_STATUSES)[number];
+
+export const platformSettings = pgTable('platform_settings', {
+  key: varchar('key', { length: 100 }).primaryKey(),
+  value: text('value').notNull(),
+  updatedBy: integer('updated_by').references(() => users.id, { onDelete: 'set null' }),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const sellerPayouts = pgTable('seller_payouts', {
+  id: serial('id').primaryKey(),
+  payoutNumber: varchar('payout_number', { length: 30 }).notNull().unique(),
+  sellerId: integer('seller_id').notNull().references(() => sellers.id),
+  status: varchar('status', { length: 20 }).default('PROCESSING').notNull(),
+  orderCount: integer('order_count').default(0).notNull(),
+  grossAmount: integer('gross_amount').default(0).notNull(),
+  commissionAmount: integer('commission_amount').default(0).notNull(),
+  adjustmentsAmount: integer('adjustments_amount').default(0).notNull(),
+  netAmount: integer('net_amount').default(0).notNull(),
+  cutoffAt: timestamp('cutoff_at', { withTimezone: true }).defaultNow().notNull(),
+  destinationSnapshot: jsonb('destination_snapshot'),
+  method: varchar('method', { length: 30 }),
+  reference: varchar('reference', { length: 120 }),
+  notes: text('notes'),
+  failureReason: text('failure_reason'),
+  createdBy: integer('created_by').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  paidAt: timestamp('paid_at', { withTimezone: true }),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  sellerIdx: index('seller_payouts_seller_idx').on(table.sellerId, table.createdAt),
+  statusIdx: index('seller_payouts_status_idx').on(table.status),
+}));
+
+// One row per (order, seller): the unit a seller fulfils and is paid for.
+export const sellerOrders = pgTable('seller_orders', {
+  id: serial('id').primaryKey(),
+  orderId: integer('order_id').notNull().references(() => orders.id, { onDelete: 'cascade' }),
+  sellerId: integer('seller_id').notNull().references(() => sellers.id),
+  status: varchar('status', { length: 30 }).default('PENDING_PAYMENT').notNull(),
+  subtotal: integer('subtotal').notNull(),
+  commissionAmount: integer('commission_amount').default(0).notNull(),
+  sellerEarning: integer('seller_earning').notNull(),
+  carrier: varchar('carrier', { length: 100 }),
+  trackingNumber: varchar('tracking_number', { length: 100 }),
+  settlementStatus: varchar('settlement_status', { length: 20 }).default('UNSETTLED').notNull(),
+  payoutId: integer('payout_id').references(() => sellerPayouts.id, { onDelete: 'set null' }),
+  deliveredAt: timestamp('delivered_at', { withTimezone: true }),
+  cancelledAt: timestamp('cancelled_at', { withTimezone: true }),
+  returnedAt: timestamp('returned_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  orderSellerUniq: uniqueIndex('seller_orders_order_seller_uniq').on(table.orderId, table.sellerId),
+  sellerStatusIdx: index('seller_orders_seller_status_idx').on(table.sellerId, table.status),
+  orderIdx: index('seller_orders_order_idx').on(table.orderId),
+  settlementIdx: index('seller_orders_settlement_idx').on(table.sellerId, table.settlementStatus),
+  payoutIdx: index('seller_orders_payout_idx').on(table.payoutId),
+}));
+
+export const sellerAdjustments = pgTable('seller_adjustments', {
+  id: serial('id').primaryKey(),
+  sellerId: integer('seller_id').notNull().references(() => sellers.id),
+  sellerOrderId: integer('seller_order_id').references(() => sellerOrders.id, { onDelete: 'set null' }),
+  type: varchar('type', { length: 20 }).notNull(),
+  amount: integer('amount').notNull(),
+  reason: text('reason').notNull(),
+  payoutId: integer('payout_id').references(() => sellerPayouts.id, { onDelete: 'set null' }),
+  createdBy: integer('created_by').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  sellerIdx: index('seller_adjustments_seller_idx').on(table.sellerId, table.payoutId),
 }));
 
 // =========================================================================
@@ -464,4 +585,17 @@ export const ordersRelations = relations(orders, ({ one, many }) => ({
   user: one(users, { fields: [orders.userId], references: [users.id] }),
   items: many(orderItems),
   timeline: many(orderTimeline),
+}));
+
+export const sellersRelations = relations(sellers, ({ one, many }) => ({
+  user: one(users, { fields: [sellers.userId], references: [users.id] }),
+  products: many(products),
+  sellerOrders: many(sellerOrders),
+  payouts: many(sellerPayouts),
+}));
+
+export const sellerOrdersRelations = relations(sellerOrders, ({ one, many }) => ({
+  order: one(orders, { fields: [sellerOrders.orderId], references: [orders.id] }),
+  seller: one(sellers, { fields: [sellerOrders.sellerId], references: [sellers.id] }),
+  items: many(orderItems),
 }));

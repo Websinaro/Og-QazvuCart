@@ -1,6 +1,6 @@
 import { and, eq, isNull, sql } from 'drizzle-orm';
 import { db } from '@/src/db';
-import { carts, cartItems, products, productVariants, productImages } from '@/src/db/schema';
+import { carts, cartItems, products, productVariants, productImages, sellers } from '@/src/db/schema';
 import { getDeliveryEstimate } from '@/src/lib/date';
 
 export interface CartItemResponse {
@@ -164,12 +164,13 @@ export class CartService {
 
   static async addItem(userId: number, productId: number, variantId: number | null | undefined, quantity: number) {
     const [product] = await db
-      .select({ id: products.id, stock: products.stock, status: products.status })
+      .select({ id: products.id, stock: products.stock, status: products.status, sellerStatus: sellers.status })
       .from(products)
+      .innerJoin(sellers, eq(products.sellerId, sellers.id))
       .where(eq(products.id, productId))
       .limit(1);
 
-    if (!product || product.status !== 'ACTIVE') {
+    if (!product || product.status !== 'ACTIVE' || product.sellerStatus !== 'APPROVED') {
       throw new Error('Product is unavailable or out of stock');
     }
 

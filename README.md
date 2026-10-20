@@ -119,3 +119,67 @@ business logic (contexts, API routes, services, DB) is unchanged.
   respects `prefers-reduced-motion`.
 
 After pulling these changes run `npm install` to fetch the new packages.
+
+---
+
+## Multi-vendor marketplace
+
+Sellers register, get approved by an admin, manage their own catalog and orders, and are paid out net of commission.
+
+### Setup
+
+```bash
+openssl rand -base64 32          # put the result in PAYOUT_ENCRYPTION_KEY (.env)
+npm run db:migrate               # applies 0004_multivendor_sellers.sql
+npm test                         # unit tests for commission / status / crypto logic
+```
+
+`PAYOUT_ENCRYPTION_KEY` encrypts seller bank account numbers (AES-256-GCM). There is no fallback; saving payout details fails loudly without it.
+
+### Lifecycle
+
+| Step | Where | What happens |
+|---|---|---|
+| Apply | `/sell` (or `POST /api/seller/apply`, `POST /api/auth/register-seller`) | Creates a store with status `PENDING`. The account stays a `CUSTOMER`. |
+| Review | Admin → **Sellers** | Approve (account becomes `SELLER`, store goes live), Reject (with reason, seller may re-apply), Suspend / Reinstate. |
+| Sell | `/seller-center` | Products, inventory, orders, earnings, payouts, Q&A, settings. |
+| Get paid | Admin → **Payouts & Commission** | Admin settles payable earnings into a payout, transfers the money, marks it paid. |
+
+Storefront, search, cart and checkout only expose products from `APPROVED` sellers. A suspended seller's products disappear immediately but they can still fulfil open orders and see their earnings.
+
+### Orders are split per seller
+
+A customer still places **one** order. Internally each seller gets a parcel (`seller_orders` row) containing only their items, which they pack/ship/deliver independently. The customer-facing order status is derived from the parcels (the least advanced live parcel). Customers can cancel only while every live parcel is still pre-dispatch.
+
+### Commission
+
+* Rate precedence: **seller override → category override → platform default** (`platform_settings.default_commission_bps`, default 10%).
+* Rates are stored in basis points; commission is rounded half-up to whole rupees **per line item**.
+* The rate and amounts are **snapshotted on `order_items`** when the order is placed, so changing a rate never rewrites history.
+* Commission is charged on item sales value. Coupon discounts are platform-funded (sellers still earn on the pre-discount price) and the delivery fee stays with the platform.
+
+### Earnings, payouts, settlement
+
+* Seller earning for a parcel = items − commission.
+* A parcel becomes **payable** when it is `DELIVERED`, the return window has passed (`payout_hold_days`, default 7), and it is paid for (online payment captured, or COD).
+* Admin creates a payout per seller: all payable parcels plus unapplied adjustments are claimed atomically (seller row locked, single `UPDATE … RETURNING`), so double-payouts are impossible. Minimum payout: `min_payout_amount`.
+* `MARK_PAID` records method + reference (a reference can only settle one payout). `MARK_FAILED` releases everything back to the seller's balance.
+* A return after payout creates a negative **adjustment** that is netted against the next payout. Admins can add manual credits/debits.
+* Settlement report per payout (JSON or `?format=csv`) for both sellers and admins; admin commission report at `/api/admin/reports/commission`.
+
+### Seller isolation (how one seller can't see another's data)
+
+1. Seller routes never accept a seller id. `requireSeller()` derives it from the authenticated session (role `SELLER` **and** a linked, `APPROVED`/`SUSPENDED` store).
+2. Every service method takes that id and puts it in every `WHERE` clause (`id = ? AND seller_id = ?`). Foreign ids behave exactly like missing ones (`404`, never `403`).
+3. Order items, payouts, adjustments, questions and stock updates are all scoped the same way; bulk stock updates are all-or-nothing.
+4. `SELLER` can no longer be granted from the role dropdown; it only comes from approving an application. Demoting a seller suspends their store. Admins cannot change their own role.
+5. Changing payout details requires the account password and notifies the seller.
+
+### Key endpoints
+
+Seller: `/api/seller/{me,dashboard,products,inventory,orders,earnings,payouts,questions,payout-details,rate-card}`
+Admin: `/api/admin/{sellers,payouts,payouts/overview,adjustments,settings/commission,settings/commission/categories/[id],reports/commission}`
+
+### Migration note
+
+Existing sellers are grandfathered as `APPROVED`. Orders placed before this migration get parcels with 0% commission and settlement status `LEGACY` (never auto-paid). If you still owe sellers money for any of them, credit it with a manual adjustment.

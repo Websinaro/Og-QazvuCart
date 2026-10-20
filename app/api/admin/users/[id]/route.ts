@@ -15,7 +15,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (!['CUSTOMER', 'SELLER', 'ADMIN'].includes(role)) {
       return apiError('VALIDATION_ERROR', 'role must be CUSTOMER, SELLER, or ADMIN', 422);
     }
-    const result = await AdminService.updateUserRole(Number(id), role as 'CUSTOMER' | 'SELLER' | 'ADMIN');
+    const result = await AdminService.updateUserRole(authUser.userId, Number(id), role as 'CUSTOMER' | 'SELLER' | 'ADMIN');
     return apiSuccess(result);
   } catch (err) {
     return apiError('UPDATE_FAILED', err instanceof Error ? err.message : 'Failed to update user role', 400);

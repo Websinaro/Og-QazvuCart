@@ -26,6 +26,7 @@ import {
   Zap,
   Flame,
   Shield,
+  Store,
 } from '@/src/components/ui/icons';
 import { formatINR } from '@/src/lib/date';
 
@@ -322,6 +323,20 @@ export function Header() {
                             className="flex items-center gap-2.5 px-3 py-2.5 mb-1 rounded-xl bg-brand-500/10 text-brand-800 dark:text-brand-200 hover:bg-brand-500/15 text-[13px] font-semibold transition-colors"
                           >
                             <Shield className="w-4 h-4" /> Admin panel
+                          </Link>
+                        )}
+                        {user?.role === 'SELLER' && (
+                          <Link
+                            href="/seller-center"
+                            onClick={() => setIsUserMenuOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2.5 mb-1 rounded-xl bg-brand-500/10 text-brand-800 dark:text-brand-200 hover:bg-brand-500/15 text-[13px] font-semibold transition-colors"
+                          >
+                            <Store className="w-4 h-4" /> Seller Center
+                          </Link>
+                        )}
+                        {user?.role === 'CUSTOMER' && (
+                          <Link href="/sell" onClick={() => setIsUserMenuOpen(false)} className={navLink}>
+                            <Store className="w-4 h-4 text-neutral-400" /> Sell on our marketplace
                           </Link>
                         )}
                         <Link href="/account" onClick={() => setIsUserMenuOpen(false)} className={navLink}>

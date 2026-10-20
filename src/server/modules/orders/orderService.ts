@@ -1,8 +1,9 @@
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import type { PgTransaction, PgQueryResultHKT } from 'drizzle-orm/pg-core';
 import type { ExtractTablesWithRelations } from 'drizzle-orm';
 import { db } from '@/src/db';
 import * as schema from '@/src/db/schema';
+import type { OrderStatus } from '@/src/db/schema';
 import {
   orders,
   orderItems,
@@ -12,14 +13,26 @@ import {
   productImages,
   cartItems,
   carts,
-  couponRedemptions,
-  coupons,
+  categories,
+  sellers,
+  sellerOrders,
 } from '@/src/db/schema';
 import { AddressService } from '../addresses/addressService';
 import { CartService } from '../cart/cartService';
 import { CouponService } from '../coupons/couponService';
 import { getDeliveryEstimate } from '@/src/lib/date';
-import { assertValidTransition, isValidOrderStatus } from '@/src/lib/orderStateMachine';
+import { assertValidTransition, canTransition, isValidOrderStatus } from '@/src/lib/orderStateMachine';
+import { priceLine, resolveCommissionRate, summarizeSellerParcel } from '@/src/lib/commission';
+import { canCustomerCancel } from '@/src/lib/fulfilmentStatus';
+import { PlatformSettingsService } from '../settings/platformSettingsService';
+import {
+  confirmParcelsForOrder,
+  notifySellersOfNewOrder,
+  releaseCouponRedemption,
+  transitionSellerOrder,
+  voidParcelsForOrder,
+  NotFoundError,
+} from './fulfilment';
 
 export interface CreateOrderParams {
   addressId?: number;
@@ -46,6 +59,14 @@ interface PreparedItem {
   deliveryFee: number;
 }
 
+// A prepared item plus its seller attribution and commission snapshot.
+interface PricedItem extends PreparedItem {
+  sellerId: number;
+  commissionBps: number;
+  commissionAmount: number;
+  sellerEarning: number;
+}
+
 class OutOfStockError extends Error {}
 
 // Both the pooled `db` instance and a `db.transaction((tx) => ...)` handle
@@ -55,28 +76,9 @@ class OutOfStockError extends Error {}
 type DbClient = typeof db | PgTransaction<PgQueryResultHKT, typeof schema, ExtractTablesWithRelations<typeof schema>>;
 
 export class OrderService {
-  /**
-   * If this order redeemed a coupon, undoes it: removes the redemption
-   * row and decrements the coupon's used_count, freeing it up again.
-   * Called from every path that cancels/fails an order after creation
-   * (payment failure, expired reservation, user cancellation) — a
-   * customer whose payment fails or who cancels shouldn't lose their
-   * single-use coupon in the process.
-   */
+  /** Kept as a thin wrapper; the implementation lives in fulfilment.ts so seller flows share it. */
   private static async releaseCouponRedemption(tx: DbClient, orderId: number) {
-    const [redemption] = await tx
-      .select({ id: couponRedemptions.id, couponId: couponRedemptions.couponId })
-      .from(couponRedemptions)
-      .where(eq(couponRedemptions.orderId, orderId))
-      .limit(1);
-
-    if (!redemption) return;
-
-    await tx.delete(couponRedemptions).where(eq(couponRedemptions.id, redemption.id));
-    await tx
-      .update(coupons)
-      .set({ usedCount: sql`GREATEST(${coupons.usedCount} - 1, 0)` })
-      .where(eq(coupons.id, redemption.couponId));
+    return releaseCouponRedemption(tx, orderId);
   }
 
   /**
@@ -88,7 +90,7 @@ export class OrderService {
    * decrement is ever persisted.
    */
   static async createOrder(userId: number, params: CreateOrderParams) {
-    return db.transaction(async (tx) => {
+    const created = await db.transaction(async (tx) => {
       // 1. Resolve shipping address snapshot -------------------------------
       let addressSnapshot: Record<string, unknown> | undefined = params.shippingAddressSnapshot;
       if (!addressSnapshot && params.addressId) {
@@ -221,6 +223,47 @@ export class OrderService {
         }
       }
 
+      // 2b. Seller attribution, availability + commission snapshot -----------
+      // Every line is tied to the seller that owns the product. Products of a
+      // seller that is not APPROVED (pending/rejected/suspended) can't be
+      // bought. The commission rate is resolved once, here, and stored on the
+      // line, so later rate changes never alter what a seller earned.
+      const productIds = [...new Set(itemsToOrder.map((i) => i.productId))];
+      const productMeta = await tx
+        .select({
+          id: products.id,
+          sellerId: products.sellerId,
+          sellerStatus: sellers.status,
+          sellerCommissionBps: sellers.commissionBps,
+          categoryCommissionBps: categories.commissionBps,
+        })
+        .from(products)
+        .innerJoin(sellers, eq(products.sellerId, sellers.id))
+        .innerJoin(categories, eq(products.categoryId, categories.id))
+        .where(inArray(products.id, productIds));
+      const metaById = new Map(productMeta.map((m) => [m.id, m]));
+      const marketplaceSettings = await PlatformSettingsService.get(tx);
+
+      const pricedItems: PricedItem[] = itemsToOrder.map((item) => {
+        const meta = metaById.get(item.productId);
+        if (!meta || meta.sellerStatus !== 'APPROVED') {
+          throw new Error(`${item.productName} is no longer available.`);
+        }
+        const rate = resolveCommissionRate({
+          sellerBps: meta.sellerCommissionBps,
+          categoryBps: meta.categoryCommissionBps,
+          platformDefaultBps: marketplaceSettings.defaultCommissionBps,
+        });
+        const line = priceLine({ totalPrice: item.totalPrice, rateBps: rate.bps });
+        return {
+          ...item,
+          sellerId: meta.sellerId,
+          commissionBps: rate.bps,
+          commissionAmount: line.commissionAmount,
+          sellerEarning: line.sellerEarning,
+        };
+      });
+
       // 3. Reserve inventory atomically -------------------------------------
       // Each reservation is a single `UPDATE ... WHERE stock >= qty RETURNING`.
       // If zero rows come back, stock was insufficient at the moment of
@@ -316,9 +359,33 @@ export class OrderService {
         await CouponService.redeem(tx, appliedCoupon.id, userId, orderId, couponDiscount);
       }
 
+      // 5b. One parcel (seller_orders row) per seller ---------------------
+      const linesBySeller = new Map<number, PricedItem[]>();
+      for (const item of pricedItems) {
+        const list = linesBySeller.get(item.sellerId) || [];
+        list.push(item);
+        linesBySeller.set(item.sellerId, list);
+      }
+      const parcelIdBySeller = new Map<number, number>();
+      for (const [sellerId, lines] of linesBySeller) {
+        const totals = summarizeSellerParcel(lines.map((l) => ({ totalPrice: l.totalPrice, rateBps: l.commissionBps })));
+        const [parcel] = await tx
+          .insert(sellerOrders)
+          .values({
+            orderId,
+            sellerId,
+            status: initialStatus,
+            subtotal: totals.subtotal,
+            commissionAmount: totals.commissionAmount,
+            sellerEarning: totals.sellerEarning,
+          })
+          .returning({ id: sellerOrders.id });
+        parcelIdBySeller.set(sellerId, parcel.id);
+      }
+
       // 6. Order items -----------------------------------------------------
       await tx.insert(orderItems).values(
-        itemsToOrder.map((item) => ({
+        pricedItems.map((item) => ({
           orderId,
           productId: item.productId,
           variantId: item.variantId,
@@ -328,6 +395,11 @@ export class OrderService {
           unitPrice: item.unitPrice,
           quantity: item.quantity,
           totalPrice: item.totalPrice,
+          sellerId: item.sellerId,
+          sellerOrderId: parcelIdBySeller.get(item.sellerId)!,
+          commissionBps: item.commissionBps,
+          commissionAmount: item.commissionAmount,
+          sellerEarning: item.sellerEarning,
         }))
       );
 
@@ -352,6 +424,13 @@ export class OrderService {
 
       return this.getOrderByIdWithTx(tx, userId, orderId);
     });
+
+    // COD orders are confirmed immediately, so sellers hear about them now;
+    // online orders notify sellers once payment is verified (markOrderPaid).
+    if (created && params.paymentMethod === 'COD') {
+      void notifySellersOfNewOrder(created.id);
+    }
+    return created;
   }
 
   /**
@@ -363,7 +442,7 @@ export class OrderService {
    * side effects.
    */
   static async markOrderPaid(orderId: number) {
-    return db.transaction(async (tx) => {
+    const result = await db.transaction(async (tx) => {
       const [order] = await tx.select({ id: orders.id, status: orders.status, paymentStatus: orders.paymentStatus }).from(orders).where(eq(orders.id, orderId)).limit(1);
       if (!order) throw new Error('Order not found');
 
@@ -377,6 +456,9 @@ export class OrderService {
         .set({ status: 'CONFIRMED', paymentStatus: 'PAID', paymentReservationExpiresAt: null, updatedAt: new Date() })
         .where(eq(orders.id, orderId));
 
+      // Payment is verified: every seller's parcel can now be fulfilled.
+      await confirmParcelsForOrder(tx, orderId);
+
       await tx.insert(orderTimeline).values({
         orderId,
         status: 'CONFIRMED',
@@ -387,6 +469,11 @@ export class OrderService {
 
       return { alreadyProcessed: false };
     });
+
+    if (!result.alreadyProcessed) {
+      void notifySellersOfNewOrder(orderId);
+    }
+    return result;
   }
 
   /**
@@ -409,6 +496,7 @@ export class OrderService {
         .where(eq(orders.id, orderId));
 
       await this.releaseCouponRedemption(tx, orderId);
+      await voidParcelsForOrder(tx, orderId);
 
       const items = await tx
         .select({ productId: orderItems.productId, variantId: orderItems.variantId, quantity: orderItems.quantity })
@@ -540,10 +628,27 @@ export class OrderService {
         quantity: orderItems.quantity,
         totalPrice: orderItems.totalPrice,
         productSlug: products.slug,
+        sellerOrderId: orderItems.sellerOrderId,
       })
       .from(orderItems)
       .leftJoin(products, eq(orderItems.productId, products.id))
       .where(eq(orderItems.orderId, order.id));
+
+    // Each seller ships their own parcel; the customer still has one order.
+    const parcelRows = await txOrDb
+      .select({
+        id: sellerOrders.id,
+        status: sellerOrders.status,
+        carrier: sellerOrders.carrier,
+        trackingNumber: sellerOrders.trackingNumber,
+        updatedAt: sellerOrders.updatedAt,
+        sellerName: sellers.storeName,
+        sellerSlug: sellers.slug,
+      })
+      .from(sellerOrders)
+      .innerJoin(sellers, eq(sellerOrders.sellerId, sellers.id))
+      .where(eq(sellerOrders.orderId, order.id))
+      .orderBy(sellerOrders.id);
 
     const timeline = await txOrDb
       .select()
@@ -600,6 +705,16 @@ export class OrderService {
         totalPrice: i.totalPrice,
       })),
       timeline: fullStepper,
+      parcels: parcelRows.map((p) => ({
+        id: p.id,
+        sellerName: p.sellerName,
+        sellerSlug: p.sellerSlug,
+        status: p.status,
+        carrier: p.carrier,
+        trackingNumber: p.trackingNumber,
+        updatedAt: p.updatedAt.toISOString(),
+        itemIds: items.filter((i) => i.sellerOrderId === p.id).map((i) => i.id),
+      })),
     };
   }
 
@@ -616,9 +731,17 @@ export class OrderService {
 
       assertValidTransition(order.status, 'CANCELLED');
 
+      // The order status is the *least advanced* parcel, so also make sure no
+      // seller has already shipped their part before cancelling everything.
+      const parcels = await tx.select({ status: sellerOrders.status }).from(sellerOrders).where(eq(sellerOrders.orderId, orderId));
+      if (!canCustomerCancel(parcels.map((p) => p.status))) {
+        throw new Error('Part of this order has already been shipped, so it can no longer be cancelled.');
+      }
+
       await tx.update(orders).set({ status: 'CANCELLED', updatedAt: new Date() }).where(eq(orders.id, orderId));
 
       await this.releaseCouponRedemption(tx, orderId);
+      await voidParcelsForOrder(tx, orderId);
 
       const items = await tx
         .select({ productId: orderItems.productId, variantId: orderItems.variantId, quantity: orderItems.quantity })
@@ -647,37 +770,44 @@ export class OrderService {
     });
   }
 
-  /** Admin-only status transition, validated against the order state machine. */
-  static async adminUpdateStatus(orderId: number, nextStatus: string) {
+  /**
+   * Admin status change for a whole order. The change is applied to every
+   * parcel that can legally make the move (parcels already further along, or
+   * in a terminal state, are skipped); if no parcel can, the state machine's
+   * error is surfaced. The customer-facing status is then re-derived.
+   */
+  static async adminUpdateStatus(orderId: number, nextStatus: string, adminUserId = 0) {
     return db.transaction(async (tx) => {
-      const [order] = await tx.select({ id: orders.id, status: orders.status }).from(orders).where(eq(orders.id, orderId)).limit(1);
+      const [order] = await tx.select({ id: orders.id }).from(orders).where(eq(orders.id, orderId)).limit(1);
       if (!order) throw new Error('Order not found');
+      if (!isValidOrderStatus(nextStatus)) throw new Error(`"${nextStatus}" is not a valid order status.`);
 
-      assertValidTransition(order.status, nextStatus);
+      const parcels = await tx
+        .select({ id: sellerOrders.id, status: sellerOrders.status })
+        .from(sellerOrders)
+        .where(eq(sellerOrders.orderId, orderId))
+        .orderBy(sellerOrders.id);
+      if (parcels.length === 0) throw new Error('This order has no seller parcels to update.');
 
-      const updates: Partial<typeof orders.$inferInsert> = { status: nextStatus, updatedAt: new Date() };
-      if (nextStatus === 'DELIVERED') updates.paymentStatus = 'PAID';
+      const movable = parcels.filter((p) => canTransition(p.status as OrderStatus, nextStatus));
+      if (movable.length === 0) {
+        // Re-run the check on the first parcel to produce the precise error message.
+        assertValidTransition(parcels[0].status, nextStatus);
+      }
 
-      await tx.update(orders).set(updates).where(eq(orders.id, orderId));
-
-      const stageTitles: Record<string, string> = {
-        PACKED: 'Packed',
-        SHIPPED: 'Shipped',
-        OUT_FOR_DELIVERY: 'Out for Delivery',
-        DELIVERED: 'Delivered',
-        RETURNED: 'Returned',
-        CANCELLED: 'Cancelled',
-      };
-
-      await tx.insert(orderTimeline).values({
-        orderId,
-        status: nextStatus,
-        title: stageTitles[nextStatus] || nextStatus,
-        description: `Order status updated to ${nextStatus}.`,
-        completed: true,
-      });
-
+      for (const p of movable) {
+        await transitionSellerOrder(tx, p.id, nextStatus, { type: 'ADMIN', userId: adminUserId });
+      }
       return true;
     });
   }
+
+  /** Admin status change for a single seller's parcel. */
+  static async adminUpdateParcelStatus(sellerOrderId: number, nextStatus: string, adminUserId: number) {
+    return db.transaction(async (tx) => {
+      return transitionSellerOrder(tx, sellerOrderId, nextStatus, { type: 'ADMIN', userId: adminUserId });
+    });
+  }
 }
+
+export { NotFoundError };

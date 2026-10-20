@@ -9,6 +9,8 @@ import { useToast } from '@/src/context/ToastContext';
 import { authFetch } from '@/src/lib/api';
 import { formatINR } from '@/src/lib/date';
 import { uploadImageToCloudinary, CloudinaryConfigError } from '@/src/lib/cloudinary';
+import AdminSellersPanel from '@/src/components/admin/AdminSellersPanel';
+import AdminPayoutsPanel from '@/src/components/admin/AdminPayoutsPanel';
 import {
   Shield,
   LayoutDashboard,
@@ -35,6 +37,8 @@ import {
   ImagePlus,
   Loader2,
   BellRing,
+  Store,
+  Banknote,
 } from '@/src/components/ui/icons';
 
 interface AnalyticsData {
@@ -43,6 +47,8 @@ interface AnalyticsData {
   totalProducts: number;
   totalUsers: number;
   activeSellers: number;
+  pendingSellerApplications?: number;
+  platformCommissionEarned?: number;
   pendingOrdersCount: number;
   deliveredOrdersCount: number;
   lowStockProductsCount: number;
@@ -140,7 +146,7 @@ export default function AdminDashboardPage() {
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { success, error } = useToast();
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'users' | 'categories' | 'notifications' | 'coupons'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'users' | 'categories' | 'notifications' | 'coupons' | 'sellers' | 'payouts'>('overview');
   const [isLoading, setIsLoading] = useState(true);
 
   // Analytics
@@ -967,14 +973,52 @@ export default function AdminDashboardPage() {
           >
             <Tag className="w-4 h-4" /> Coupons
           </button>
+          <button
+            onClick={() => setActiveTab('sellers')}
+            className={`flex items-center gap-2 py-3 px-4 text-xs font-bold border-b-2 transition-all whitespace-nowrap ${
+              activeTab === 'sellers'
+                ? 'border-brand-500 text-brand-300'
+                : 'border-transparent text-neutral-400 hover:text-neutral-200 hover:border-neutral-700'
+            }`}
+          >
+            <Store className="w-4 h-4" /> Sellers
+            {(analytics?.pendingSellerApplications || 0) > 0 && (
+              <span className="ml-0.5 rounded-full bg-amber-500 text-neutral-950 text-[10px] px-1.5 py-0.5">{analytics?.pendingSellerApplications}</span>
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('payouts')}
+            className={`flex items-center gap-2 py-3 px-4 text-xs font-bold border-b-2 transition-all whitespace-nowrap ${
+              activeTab === 'payouts'
+                ? 'border-brand-500 text-brand-300'
+                : 'border-transparent text-neutral-400 hover:text-neutral-200 hover:border-neutral-700'
+            }`}
+          >
+            <Banknote className="w-4 h-4" /> Payouts & Commission
+          </button>
         </div>
       </header>
 
       {/* Main Admin Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
         {/* TAB 1: OVERVIEW */}
+        {activeTab === 'sellers' && <AdminSellersPanel onChanged={loadDashboardData} />}
+        {activeTab === 'payouts' && <AdminPayoutsPanel />}
+
         {activeTab === 'overview' && (
           <div className="space-y-6">
+            {(analytics?.pendingSellerApplications || 0) > 0 && (
+              <button
+                onClick={() => setActiveTab('sellers')}
+                className="w-full text-left rounded-2xl border border-amber-300 bg-amber-50 text-amber-900 p-4 text-sm font-bold flex items-center justify-between dark:bg-amber-500/10 dark:border-amber-500/30 dark:text-amber-300"
+              >
+                <span>{analytics?.pendingSellerApplications} seller application(s) waiting for review</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            )}
+            <p className="text-xs font-bold text-neutral-500 dark:text-neutral-400">
+              Platform commission earned on delivered orders: <span className="text-emerald-600">{formatINR(analytics?.platformCommissionEarned || 0)}</span>
+            </p>
             {/* Metric KPI Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-white rounded-2xl p-5 border border-neutral-200/90 shadow-soft dark:bg-[#17140b] dark:border-white/10">
@@ -1838,11 +1882,13 @@ export default function AdminDashboardPage() {
                         <td className="py-3.5 px-3 text-right">
                           <select
                             value={u.role}
+                            disabled={u.id === user?.id}
+                            title={u.id === user?.id ? 'You cannot change your own role' : undefined}
                             onChange={(e) => handleChangeUserRole(u.id, e.target.value as 'CUSTOMER' | 'SELLER' | 'ADMIN')}
                             className="text-xs font-bold bg-neutral-100 border border-neutral-300 rounded-lg px-2.5 py-1 text-neutral-800 focus:outline-none dark:bg-white/10 dark:text-neutral-100 dark:border-white/10"
                           >
                             <option value="CUSTOMER">Customer</option>
-                            <option value="SELLER">Seller</option>
+                            <option value="SELLER" disabled={u.role !== 'SELLER'}>{u.role === 'SELLER' ? 'Seller' : 'Seller (approve in Sellers tab)'}</option>
                             <option value="ADMIN">Admin</option>
                           </select>
                         </td>

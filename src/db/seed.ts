@@ -15,7 +15,9 @@ import {
   orders,
   orderItems,
   orderTimeline,
+  sellerOrders,
 } from './schema';
+import { priceLine } from '@/src/lib/commission';
 import { hashPassword } from '@/src/lib/password';
 
 /**
@@ -152,6 +154,11 @@ export async function seedDatabase() {
         rating: '4.9',
         reviewCount: 1420,
         isVerified: true,
+        // The dev seller is pre-approved so the storefront has products to show.
+        status: 'APPROVED',
+        approvedAt: new Date(),
+        description: 'Dev seed store.',
+        businessAddress: '1 Seed Street, Bengaluru, Karnataka 560001',
       })
       .returning({ id: sellers.id });
     sellerId = insertedSeller.id;
@@ -648,8 +655,28 @@ export async function seedDatabase() {
 
   const orderId = insertedOrder.id;
 
+  // Per-seller parcel + commission snapshot at the platform default (10%).
+  const seedLine = priceLine({ totalPrice: 1499, rateBps: 1000 });
+  const [seedParcel] = await db
+    .insert(sellerOrders)
+    .values({
+      orderId,
+      sellerId,
+      status: 'DELIVERED',
+      subtotal: 1499,
+      commissionAmount: seedLine.commissionAmount,
+      sellerEarning: seedLine.sellerEarning,
+      deliveredAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+    })
+    .returning({ id: sellerOrders.id });
+
   await db.insert(orderItems).values({
     orderId,
+    sellerId,
+    sellerOrderId: seedParcel.id,
+    commissionBps: 1000,
+    commissionAmount: seedLine.commissionAmount,
+    sellerEarning: seedLine.sellerEarning,
     productId: 1,
     variantId: 1,
     productName: firstProduct.name,

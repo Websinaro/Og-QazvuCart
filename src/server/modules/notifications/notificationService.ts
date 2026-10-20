@@ -85,6 +85,44 @@ export class NotificationService {
   }
 
   // ------------------------------------------------------------------
+  // Single-user notification (order events, seller approval, payouts...).
+  // Always best-effort: a notification failure must never fail or roll back
+  // the business operation that triggered it, so this swallows and logs
+  // errors. Call it AFTER the triggering transaction has committed.
+  // ------------------------------------------------------------------
+
+  static async notifyUser(
+    userId: number,
+    input: { type?: 'ORDER' | 'SYSTEM'; title: string; body: string; link?: string }
+  ): Promise<void> {
+    try {
+      await db.insert(notifications).values({
+        userId,
+        type: input.type || 'SYSTEM',
+        title: input.title,
+        body: input.body,
+        link: input.link || null,
+      });
+
+      try {
+        const tokenRows = await db.select({ token: deviceTokens.token }).from(deviceTokens).where(eq(deviceTokens.userId, userId));
+        const tokens = tokenRows.map((r) => r.token);
+        if (tokens.length > 0) {
+          const result = await sendPushToTokens(tokens, { title: input.title, body: input.body, link: input.link });
+          if (result.deadTokens.length > 0) {
+            await db.delete(deviceTokens).where(inArray(deviceTokens.token, result.deadTokens));
+          }
+        }
+      } catch (pushErr) {
+        // Push is optional (Firebase may be unconfigured); the in-app row exists.
+        console.error('[NotificationService] push to user failed:', pushErr);
+      }
+    } catch (err) {
+      console.error('[NotificationService] notifyUser failed:', err);
+    }
+  }
+
+  // ------------------------------------------------------------------
   // Admin broadcast — creates the in-app rows AND attempts push delivery
   // ------------------------------------------------------------------
 

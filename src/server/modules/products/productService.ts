@@ -45,7 +45,8 @@ export class ProductService {
     const limit = Math.min(50, Math.max(1, Number(params.limit) || 12));
     const offset = (page - 1) * limit;
 
-    const conditions: SQL[] = [eq(products.status, 'ACTIVE')];
+    // Only products from APPROVED sellers are ever visible on the storefront.
+    const conditions: SQL[] = [eq(products.status, 'ACTIVE'), eq(sellers.status, 'APPROVED')];
 
     if (params.q && params.q.trim().length > 0) {
       const term = `%${params.q.trim()}%`;
@@ -143,6 +144,7 @@ export class ProductService {
       .select({ count: sql<number>`count(*)::int` })
       .from(products)
       .leftJoin(categories, eq(products.categoryId, categories.id))
+      .innerJoin(sellers, eq(products.sellerId, sellers.id))
       .where(whereClause);
 
     const rows = await db
@@ -175,7 +177,7 @@ export class ProductService {
       })
       .from(products)
       .leftJoin(categories, eq(products.categoryId, categories.id))
-      .leftJoin(sellers, eq(products.sellerId, sellers.id))
+      .innerJoin(sellers, eq(products.sellerId, sellers.id))
       .where(whereClause)
       .orderBy(...orderBy)
       .limit(limit)
@@ -317,8 +319,8 @@ export class ProductService {
       })
       .from(products)
       .leftJoin(categories, eq(products.categoryId, categories.id))
-      .leftJoin(sellers, eq(products.sellerId, sellers.id))
-      .where(eq(products.slug, slug))
+      .innerJoin(sellers, eq(products.sellerId, sellers.id))
+      .where(and(eq(products.slug, slug), eq(sellers.status, 'APPROVED')))
       .limit(1);
 
     if (!r) return null;

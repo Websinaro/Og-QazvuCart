@@ -12,7 +12,8 @@
     "db:migrate": "node src/db/migrate.mjs",
     "db:seed": "tsx -e \"require('./src/db/seed').seedDatabase().then(() => process.exit(0)).catch((e) => { console.error(e); process.exit(1); })\"",
     "db:studio": "drizzle-kit studio",
-    "admin:bootstrap": "tsx src/scripts/create-admin.ts"
+    "admin:bootstrap": "tsx src/scripts/create-admin.ts",
+    "test": "node --experimental-strip-types --test tests/*.test.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",

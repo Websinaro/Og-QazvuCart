@@ -31,7 +31,7 @@ export class SellerService {
       })
       .from(sellers)
       .innerJoin(users, eq(sellers.userId, users.id))
-      .where(eq(sellers.slug, slug))
+      .where(and(eq(sellers.slug, slug), eq(sellers.status, 'APPROVED')))
       .limit(1);
 
     if (!seller) return null;
