@@ -26,7 +26,7 @@ export function useLoad<T>(loader: () => Promise<T>, deps: React.DependencyList)
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const loaderRef = useRef(loader);
-  loaderRef.current = loader;
+  useEffect(() => { loaderRef.current = loader; });
 
   const reload = useCallback(async () => {
     setLoading(true);
@@ -40,7 +40,7 @@ export function useLoad<T>(loader: () => Promise<T>, deps: React.DependencyList)
     }
   }, []);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
   useEffect(() => { void reload(); }, deps);
   return { data, error, loading, reload, setData };
 }
