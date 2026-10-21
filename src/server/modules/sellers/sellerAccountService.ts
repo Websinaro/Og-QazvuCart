@@ -228,7 +228,8 @@ export class SellerAccountService {
   // Payout destination
   // -------------------------------------------------------------------
 
-  static async savePayoutDetails(sellerId: number, input: PayoutDetailsInput) {
+  /** `client` lets a caller run this inside its own transaction (e.g. together with an audit row). */
+  static async savePayoutDetails(sellerId: number, input: PayoutDetailsInput, client: Pick<typeof db, 'update'> = db) {
     const updates: Partial<typeof sellers.$inferInsert> = { updatedAt: new Date() };
 
     if (input.accountHolder !== undefined) updates.payoutAccountHolder = input.accountHolder;
@@ -240,7 +241,7 @@ export class SellerAccountService {
       updates.payoutAccountLast4 = input.accountNumber.slice(-4);
     }
 
-    const [updated] = await db.update(sellers).set(updates).where(eq(sellers.id, sellerId)).returning();
+    const [updated] = await client.update(sellers).set(updates).where(eq(sellers.id, sellerId)).returning();
     if (!updated) throw new NotFoundError('Seller not found');
     return toSellerProfile(updated).payout;
   }

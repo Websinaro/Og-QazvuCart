@@ -736,3 +736,31 @@ export const returnItems = pgTable('return_items', {
   requestItemUniq: uniqueIndex('return_items_request_item_uniq').on(table.returnRequestId, table.orderItemId),
   orderItemIdx: index('return_items_order_item_idx').on(table.orderItemId),
 }));
+
+// =========================================================================
+// ADMIN SECURITY: grantable permissions + audit trail
+// =========================================================================
+export const adminPermissions = pgTable('admin_permissions', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  permission: varchar('permission', { length: 60 }).notNull(),
+  grantedBy: integer('granted_by').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  userPermUniq: uniqueIndex('admin_permissions_user_perm_uniq').on(table.userId, table.permission),
+}));
+
+export const adminAuditLog = pgTable('admin_audit_log', {
+  id: serial('id').primaryKey(),
+  adminUserId: integer('admin_user_id').references(() => users.id, { onDelete: 'set null' }),
+  action: varchar('action', { length: 60 }).notNull(),
+  targetType: varchar('target_type', { length: 30 }).notNull(),
+  targetId: integer('target_id'),
+  reason: text('reason'),
+  metadata: jsonb('metadata'),
+  ip: varchar('ip', { length: 64 }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  adminActionIdx: index('admin_audit_log_admin_action_idx').on(table.adminUserId, table.action, table.createdAt),
+  targetIdx: index('admin_audit_log_target_idx').on(table.targetType, table.targetId),
+}));
