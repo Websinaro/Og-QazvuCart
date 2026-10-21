@@ -7,6 +7,7 @@ import {
   users,
   NotificationTarget,
 } from '@/src/db/schema';
+import { removeOwnedDeviceToken } from './deviceTokenStore';
 import { sendPushToTokens } from '@/src/lib/firebaseAdmin';
 import { sendEmail, sendSms } from '@/src/lib/messaging';
 
@@ -81,8 +82,8 @@ export class NotificationService {
       });
   }
 
-  static async removeDeviceToken(token: string) {
-    await db.delete(deviceTokens).where(eq(deviceTokens.token, token));
+  static async removeDeviceToken(userId: number, token: string) {
+    await removeOwnedDeviceToken(db, userId, token);
   }
 
   // ------------------------------------------------------------------
