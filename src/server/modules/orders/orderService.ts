@@ -18,6 +18,7 @@ import {
   sellerOrders,
   payments,
 } from '@/src/db/schema';
+import { InventoryService } from './inventory';
 import { AddressService } from '../addresses/addressService';
 import { CartService } from '../cart/cartService';
 import { CouponService } from '../coupons/couponService';
@@ -71,7 +72,6 @@ interface PricedItem extends PreparedItem {
   sellerEarning: number;
 }
 
-class OutOfStockError extends Error {}
 
 // Both the pooled `db` instance and a `db.transaction((tx) => ...)` handle
 // share the same query-builder surface (select/insert/update/delete), so
@@ -274,27 +274,11 @@ export class OrderService {
       // reservation (even if it looked fine a moment earlier), and we throw
       // to roll back the whole transaction - never a silent partial order.
       for (const item of itemsToOrder) {
-        if (item.variantId) {
-          const updated = await tx
-            .update(productVariants)
-            .set({ stockCount: sql`${productVariants.stockCount} - ${item.quantity}` })
-            .where(and(eq(productVariants.id, item.variantId), sql`${productVariants.stockCount} >= ${item.quantity}`))
-            .returning({ id: productVariants.id, stockCount: productVariants.stockCount });
-
-          if (updated.length === 0) {
-            throw new OutOfStockError(`${item.productName} (${item.variantName || 'selected variant'}) just went out of stock.`);
-          }
-        } else {
-          const updated = await tx
-            .update(products)
-            .set({ stock: sql`${products.stock} - ${item.quantity}` })
-            .where(and(eq(products.id, item.productId), sql`${products.stock} >= ${item.quantity}`))
-            .returning({ id: products.id, stock: products.stock });
-
-          if (updated.length === 0) {
-            throw new OutOfStockError(`${item.productName} just went out of stock.`);
-          }
-        }
+        await InventoryService.reserve(
+          tx,
+          item,
+          item.variantId ? `${item.productName} (${item.variantName || 'selected variant'})` : item.productName
+        );
       }
 
       // 4. Totals & delivery estimate ----------------------------------------
@@ -554,20 +538,7 @@ export class OrderService {
     await this.releaseCouponRedemption(tx, orderId);
     await voidParcelsForOrder(tx, orderId);
 
-    const items = await tx
-      .select({ productId: orderItems.productId, variantId: orderItems.variantId, quantity: orderItems.quantity })
-      .from(orderItems)
-      .where(eq(orderItems.orderId, orderId));
-
-    for (const item of items) {
-      await tx.update(products).set({ stock: sql`${products.stock} + ${item.quantity}` }).where(eq(products.id, item.productId));
-      if (item.variantId) {
-        await tx
-          .update(productVariants)
-          .set({ stockCount: sql`${productVariants.stockCount} + ${item.quantity}` })
-          .where(eq(productVariants.id, item.variantId));
-      }
-    }
+    await InventoryService.releaseOrder(tx, orderId);
 
     await tx.insert(orderTimeline).values({
       orderId,
@@ -800,20 +771,7 @@ export class OrderService {
       await this.releaseCouponRedemption(tx, orderId);
       await voidParcelsForOrder(tx, orderId);
 
-      const items = await tx
-        .select({ productId: orderItems.productId, variantId: orderItems.variantId, quantity: orderItems.quantity })
-        .from(orderItems)
-        .where(eq(orderItems.orderId, orderId));
-
-      for (const item of items) {
-        await tx.update(products).set({ stock: sql`${products.stock} + ${item.quantity}` }).where(eq(products.id, item.productId));
-        if (item.variantId) {
-          await tx
-            .update(productVariants)
-            .set({ stockCount: sql`${productVariants.stockCount} + ${item.quantity}` })
-            .where(eq(productVariants.id, item.variantId));
-        }
-      }
+      await InventoryService.releaseOrder(tx, orderId);
 
       await tx.insert(orderTimeline).values({
         orderId,
