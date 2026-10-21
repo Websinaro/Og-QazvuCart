@@ -19,14 +19,13 @@ import {
   orders,
   orderItems,
   orderTimeline,
-  products,
-  productVariants,
   sellerOrders,
   sellerAdjustments,
   sellers,
   couponRedemptions,
   coupons,
 } from '@/src/db/schema';
+import { InventoryService } from './inventory';
 import { assertValidTransition } from '@/src/lib/orderStateMachine';
 import { aggregateOrderStatus, SELLER_ALLOWED_TARGETS } from '@/src/lib/fulfilmentStatus';
 import { NotificationService } from '../notifications/notificationService';
@@ -71,24 +70,6 @@ export async function releaseCouponRedemption(tx: DbClient, orderId: number) {
     .update(coupons)
     .set({ usedCount: sql`GREATEST(${coupons.usedCount} - 1, 0)` })
     .where(eq(coupons.id, redemption.couponId));
-}
-
-/** Puts one parcel's reserved stock back (product + variant level). */
-async function restockParcel(tx: DbClient, sellerOrderId: number) {
-  const items = await tx
-    .select({ productId: orderItems.productId, variantId: orderItems.variantId, quantity: orderItems.quantity })
-    .from(orderItems)
-    .where(eq(orderItems.sellerOrderId, sellerOrderId));
-
-  for (const item of items) {
-    await tx.update(products).set({ stock: sql`${products.stock} + ${item.quantity}` }).where(eq(products.id, item.productId));
-    if (item.variantId) {
-      await tx
-        .update(productVariants)
-        .set({ stockCount: sql`${productVariants.stockCount} + ${item.quantity}` })
-        .where(eq(productVariants.id, item.variantId));
-    }
-  }
 }
 
 /**
@@ -215,7 +196,7 @@ export async function transitionSellerOrder(
   await tx.update(sellerOrders).set(patch).where(eq(sellerOrders.id, parcel.id));
 
   if (next === 'CANCELLED') {
-    await restockParcel(tx, parcel.id);
+    await InventoryService.releaseParcel(tx, parcel.id);
   }
 
   await recomputeOrderStatus(tx, parcel.orderId);
