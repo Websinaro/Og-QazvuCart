@@ -147,7 +147,7 @@ function ShipModal({ parcel, mode, busy, onClose, onSubmit }: { parcel: Parcel; 
   return (
     <Modal title={`${mode === 'ship' ? 'Ship' : 'Tracking for'} ${parcel.orderNumber}`} onClose={onClose}>
       <div className="space-y-3">
-        <Field label="Courier / carrier"><input className={inputCls} value={carrier} onChange={(e) => setCarrier(e.target.value)} placeholder="e.g. Delhivery" /></Field>
+        <Field label="Courier / carrier"><input className={inputCls} value={carrier} onChange={(e) => setCarrier(e.target.value)} placeholder="e.g. Shiprocket" /></Field>
         <Field label="Tracking number" hint="Optional, but customers love it."><input className={inputCls} value={tracking} onChange={(e) => setTracking(e.target.value)} /></Field>
         <div className="flex justify-end gap-2 pt-2">
           <button className={btnGhost} onClick={onClose}>Back</button>

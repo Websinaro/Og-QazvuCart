@@ -1,4 +1,4 @@
-import { assertDeliverable } from '@/src/lib/delhivery';
+import { assertDeliverable } from '@/src/lib/shiprocket';
 import { and, eq, sql } from 'drizzle-orm';
 import { db } from '@/src/db';
 import { addresses } from '@/src/db/schema';

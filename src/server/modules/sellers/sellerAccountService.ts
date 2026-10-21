@@ -1,4 +1,4 @@
-import { assertPickupServiceable } from '@/src/lib/delhivery';
+import { assertPickupServiceable } from '@/src/lib/shiprocket';
 import { and, asc, desc, eq, ilike, or, sql, SQL } from 'drizzle-orm';
 import { db } from '@/src/db';
 import { sellers, users, products, sellerOrders, categories } from '@/src/db/schema';
@@ -216,7 +216,7 @@ export class SellerAccountService {
     if (input.pickupState !== undefined) updates.pickupState = input.pickupState;
     if (input.pickupPincode !== undefined) updates.pickupPincode = input.pickupPincode;
     // Address changed: the courier pickup location must be re-registered on next shipment.
-    if (input.businessAddress !== undefined || input.pickupPincode !== undefined) updates.delhiveryWarehouse = null;
+    if (input.businessAddress !== undefined || input.pickupPincode !== undefined) updates.shiprocketPickup = null;
     if (input.taxId !== undefined) updates.taxId = input.taxId || null;
 
     const [updated] = await db.update(sellers).set(updates).where(eq(sellers.id, sellerId)).returning();
