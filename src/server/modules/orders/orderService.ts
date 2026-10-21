@@ -16,6 +16,7 @@ import {
   categories,
   sellers,
   sellerOrders,
+  payments,
 } from '@/src/db/schema';
 import { AddressService } from '../addresses/addressService';
 import { CartService } from '../cart/cartService';
@@ -25,6 +26,8 @@ import { assertValidTransition, canTransition, isValidOrderStatus } from '@/src/
 import { priceLine, resolveCommissionRate, summarizeSellerParcel } from '@/src/lib/commission';
 import { canCustomerCancel } from '@/src/lib/fulfilmentStatus';
 import { PlatformSettingsService } from '../settings/platformSettingsService';
+import { enqueueRefundsForClosedOrder } from '../payments/refundLedger';
+import { kickPendingRefunds } from '../payments/kickRefunds';
 import {
   confirmParcelsForOrder,
   notifySellersOfNewOrder,
@@ -442,34 +445,7 @@ export class OrderService {
    * side effects.
    */
   static async markOrderPaid(orderId: number) {
-    const result = await db.transaction(async (tx) => {
-      const [order] = await tx.select({ id: orders.id, status: orders.status, paymentStatus: orders.paymentStatus }).from(orders).where(eq(orders.id, orderId)).limit(1);
-      if (!order) throw new Error('Order not found');
-
-      if (order.paymentStatus === 'PAID') {
-        // Already processed by an earlier webhook/verify call.
-        return { alreadyProcessed: true };
-      }
-
-      await tx
-        .update(orders)
-        .set({ status: 'CONFIRMED', paymentStatus: 'PAID', paymentReservationExpiresAt: null, updatedAt: new Date() })
-        .where(eq(orders.id, orderId));
-
-      // Payment is verified: every seller's parcel can now be fulfilled.
-      await confirmParcelsForOrder(tx, orderId);
-
-      await tx.insert(orderTimeline).values({
-        orderId,
-        status: 'CONFIRMED',
-        title: 'Payment Confirmed',
-        description: 'Payment verified with Razorpay. Order sent to seller for packing.',
-        completed: true,
-      });
-
-      return { alreadyProcessed: false };
-    });
-
+    const result = await db.transaction((tx) => this.markOrderPaidInTx(tx, orderId));
     if (!result.alreadyProcessed) {
       void notifySellersOfNewOrder(orderId);
     }
@@ -477,52 +453,130 @@ export class OrderService {
   }
 
   /**
-   * Called when Razorpay reports a failed/cancelled payment. Releases the
-   * stock reservation taken at order-creation time and marks the order
-   * CANCELLED so it doesn't sit around forever as PENDING_PAYMENT.
+   * Transaction-scoped core of markOrderPaid, used by the payment engine so
+   * the payment row and the order change commit atomically. Locks the order
+   * row first (the global lock order is ORDER, then PAYMENT) and is a no-op
+   * when the order is already paid.
+   */
+  static async markOrderPaidInTx(tx: DbClient, orderId: number) {
+    const [order] = await tx
+      .select({ id: orders.id, status: orders.status, paymentStatus: orders.paymentStatus })
+      .from(orders)
+      .where(eq(orders.id, orderId))
+      .for('update');
+    if (!order) throw new Error('Order not found');
+
+    if (order.paymentStatus === 'PAID') {
+      return { alreadyProcessed: true };
+    }
+    if (order.status !== 'PENDING_PAYMENT' && order.status !== 'PROCESSING') {
+      // Never resurrect a cancelled/shipped order: the payment engine refunds instead.
+      throw new Error(`Order ${orderId} is ${order.status} and cannot be marked as paid`);
+    }
+
+    await tx
+      .update(orders)
+      .set({ status: 'CONFIRMED', paymentStatus: 'PAID', paymentReservationExpiresAt: null, updatedAt: new Date() })
+      .where(eq(orders.id, orderId));
+
+    // Payment is verified: every seller's parcel can now be fulfilled.
+    await confirmParcelsForOrder(tx, orderId);
+
+    await tx.insert(orderTimeline).values({
+      orderId,
+      status: 'CONFIRMED',
+      title: 'Payment Confirmed',
+      description: 'Payment verified with Razorpay. Order sent to seller for packing.',
+      completed: true,
+    });
+
+    return { alreadyProcessed: false };
+  }
+
+  /**
+   * One payment attempt failed but the customer can still retry: the order
+   * stays PENDING_PAYMENT (stock stays reserved until the reservation window
+   * ends) and only its paymentStatus/timeline record the failure.
+   */
+  static async recordPaymentAttemptFailedInTx(tx: DbClient, orderId: number, reason?: string) {
+    const [order] = await tx
+      .select({ status: orders.status, paymentStatus: orders.paymentStatus })
+      .from(orders)
+      .where(eq(orders.id, orderId))
+      .for('update');
+    if (!order || order.status !== 'PENDING_PAYMENT' || order.paymentStatus === 'PAID') return;
+
+    await tx.update(orders).set({ paymentStatus: 'FAILED', updatedAt: new Date() }).where(eq(orders.id, orderId));
+    await tx.insert(orderTimeline).values({
+      orderId,
+      status: 'PENDING_PAYMENT',
+      title: 'Payment Attempt Failed',
+      description: reason ? `Payment failed: ${reason}. You can retry payment.` : 'Payment failed. You can retry payment.',
+      completed: true,
+    });
+  }
+
+  /**
+   * Called when payment is finally given up on (retries exhausted, or the
+   * reservation window expired). Releases the stock reservation taken at
+   * order-creation time and marks the order CANCELLED so it doesn't sit
+   * around forever as PENDING_PAYMENT. Any payment attempt still open is
+   * marked CANCELLED; if money for one of them arrives later, the payment
+   * engine refunds it rather than reviving the order.
    */
   static async markOrderPaymentFailed(orderId: number, reason?: string) {
-    return db.transaction(async (tx) => {
-      const [order] = await tx.select({ id: orders.id, status: orders.status, paymentStatus: orders.paymentStatus }).from(orders).where(eq(orders.id, orderId)).limit(1);
-      if (!order) throw new Error('Order not found');
+    return db.transaction((tx) => this.cancelUnpaidOrderInTx(tx, orderId, reason));
+  }
 
-      if (order.status === 'CANCELLED' || order.paymentStatus === 'PAID') {
-        return { alreadyProcessed: true };
+  static async cancelUnpaidOrderInTx(tx: DbClient, orderId: number, reason?: string) {
+    const [order] = await tx
+      .select({ id: orders.id, status: orders.status, paymentStatus: orders.paymentStatus })
+      .from(orders)
+      .where(eq(orders.id, orderId))
+      .for('update');
+    if (!order) throw new Error('Order not found');
+
+    if (order.status === 'CANCELLED' || order.paymentStatus === 'PAID') {
+      return { alreadyProcessed: true };
+    }
+
+    await tx
+      .update(orders)
+      .set({ status: 'CANCELLED', paymentStatus: 'FAILED', paymentReservationExpiresAt: null, updatedAt: new Date() })
+      .where(eq(orders.id, orderId));
+
+    await tx
+      .update(payments)
+      .set({ status: 'CANCELLED', updatedAt: new Date() })
+      .where(and(eq(payments.orderId, orderId), inArray(payments.status, ['CREATED', 'PENDING', 'AUTHORIZED'])));
+
+    await this.releaseCouponRedemption(tx, orderId);
+    await voidParcelsForOrder(tx, orderId);
+
+    const items = await tx
+      .select({ productId: orderItems.productId, variantId: orderItems.variantId, quantity: orderItems.quantity })
+      .from(orderItems)
+      .where(eq(orderItems.orderId, orderId));
+
+    for (const item of items) {
+      await tx.update(products).set({ stock: sql`${products.stock} + ${item.quantity}` }).where(eq(products.id, item.productId));
+      if (item.variantId) {
+        await tx
+          .update(productVariants)
+          .set({ stockCount: sql`${productVariants.stockCount} + ${item.quantity}` })
+          .where(eq(productVariants.id, item.variantId));
       }
+    }
 
-      await tx
-        .update(orders)
-        .set({ status: 'CANCELLED', paymentStatus: 'FAILED', paymentReservationExpiresAt: null, updatedAt: new Date() })
-        .where(eq(orders.id, orderId));
-
-      await this.releaseCouponRedemption(tx, orderId);
-      await voidParcelsForOrder(tx, orderId);
-
-      const items = await tx
-        .select({ productId: orderItems.productId, variantId: orderItems.variantId, quantity: orderItems.quantity })
-        .from(orderItems)
-        .where(eq(orderItems.orderId, orderId));
-
-      for (const item of items) {
-        await tx.update(products).set({ stock: sql`${products.stock} + ${item.quantity}` }).where(eq(products.id, item.productId));
-        if (item.variantId) {
-          await tx
-            .update(productVariants)
-            .set({ stockCount: sql`${productVariants.stockCount} + ${item.quantity}` })
-            .where(eq(productVariants.id, item.variantId));
-        }
-      }
-
-      await tx.insert(orderTimeline).values({
-        orderId,
-        status: 'CANCELLED',
-        title: 'Payment Failed',
-        description: reason ? `Payment failed: ${reason}` : 'Payment failed or was cancelled.',
-        completed: true,
-      });
-
-      return { alreadyProcessed: false };
+    await tx.insert(orderTimeline).values({
+      orderId,
+      status: 'CANCELLED',
+      title: 'Payment Failed',
+      description: reason ? `Payment failed: ${reason}` : 'Payment failed or was cancelled.',
+      completed: true,
     });
+
+    return { alreadyProcessed: false };
   }
 
   /**
@@ -720,12 +774,12 @@ export class OrderService {
 
   /** Customer-initiated cancellation. Only valid pre-dispatch, per the order state machine. */
   static async cancelOrder(userId: number, orderId: number) {
-    return db.transaction(async (tx) => {
+    const result = await db.transaction(async (tx) => {
       const [order] = await tx
         .select({ id: orders.id, status: orders.status })
         .from(orders)
         .where(and(eq(orders.id, orderId), eq(orders.userId, userId)))
-        .limit(1);
+        .for('update');
 
       if (!order) throw new Error('Order not found');
 
@@ -766,8 +820,14 @@ export class OrderService {
         completed: true,
       });
 
+      // Money already collected goes back automatically: the refund intent is
+      // committed with the cancellation; the gateway call follows post-commit.
+      await enqueueRefundsForClosedOrder(tx, orderId, 'cancel');
+
       return this.getOrderByIdWithTx(tx, userId, orderId);
     });
+    kickPendingRefunds();
+    return result;
   }
 
   /**
@@ -799,14 +859,14 @@ export class OrderService {
         await transitionSellerOrder(tx, p.id, nextStatus, { type: 'ADMIN', userId: adminUserId });
       }
       return true;
-    });
+    }).then((r) => { kickPendingRefunds(); return r; });
   }
 
   /** Admin status change for a single seller's parcel. */
   static async adminUpdateParcelStatus(sellerOrderId: number, nextStatus: string, adminUserId: number) {
     return db.transaction(async (tx) => {
       return transitionSellerOrder(tx, sellerOrderId, nextStatus, { type: 'ADMIN', userId: adminUserId });
-    });
+    }).then((r) => { kickPendingRefunds(); return r; });
   }
 }
 

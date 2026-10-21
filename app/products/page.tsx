@@ -170,12 +170,12 @@ function ProductsCatalogContent() {
               </button>
 
               {/* Grid Column Selector (Desktop & Tablet) */}
-              <div className="hidden sm:flex items-center bg-white border border-neutral-900/[0.06] rounded-2xl p-1 shadow-soft gap-0.5 dark:bg-[#0e1a14] dark:border-white/10">
+              <div className="hidden sm:flex items-center bg-white border border-neutral-300 rounded-xl p-1 shadow-soft gap-0.5 dark:bg-[#17140b] dark:border-white/10">
                 <button
                   type="button"
                   onClick={() => setGridCols(2)}
                   title="2 Column Grid"
-                  className={`p-1.5 rounded-xl transition-colors cursor-pointer ${
+                  className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                     gridCols === 2 ? 'bg-neutral-950 text-brand-300' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 dark:hover:bg-white/10 dark:text-neutral-400 dark:hover:text-white'
                   }`}
                 >
@@ -185,7 +185,7 @@ function ProductsCatalogContent() {
                   type="button"
                   onClick={() => setGridCols(3)}
                   title="3 Column Grid (Default)"
-                  className={`p-1.5 rounded-xl transition-colors cursor-pointer ${
+                  className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                     gridCols === 3 ? 'bg-neutral-950 text-brand-300' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 dark:hover:bg-white/10 dark:text-neutral-400 dark:hover:text-white'
                   }`}
                 >
@@ -195,7 +195,7 @@ function ProductsCatalogContent() {
                   type="button"
                   onClick={() => setGridCols(4)}
                   title="4 Column Grid (Compact)"
-                  className={`p-1.5 rounded-xl transition-colors cursor-pointer ${
+                  className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                     gridCols === 4 ? 'bg-neutral-950 text-brand-300' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 dark:hover:bg-white/10 dark:text-neutral-400 dark:hover:text-white'
                   }`}
                 >
@@ -203,7 +203,7 @@ function ProductsCatalogContent() {
                 </button>
               </div>
 
-              <div className="flex items-center gap-2 bg-white border border-neutral-900/[0.06] rounded-full px-3.5 py-1.5 shadow-soft dark:bg-[#0e1a14] dark:border-white/10">
+              <div className="flex items-center gap-2 bg-white border border-neutral-300 rounded-xl px-3 py-1.5 shadow-soft dark:bg-[#17140b] dark:border-white/10">
                 <span className="text-xs text-neutral-500 font-semibold whitespace-nowrap hidden sm:inline dark:text-neutral-400">Sort by:</span>
                 <select
                   value={sortParam}
@@ -227,21 +227,21 @@ function ProductsCatalogContent() {
               <span className="font-bold text-neutral-500 text-[11px] uppercase tracking-wider dark:text-neutral-400">Active Filters:</span>
 
               {qParam && (
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-white border border-neutral-900/[0.06] text-neutral-900 rounded-full font-semibold dark:bg-white/10 dark:text-white">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-neutral-100 text-neutral-900 rounded-lg font-semibold dark:bg-white/10 dark:text-white">
                   Query: {qParam}
                   <button onClick={() => updateFilters({ q: null })}><X className="w-3.5 h-3.5 text-neutral-500 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white" /></button>
                 </span>
               )}
 
               {categoryParam !== 'all' && activeCategory && (
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-amber-100 text-amber-950 rounded-full font-semibold dark:bg-amber-500/15 dark:text-amber-300">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-100 text-amber-950 rounded-lg font-semibold dark:bg-amber-500/15 dark:text-amber-300">
                   Category: {activeCategory.name}
                   <button onClick={() => updateFilters({ category: null })}><X className="w-3.5 h-3.5 text-amber-800 hover:text-black dark:text-amber-300" /></button>
                 </span>
               )}
 
               {(minPriceParam || maxPriceParam) && (
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-white border border-neutral-900/[0.06] text-neutral-900 rounded-full font-semibold dark:bg-white/10 dark:text-white">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-neutral-100 text-neutral-900 rounded-lg font-semibold dark:bg-white/10 dark:text-white">
                   Price: ₹{minPriceParam || '0'} - ₹{maxPriceParam || 'Max'}
                   <button onClick={() => { setMinPriceInput(''); setMaxPriceInput(''); updateFilters({ minPrice: null, maxPrice: null }); }}>
                     <X className="w-3.5 h-3.5 text-neutral-500 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white" />
@@ -250,28 +250,28 @@ function ProductsCatalogContent() {
               )}
 
               {minRatingParam && (
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-brand-100 text-brand-900 rounded-full font-semibold dark:bg-emerald-500/15 dark:text-emerald-300">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-100 text-emerald-950 rounded-lg font-semibold dark:bg-emerald-500/15 dark:text-emerald-300">
                   Rating: {minRatingParam}★ & Above
                   <button onClick={() => updateFilters({ minRating: null })}><X className="w-3.5 h-3.5 text-emerald-800 dark:text-emerald-300" /></button>
                 </span>
               )}
 
               {minDiscountParam && (
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-950 rounded-full font-semibold dark:bg-red-500/15 dark:text-red-300">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-100 text-red-950 rounded-lg font-semibold dark:bg-red-500/15 dark:text-red-300">
                   Discount: {minDiscountParam}%+ OFF
                   <button onClick={() => updateFilters({ minDiscount: null })}><X className="w-3.5 h-3.5 text-red-800 dark:text-red-300" /></button>
                 </span>
               )}
 
               {inStockParam && (
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-white border border-neutral-900/[0.06] text-neutral-900 rounded-full font-semibold dark:bg-white/10 dark:text-white">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-neutral-100 text-neutral-900 rounded-lg font-semibold dark:bg-white/10 dark:text-white">
                   In Stock Only
                   <button onClick={() => updateFilters({ inStock: null })}><X className="w-3.5 h-3.5 text-neutral-500 dark:text-neutral-400" /></button>
                 </span>
               )}
 
               {isDealParam && (
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-950 rounded-full font-semibold dark:bg-red-500/15 dark:text-red-300">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-100 text-red-950 rounded-lg font-semibold dark:bg-red-500/15 dark:text-red-300">
                   ⚡ Hot Deals
                   <button onClick={() => updateFilters({ isDeal: null })}><X className="w-3.5 h-3.5 text-red-800 dark:text-red-300" /></button>
                 </span>
@@ -294,7 +294,7 @@ function ProductsCatalogContent() {
           {/* Desktop Left Sidebar */}
           <aside className="hidden lg:block space-y-6">
             {/* Category Filter */}
-            <div className="bg-white p-5 rounded-[1.375rem] border border-neutral-900/[0.05] shadow-soft dark:bg-[#0e1a14] dark:border-white/10">
+            <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-soft dark:bg-[#17140b] dark:border-white/10">
               <h3 className="text-xs font-semibold text-neutral-900 uppercase tracking-wider mb-3 dark:text-white">
                 Categories
               </h3>
@@ -303,7 +303,7 @@ function ProductsCatalogContent() {
                   onClick={() => updateFilters({ category: null })}
                   className={`w-full text-left px-3 py-2 rounded-xl font-medium transition-colors flex items-center justify-between ${
                     categoryParam === 'all'
-                      ? 'bg-brand-800 text-white font-semibold'
+                      ? 'bg-neutral-900 text-brand-300 font-bold'
                       : 'text-neutral-700 hover:bg-neutral-100 dark:hover:bg-white/10 dark:text-neutral-300'
                   }`}
                 >
@@ -316,7 +316,7 @@ function ProductsCatalogContent() {
                     onClick={() => updateFilters({ category: c.slug })}
                     className={`w-full text-left px-3 py-2 rounded-xl font-medium transition-colors flex items-center justify-between ${
                       categoryParam === c.slug
-                        ? 'bg-brand-800 text-white font-semibold'
+                        ? 'bg-neutral-900 text-brand-300 font-bold'
                         : 'text-neutral-700 hover:bg-neutral-100 dark:hover:bg-white/10 dark:text-neutral-300'
                     }`}
                   >
@@ -328,7 +328,7 @@ function ProductsCatalogContent() {
             </div>
 
             {/* Price Range Filter */}
-            <div className="bg-white p-5 rounded-[1.375rem] border border-neutral-900/[0.05] shadow-soft dark:bg-[#0e1a14] dark:border-white/10">
+            <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-soft dark:bg-[#17140b] dark:border-white/10">
               <h3 className="text-xs font-semibold text-neutral-900 uppercase tracking-wider mb-3 dark:text-white">
                 Price (₹)
               </h3>
@@ -341,7 +341,7 @@ function ProductsCatalogContent() {
                       placeholder="0"
                       value={minPriceInput}
                       onChange={(e) => setMinPriceInput(e.target.value)}
-                      className="w-full px-3 py-2 text-xs border border-neutral-900/10 rounded-xl text-neutral-900 focus:outline-none focus:ring-1 focus:ring-brand-600 dark:text-white dark:border-white/10"
+                      className="w-full px-2.5 py-1.5 text-xs border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-1 focus:ring-neutral-900 dark:text-white dark:border-white/10"
                     />
                   </div>
                   <div>
@@ -351,13 +351,13 @@ function ProductsCatalogContent() {
                       placeholder="100000"
                       value={maxPriceInput}
                       onChange={(e) => setMaxPriceInput(e.target.value)}
-                      className="w-full px-3 py-2 text-xs border border-neutral-900/10 rounded-xl text-neutral-900 focus:outline-none focus:ring-1 focus:ring-brand-600 dark:text-white dark:border-white/10"
+                      className="w-full px-2.5 py-1.5 text-xs border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-1 focus:ring-neutral-900 dark:text-white dark:border-white/10"
                     />
                   </div>
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-2.5 bg-brand-800 hover:bg-brand-700 text-white font-semibold text-xs rounded-full shadow-glow transition-colors dark:bg-brand-500 dark:text-neutral-950 dark:hover:bg-brand-400"
+                  className="w-full py-2 bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs rounded-lg transition-colors dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
                 >
                   Apply Price
                 </button>
@@ -367,19 +367,19 @@ function ProductsCatalogContent() {
               <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-neutral-100 dark:border-white/10">
                 <button
                   onClick={() => { setMinPriceInput(''); setMaxPriceInput('1000'); updateFilters({ minPrice: null, maxPrice: '1000' }); }}
-                  className="text-[11px] px-3 py-1 bg-neutral-100 hover:bg-brand-100 rounded-full font-medium text-neutral-700 dark:bg-white/10 dark:hover:bg-white/10 dark:text-neutral-300"
+                  className="text-[11px] px-2.5 py-1 bg-neutral-100 hover:bg-neutral-200 rounded-lg font-medium text-neutral-700 dark:bg-white/10 dark:hover:bg-white/10 dark:text-neutral-300"
                 >
                   Under ₹1K
                 </button>
                 <button
                   onClick={() => { setMinPriceInput('1000'); setMaxPriceInput('5000'); updateFilters({ minPrice: '1000', maxPrice: '5000' }); }}
-                  className="text-[11px] px-3 py-1 bg-neutral-100 hover:bg-brand-100 rounded-full font-medium text-neutral-700 dark:bg-white/10 dark:hover:bg-white/10 dark:text-neutral-300"
+                  className="text-[11px] px-2.5 py-1 bg-neutral-100 hover:bg-neutral-200 rounded-lg font-medium text-neutral-700 dark:bg-white/10 dark:hover:bg-white/10 dark:text-neutral-300"
                 >
                   ₹1K - ₹5K
                 </button>
                 <button
                   onClick={() => { setMinPriceInput('5000'); setMaxPriceInput(''); updateFilters({ minPrice: '5000', maxPrice: null }); }}
-                  className="text-[11px] px-3 py-1 bg-neutral-100 hover:bg-brand-100 rounded-full font-medium text-neutral-700 dark:bg-white/10 dark:hover:bg-white/10 dark:text-neutral-300"
+                  className="text-[11px] px-2.5 py-1 bg-neutral-100 hover:bg-neutral-200 rounded-lg font-medium text-neutral-700 dark:bg-white/10 dark:hover:bg-white/10 dark:text-neutral-300"
                 >
                   Above ₹5K
                 </button>
@@ -387,7 +387,7 @@ function ProductsCatalogContent() {
             </div>
 
             {/* Rating Filter */}
-            <div className="bg-white p-5 rounded-[1.375rem] border border-neutral-900/[0.05] shadow-soft dark:bg-[#0e1a14] dark:border-white/10">
+            <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-soft dark:bg-[#17140b] dark:border-white/10">
               <h3 className="text-xs font-semibold text-neutral-900 uppercase tracking-wider mb-3 dark:text-white">
                 Customer Rating
               </h3>
@@ -412,7 +412,7 @@ function ProductsCatalogContent() {
             </div>
 
             {/* Discount Filter */}
-            <div className="bg-white p-5 rounded-[1.375rem] border border-neutral-900/[0.05] shadow-soft dark:bg-[#0e1a14] dark:border-white/10">
+            <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-soft dark:bg-[#17140b] dark:border-white/10">
               <h3 className="text-xs font-semibold text-neutral-900 uppercase tracking-wider mb-3 dark:text-white">
                 Discount
               </h3>
@@ -434,7 +434,7 @@ function ProductsCatalogContent() {
             </div>
 
             {/* Availability & Deals */}
-            <div className="bg-white p-5 rounded-[1.375rem] border border-neutral-900/[0.05] shadow-soft space-y-3 text-xs dark:bg-[#0e1a14] dark:border-white/10">
+            <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-soft space-y-3 text-xs dark:bg-[#17140b] dark:border-white/10">
               <h3 className="text-xs font-semibold text-neutral-900 uppercase tracking-wider dark:text-white">
                 Availability & Deals
               </h3>
@@ -484,7 +484,7 @@ function ProductsCatalogContent() {
                 }
               />
             ) : products.length === 0 ? (
-              <div className="bg-white rounded-[1.75rem] p-12 text-center border border-neutral-900/[0.05] shadow-soft max-w-lg mx-auto my-8 dark:bg-[#0e1a14] dark:border-white/10">
+              <div className="bg-white rounded-3xl p-12 text-center border border-neutral-200 shadow-sm max-w-lg mx-auto my-8 dark:bg-[#17140b] dark:border-white/10">
                 <div className="w-16 h-16 bg-amber-50 text-amber-700 rounded-full flex items-center justify-center mx-auto mb-4 dark:bg-amber-500/15 dark:text-amber-300">
                   <Sparkles className="w-8 h-8" />
                 </div>
@@ -522,7 +522,7 @@ function ProductsCatalogContent() {
                     <button
                       onClick={() => updateFilters({ page: Math.max(1, pageParam - 1) })}
                       disabled={pageParam <= 1}
-                      className="px-5 py-2.5 bg-white border border-neutral-900/10 rounded-full text-xs font-semibold text-neutral-800 hover:bg-neutral-100 disabled:opacity-40 transition-colors dark:hover:bg-white/10 dark:text-neutral-100 dark:border-white/10"
+                      className="px-4 py-2 border border-neutral-300 rounded-xl text-xs font-bold text-neutral-800 hover:bg-neutral-100 disabled:opacity-40 transition-colors dark:hover:bg-white/10 dark:text-neutral-100 dark:border-white/10"
                     >
                       Previous
                     </button>
@@ -542,7 +542,7 @@ function ProductsCatalogContent() {
                     <button
                       onClick={() => updateFilters({ page: Math.min(totalPages, pageParam + 1) })}
                       disabled={pageParam >= totalPages}
-                      className="px-5 py-2.5 bg-white border border-neutral-900/10 rounded-full text-xs font-semibold text-neutral-800 hover:bg-neutral-100 disabled:opacity-40 transition-colors dark:hover:bg-white/10 dark:text-neutral-100 dark:border-white/10"
+                      className="px-4 py-2 border border-neutral-300 rounded-xl text-xs font-bold text-neutral-800 hover:bg-neutral-100 disabled:opacity-40 transition-colors dark:hover:bg-white/10 dark:text-neutral-100 dark:border-white/10"
                     >
                       Next
                     </button>
@@ -558,7 +558,7 @@ function ProductsCatalogContent() {
       {isMobileFilterOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="fixed inset-0 bg-black/60 backdrop-blur-xs" onClick={() => setIsMobileFilterOpen(false)} />
-          <div className="fixed inset-y-0 right-0 max-w-xs w-full bg-white shadow-2xl z-50 flex flex-col justify-between p-5 overflow-y-auto dark:bg-[#0e1a14]">
+          <div className="fixed inset-y-0 right-0 max-w-xs w-full bg-white shadow-2xl z-50 flex flex-col justify-between p-5 overflow-y-auto dark:bg-[#17140b]">
             <div>
               <div className="flex items-center justify-between pb-4 border-b border-neutral-200 dark:border-white/10">
                 <div className="flex items-center gap-2">
@@ -576,7 +576,7 @@ function ProductsCatalogContent() {
                 <div className="space-y-1 text-xs">
                   <button
                     onClick={() => { updateFilters({ category: null }); setIsMobileFilterOpen(false); }}
-                    className={`block w-full text-left py-2 px-3 rounded-full ${categoryParam === 'all' ? 'bg-brand-800 text-white font-semibold' : 'text-neutral-700 dark:text-neutral-300'}`}
+                    className={`block w-full text-left py-1.5 px-2 rounded-lg ${categoryParam === 'all' ? 'bg-neutral-900 text-brand-300 font-bold' : 'text-neutral-700 dark:text-neutral-300'}`}
                   >
                     All Categories
                   </button>
@@ -584,7 +584,7 @@ function ProductsCatalogContent() {
                     <button
                       key={c.id}
                       onClick={() => { updateFilters({ category: c.slug }); setIsMobileFilterOpen(false); }}
-                      className={`block w-full text-left py-2 px-3 rounded-full ${categoryParam === c.slug ? 'bg-brand-800 text-white font-semibold' : 'text-neutral-700 dark:text-neutral-300'}`}
+                      className={`block w-full text-left py-1.5 px-2 rounded-lg ${categoryParam === c.slug ? 'bg-neutral-900 text-brand-300 font-bold' : 'text-neutral-700 dark:text-neutral-300'}`}
                     >
                       {c.name} ({c.productCount})
                     </button>
@@ -608,14 +608,14 @@ function ProductsCatalogContent() {
                       placeholder="Min"
                       value={minPriceInput}
                       onChange={(e) => setMinPriceInput(e.target.value)}
-                      className="p-2 text-xs border rounded-xl border-neutral-900/10 dark:border-white/10"
+                      className="p-1.5 text-xs border rounded border-neutral-300 dark:border-white/10"
                     />
                     <input
                       type="number"
                       placeholder="Max"
                       value={maxPriceInput}
                       onChange={(e) => setMaxPriceInput(e.target.value)}
-                      className="p-2 text-xs border rounded-xl border-neutral-900/10 dark:border-white/10"
+                      className="p-1.5 text-xs border rounded border-neutral-300 dark:border-white/10"
                     />
                   </div>
                   <button type="submit" className="w-full py-1.5 bg-neutral-900 text-white text-xs font-bold rounded">

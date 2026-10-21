@@ -75,13 +75,13 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
   };
 
   const inputCls =
-    'w-full h-12 pl-11 pr-4 text-sm rounded-2xl bg-neutral-900/[0.04] dark:bg-white/[0.06] border border-transparent text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:bg-white dark:focus:bg-neutral-900 focus:border-brand-500/60 focus:ring-4 focus:ring-brand-500/15 transition-all';
+    'w-full h-12 pl-11 pr-4 text-sm rounded-xl bg-neutral-900/[0.04] dark:bg-white/[0.06] border border-transparent text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:bg-white dark:focus:bg-neutral-900 focus:border-brand-500/60 focus:ring-4 focus:ring-brand-500/15 transition-all';
   const inputPlainCls =
-    'w-full h-12 px-4 text-sm rounded-2xl bg-neutral-900/[0.04] dark:bg-white/[0.06] border border-transparent text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:bg-white dark:focus:bg-neutral-900 focus:border-brand-500/60 focus:ring-4 focus:ring-brand-500/15 transition-all';
+    'w-full h-12 px-4 text-sm rounded-xl bg-neutral-900/[0.04] dark:bg-white/[0.06] border border-transparent text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:bg-white dark:focus:bg-neutral-900 focus:border-brand-500/60 focus:ring-4 focus:ring-brand-500/15 transition-all';
   const labelCls = 'block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1.5';
   const iconCls = 'w-[18px] h-[18px] text-neutral-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none';
   const submitCls =
-    'w-full h-12 px-5 rounded-full bg-brand-800 hover:bg-brand-700 text-white font-semibold text-sm shadow-glow active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed';
+    'w-full h-12 px-5 rounded-full bg-brand-600 hover:bg-brand-500 text-neutral-950 font-semibold text-sm shadow-glow active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed';
 
   const spinner = <Loader2 className="w-[18px] h-[18px] animate-spin" />;
 
@@ -95,9 +95,9 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
       aria-modal="true"
       aria-label={mode === 'login' ? 'Sign in' : 'Create account'}
     >
-      <div className="relative w-full sm:max-w-[26rem] max-h-[96vh] overflow-y-auto bg-white dark:bg-[#0a150f] rounded-t-[1.75rem] sm:rounded-[1.75rem] shadow-2xl border border-neutral-900/5 dark:border-white/10 animate-in slide-in-from-bottom-6 sm:zoom-in-95 duration-300">
+      <div className="relative w-full sm:max-w-[26rem] max-h-[96vh] overflow-y-auto bg-white dark:bg-[#14110a] rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl border border-neutral-900/5 dark:border-white/10 animate-in slide-in-from-bottom-6 sm:zoom-in-95 duration-300">
         {/* Header */}
-        <div className="relative isolate overflow-hidden px-7 pt-8 pb-6 text-neutral-950 bg-gradient-to-br from-brand-100 via-brand-200 to-brand-300">
+        <div className="relative isolate overflow-hidden px-7 pt-8 pb-6 text-neutral-950 bg-gradient-to-br from-brand-200 via-brand-300 to-brand-400">
           <div className="absolute -top-16 -right-10 w-56 h-56 rounded-full bg-white/70 blur-3xl -z-10 animate-pulse-glow" />
           <div className="absolute -bottom-20 -left-10 w-48 h-48 rounded-full bg-white/50 blur-3xl -z-10" />
           <button
@@ -108,7 +108,7 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
             <X className="w-4 h-4" />
           </button>
           <div className="flex items-center gap-2.5 mb-5">
-            <span className="grid place-items-center w-9 h-9 rounded-xl bg-brand-800 text-white font-bold text-lg shadow-soft">Q</span>
+            <span className="grid place-items-center w-9 h-9 rounded-xl bg-neutral-950 text-brand-300 font-bold text-lg shadow-soft">Q</span>
             <span className="text-xs text-neutral-800 flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-neutral-950" /> Secure sign-in
             </span>

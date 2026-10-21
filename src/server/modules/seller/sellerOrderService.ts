@@ -3,6 +3,7 @@ import { db } from '@/src/db';
 import { orders, orderItems, sellerOrders, questions, answers, products, users } from '@/src/db/schema';
 import { NotFoundError, transitionSellerOrder } from '../orders/fulfilment';
 import { QuestionService } from '../questions/questionService';
+import { kickPendingRefunds } from '../payments/kickRefunds';
 
 /** Parcel states in which the buyer's address is needed (or still relevant). */
 const ADDRESS_HIDDEN_STATUSES = ['PENDING_PAYMENT', 'PROCESSING', 'CANCELLED'];
@@ -163,6 +164,9 @@ export class SellerOrderService {
         })
         .where(and(eq(sellerOrders.id, sellerOrderId), eq(sellerOrders.sellerId, sellerId)));
     });
+
+    // A cancellation that ended the whole order queued a refund: send it now.
+    if (input.status === 'CANCELLED') kickPendingRefunds();
 
     return this.get(sellerId, sellerOrderId);
   }

@@ -49,6 +49,17 @@ export const razorpayEnv = {
 };
 
 /**
+ * Shared secret for the scheduled maintenance endpoint
+ * (POST /api/internal/payments/maintenance). Lazy for the same reason as
+ * razorpayEnv: only that route needs it.
+ */
+export const maintenanceEnv = {
+  get cronSecret() {
+    return requireEnv('CRON_SECRET');
+  },
+};
+
+/**
  * Firebase Admin SDK credentials — used server-side only, to send Web Push
  * notifications via FCM (see src/lib/firebaseAdmin.ts). Lazy getters, same
  * rationale as razorpayEnv: importing this module must never fail just

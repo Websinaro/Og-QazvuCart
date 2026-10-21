@@ -790,7 +790,7 @@ export default function AdminDashboardPage() {
   if (!isAuthLoading && (!isAuthenticated || user?.role !== 'ADMIN')) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center p-6 bg-neutral-50 dark:bg-white/[0.04]">
-        <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-neutral-200 shadow-xl text-center space-y-6 dark:bg-[#0e1a14] dark:border-white/10">
+        <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-neutral-200 shadow-xl text-center space-y-6 dark:bg-[#17140b] dark:border-white/10">
           <div className="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner dark:bg-red-500/15">
             <Shield className="w-8 h-8" />
           </div>
@@ -855,7 +855,7 @@ export default function AdminDashboardPage() {
             </Link>
             <div className="h-6 w-px bg-neutral-800 hidden sm:block" />
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-brand-700 text-white flex items-center justify-center font-bold shadow-soft">
+              <div className="w-9 h-9 rounded-xl bg-brand-600 text-neutral-950 flex items-center justify-center font-bold shadow-soft">
                 <Shield className="w-5 h-5" />
               </div>
               <div>
@@ -886,7 +886,7 @@ export default function AdminDashboardPage() {
 
             <button
               onClick={() => setIsAddProductOpen(true)}
-              className="flex items-center gap-1.5 py-2 px-3.5 bg-brand-700 hover:bg-brand-600 text-white font-semibold rounded-xl transition-all shadow-sm text-xs"
+              className="flex items-center gap-1.5 py-2 px-3.5 bg-brand-600 hover:bg-brand-500 text-neutral-950 font-semibold rounded-xl transition-all shadow-sm text-xs"
             >
               <Plus className="w-4 h-4" /> Add Product
             </button>
@@ -1022,7 +1022,7 @@ export default function AdminDashboardPage() {
             </p>
             {/* Metric KPI Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white rounded-2xl p-5 border border-neutral-200/90 shadow-soft dark:bg-[#0e1a14] dark:border-white/10">
+              <div className="bg-white rounded-2xl p-5 border border-neutral-200/90 shadow-soft dark:bg-[#17140b] dark:border-white/10">
                 <div className="flex items-center justify-between text-neutral-500 mb-2 dark:text-neutral-400">
                   <span className="text-xs font-bold uppercase tracking-wider">Gross Sales</span>
                   <div className="p-2 bg-emerald-100 text-emerald-700 rounded-xl dark:bg-emerald-500/15 dark:text-emerald-300">
@@ -1037,7 +1037,7 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl p-5 border border-neutral-200/90 shadow-soft dark:bg-[#0e1a14] dark:border-white/10">
+              <div className="bg-white rounded-2xl p-5 border border-neutral-200/90 shadow-soft dark:bg-[#17140b] dark:border-white/10">
                 <div className="flex items-center justify-between text-neutral-500 mb-2 dark:text-neutral-400">
                   <span className="text-xs font-bold uppercase tracking-wider">Total Orders</span>
                   <div className="p-2 bg-blue-100 text-blue-700 rounded-xl dark:bg-blue-500/15 dark:text-blue-300">
@@ -1053,7 +1053,7 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl p-5 border border-neutral-200/90 shadow-soft dark:bg-[#0e1a14] dark:border-white/10">
+              <div className="bg-white rounded-2xl p-5 border border-neutral-200/90 shadow-soft dark:bg-[#17140b] dark:border-white/10">
                 <div className="flex items-center justify-between text-neutral-500 mb-2 dark:text-neutral-400">
                   <span className="text-xs font-bold uppercase tracking-wider">Live Catalog</span>
                   <div className="p-2 bg-purple-100 text-purple-700 rounded-xl dark:bg-purple-500/15 dark:text-purple-300">
@@ -1068,7 +1068,7 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl p-5 border border-neutral-200/90 shadow-soft dark:bg-[#0e1a14] dark:border-white/10">
+              <div className="bg-white rounded-2xl p-5 border border-neutral-200/90 shadow-soft dark:bg-[#17140b] dark:border-white/10">
                 <div className="flex items-center justify-between text-neutral-500 mb-2 dark:text-neutral-400">
                   <span className="text-xs font-bold uppercase tracking-wider">Registered Users</span>
                   <div className="p-2 bg-amber-100 text-amber-700 rounded-xl dark:bg-amber-500/15 dark:text-amber-300">
@@ -1088,7 +1088,7 @@ export default function AdminDashboardPage() {
             {/* Two Column Section: Category Distribution & Low Stock Alerts */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* Category Breakdown (5 cols) */}
-              <div className="lg:col-span-5 bg-white rounded-2xl p-6 border border-neutral-200 shadow-soft space-y-4 dark:bg-[#0e1a14] dark:border-white/10">
+              <div className="lg:col-span-5 bg-white rounded-2xl p-6 border border-neutral-200 shadow-soft space-y-4 dark:bg-[#17140b] dark:border-white/10">
                 <div className="flex items-center justify-between">
                   <h2 className="text-base font-semibold text-neutral-950 flex items-center gap-2 dark:text-white">
                     <Tag className="w-4 h-4 text-neutral-600 dark:text-neutral-300" /> Catalog Distribution
@@ -1116,7 +1116,7 @@ export default function AdminDashboardPage() {
               </div>
 
               {/* Low Stock Warning Box (7 cols) */}
-              <div className="lg:col-span-7 bg-white rounded-2xl p-6 border border-neutral-200 shadow-soft space-y-4 dark:bg-[#0e1a14] dark:border-white/10">
+              <div className="lg:col-span-7 bg-white rounded-2xl p-6 border border-neutral-200 shadow-soft space-y-4 dark:bg-[#17140b] dark:border-white/10">
                 <div className="flex items-center justify-between">
                   <h2 className="text-base font-semibold text-neutral-950 flex items-center gap-2 dark:text-white">
                     <AlertTriangle className="w-4 h-4 text-amber-500" /> Inventory Health & Alerts
@@ -1167,7 +1167,7 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* Recent Orders Table */}
-            <div className="bg-white rounded-2xl p-6 border border-neutral-200 shadow-soft space-y-4 dark:bg-[#0e1a14] dark:border-white/10">
+            <div className="bg-white rounded-2xl p-6 border border-neutral-200 shadow-soft space-y-4 dark:bg-[#17140b] dark:border-white/10">
               <div className="flex items-center justify-between">
                 <h2 className="text-base font-semibold text-neutral-950 flex items-center gap-2 dark:text-white">
                   <ShoppingBag className="w-4 h-4 text-neutral-600 dark:text-neutral-300" /> Recent Live Orders
@@ -1245,7 +1245,7 @@ export default function AdminDashboardPage() {
         {activeTab === 'products' && (
           <div className="space-y-4">
             {/* Action Bar */}
-            <div className="bg-white rounded-2xl p-4 border border-neutral-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-soft dark:bg-[#0e1a14] dark:border-white/10">
+            <div className="bg-white rounded-2xl p-4 border border-neutral-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-soft dark:bg-[#17140b] dark:border-white/10">
               <div className="relative flex-1 max-w-md">
                 <Search className="w-4 h-4 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
@@ -1261,7 +1261,7 @@ export default function AdminDashboardPage() {
                 <span className="text-xs text-neutral-500 font-bold dark:text-neutral-400">{filteredProducts.length} Products</span>
                 <button
                   onClick={() => setIsAddProductOpen(true)}
-                  className="flex items-center gap-1.5 py-2 px-4 bg-brand-700 hover:bg-brand-600 text-white font-semibold rounded-xl transition-colors shadow-sm text-xs"
+                  className="flex items-center gap-1.5 py-2 px-4 bg-brand-600 hover:bg-brand-500 text-neutral-950 font-semibold rounded-xl transition-colors shadow-sm text-xs"
                 >
                   <Plus className="w-4 h-4" /> Add Product
                 </button>
@@ -1269,7 +1269,7 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* Products Table */}
-            <div className="bg-white rounded-2xl border border-neutral-200 shadow-soft overflow-hidden dark:bg-[#0e1a14] dark:border-white/10">
+            <div className="bg-white rounded-2xl border border-neutral-200 shadow-soft overflow-hidden dark:bg-[#17140b] dark:border-white/10">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead className="bg-neutral-50 text-neutral-600 font-bold uppercase text-[10px] border-b border-neutral-200 dark:bg-white/[0.04] dark:text-neutral-300 dark:border-white/10">
@@ -1321,7 +1321,7 @@ export default function AdminDashboardPage() {
                                     const v = e.target.value;
                                     if (v === '' || /^\d*\.?\d*$/.test(v)) setEditPrice(v);
                                   }}
-                                  className="w-24 px-2 py-1 bg-white border border-neutral-300 rounded text-xs font-bold dark:bg-[#0e1a14] dark:border-white/10"
+                                  className="w-24 px-2 py-1 bg-white border border-neutral-300 rounded text-xs font-bold dark:bg-[#17140b] dark:border-white/10"
                                 />
                               </div>
                             ) : (
@@ -1345,7 +1345,7 @@ export default function AdminDashboardPage() {
                                   const v = e.target.value;
                                   if (v === '' || /^\d*$/.test(v)) setEditStock(v);
                                 }}
-                                className="w-20 px-2 py-1 bg-white border border-neutral-300 rounded text-xs font-bold dark:bg-[#0e1a14] dark:border-white/10"
+                                className="w-20 px-2 py-1 bg-white border border-neutral-300 rounded text-xs font-bold dark:bg-[#17140b] dark:border-white/10"
                               />
                             ) : (
                               <span
@@ -1443,7 +1443,7 @@ export default function AdminDashboardPage() {
             </div>
 
             {adminCategoriesStatus === 'loading' && (
-              <div className="bg-white rounded-2xl border border-neutral-200 p-8 text-center text-sm text-neutral-500 dark:bg-[#0e1a14] dark:text-neutral-400 dark:border-white/10">
+              <div className="bg-white rounded-2xl border border-neutral-200 p-8 text-center text-sm text-neutral-500 dark:bg-[#17140b] dark:text-neutral-400 dark:border-white/10">
                 Loading categories…
               </div>
             )}
@@ -1458,7 +1458,7 @@ export default function AdminDashboardPage() {
             )}
 
             {adminCategoriesStatus === 'empty' && (
-              <div className="bg-white rounded-2xl border border-dashed border-neutral-300 p-10 text-center space-y-2 dark:bg-[#0e1a14] dark:border-white/10">
+              <div className="bg-white rounded-2xl border border-dashed border-neutral-300 p-10 text-center space-y-2 dark:bg-[#17140b] dark:border-white/10">
                 <p className="text-sm font-bold text-neutral-700 dark:text-neutral-300">No categories created yet</p>
                 <p className="text-xs text-neutral-500 dark:text-neutral-400">
                   Sellers and admins need at least one active category before products can be listed.
@@ -1468,7 +1468,7 @@ export default function AdminDashboardPage() {
                     resetCategoryForm();
                     setIsAddCategoryOpen(true);
                   }}
-                  className="inline-flex items-center gap-1.5 mt-2 py-2 px-4 bg-brand-700 text-white font-semibold rounded-xl text-xs"
+                  className="inline-flex items-center gap-1.5 mt-2 py-2 px-4 bg-brand-600 text-neutral-950 font-semibold rounded-xl text-xs"
                 >
                   <Plus className="w-4 h-4" /> Create Category
                 </button>
@@ -1476,7 +1476,7 @@ export default function AdminDashboardPage() {
             )}
 
             {adminCategoriesStatus === 'ready' && (
-              <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden dark:bg-[#0e1a14] dark:border-white/10">
+              <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden dark:bg-[#17140b] dark:border-white/10">
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs">
                     <thead className="bg-neutral-50 border-b border-neutral-200 dark:bg-white/[0.04] dark:border-white/10">
@@ -1582,7 +1582,7 @@ export default function AdminDashboardPage() {
               <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setIsAddCategoryOpen(false)}>
                 <div
                   onClick={(e) => e.stopPropagation()}
-                  className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl dark:bg-[#0e1a14]"
+                  className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl dark:bg-[#17140b]"
                 >
                   <div className="flex items-center justify-between px-5 py-4 bg-[#111111] rounded-t-2xl sticky top-0">
                     <h3 className="text-white font-semibold flex items-center gap-2">
@@ -1646,7 +1646,7 @@ export default function AdminDashboardPage() {
                       Slug is generated automatically from the name and must be unique.
                     </p>
                   </div>
-                  <div className="flex gap-2 p-5 pt-0 sticky bottom-0 bg-white dark:bg-[#0e1a14]">
+                  <div className="flex gap-2 p-5 pt-0 sticky bottom-0 bg-white dark:bg-[#17140b]">
                     <button
                       onClick={() => setIsAddCategoryOpen(false)}
                       className="flex-1 py-2.5 border border-neutral-300 rounded-xl font-bold text-neutral-700 dark:text-neutral-300 dark:border-white/10"
@@ -1655,7 +1655,7 @@ export default function AdminDashboardPage() {
                     </button>
                     <button
                       onClick={handleCreateCategory}
-                      className="flex-1 py-2.5 bg-brand-700 rounded-xl font-semibold text-white"
+                      className="flex-1 py-2.5 bg-brand-600 rounded-xl font-semibold text-neutral-950"
                     >
                       Create Category
                     </button>
@@ -1670,7 +1670,7 @@ export default function AdminDashboardPage() {
         {activeTab === 'orders' && (
           <div className="space-y-4">
             {/* Filter Row */}
-            <div className="bg-white rounded-2xl p-4 border border-neutral-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-soft dark:bg-[#0e1a14] dark:border-white/10">
+            <div className="bg-white rounded-2xl p-4 border border-neutral-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-soft dark:bg-[#17140b] dark:border-white/10">
               <div className="relative flex-1 max-w-md">
                 <Search className="w-4 h-4 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
@@ -1705,7 +1705,7 @@ export default function AdminDashboardPage() {
               {filteredOrders.map((ord) => (
                 <div
                   key={ord.id}
-                  className="bg-white rounded-2xl p-5 border border-neutral-200 shadow-soft space-y-4 dark:bg-[#0e1a14] dark:border-white/10"
+                  className="bg-white rounded-2xl p-5 border border-neutral-200 shadow-soft space-y-4 dark:bg-[#17140b] dark:border-white/10"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-neutral-100 pb-3 dark:border-white/10">
                     <div>
@@ -1742,7 +1742,7 @@ export default function AdminDashboardPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                     {ord.items.map((it) => (
                       <div key={it.id} className="flex items-center gap-2.5 bg-neutral-50 p-2.5 rounded-xl border border-neutral-200/60 dark:bg-white/[0.04] dark:border-white/10">
-                        <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-white flex-shrink-0 border border-neutral-200 dark:bg-[#0e1a14] dark:border-white/10">
+                        <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-white flex-shrink-0 border border-neutral-200 dark:bg-[#17140b] dark:border-white/10">
                           <Image src={it.productImage} alt={it.productName} fill className="object-cover" />
                         </div>
                         <div className="min-w-0 text-xs">
@@ -1776,7 +1776,7 @@ export default function AdminDashboardPage() {
                               if ((v === 'CANCELLED' || v === 'RETURNED') && !window.confirm(`Mark order ${ord.orderNumber} as ${v}?`)) return;
                               void handleUpdateOrderStatus(ord.id, v);
                             }}
-                            className="px-2.5 py-1.5 border border-neutral-300 rounded-lg text-xs font-bold bg-white text-neutral-900 dark:bg-[#0e1a14] dark:text-white dark:border-white/15"
+                            className="px-2.5 py-1.5 border border-neutral-300 rounded-lg text-xs font-bold bg-white text-neutral-900 dark:bg-[#17140b] dark:text-white dark:border-white/15"
                           >
                             <option value="">Update status…</option>
                             {(ALLOWED_TRANSITIONS[ord.status as keyof typeof ALLOWED_TRANSITIONS] || []).map((st) => (
@@ -1802,7 +1802,7 @@ export default function AdminDashboardPage() {
                 </div>
               ))}
               {filteredOrders.length === 0 && (
-                <div className="bg-white rounded-2xl p-12 text-center text-neutral-500 text-xs font-medium border border-neutral-200 dark:bg-[#0e1a14] dark:text-neutral-400 dark:border-white/10">
+                <div className="bg-white rounded-2xl p-12 text-center text-neutral-500 text-xs font-medium border border-neutral-200 dark:bg-[#17140b] dark:text-neutral-400 dark:border-white/10">
                   No orders match the selected filters.
                 </div>
               )}
@@ -1813,7 +1813,7 @@ export default function AdminDashboardPage() {
         {/* TAB 4: USERS & ROLES */}
         {activeTab === 'users' && (
           <div className="space-y-4">
-            <div className="bg-white rounded-2xl p-4 border border-neutral-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-soft dark:bg-[#0e1a14] dark:border-white/10">
+            <div className="bg-white rounded-2xl p-4 border border-neutral-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-soft dark:bg-[#17140b] dark:border-white/10">
               <div className="relative flex-1 max-w-md">
                 <Search className="w-4 h-4 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
@@ -1827,7 +1827,7 @@ export default function AdminDashboardPage() {
               <span className="text-xs text-neutral-500 font-bold dark:text-neutral-400">{filteredUsers.length} Registered Accounts</span>
             </div>
 
-            <div className="bg-white rounded-2xl border border-neutral-200 shadow-soft overflow-hidden dark:bg-[#0e1a14] dark:border-white/10">
+            <div className="bg-white rounded-2xl border border-neutral-200 shadow-soft overflow-hidden dark:bg-[#17140b] dark:border-white/10">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead className="bg-neutral-50 text-neutral-600 font-bold uppercase text-[10px] border-b border-neutral-200 dark:bg-white/[0.04] dark:text-neutral-300 dark:border-white/10">
@@ -1902,7 +1902,7 @@ export default function AdminDashboardPage() {
           <div className="pb-10 grid grid-cols-1 lg:grid-cols-5 gap-6">
             {/* Compose Panel */}
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-2xl border border-neutral-200 shadow-soft p-5 sticky top-6 dark:bg-[#0e1a14] dark:border-white/10">
+              <div className="bg-white rounded-2xl border border-neutral-200 shadow-soft p-5 sticky top-6 dark:bg-[#17140b] dark:border-white/10">
                 <div className="flex items-center gap-2 mb-4">
                   <span className="w-8 h-8 rounded-lg bg-neutral-900 text-brand-300 flex items-center justify-center">
                     <BellRing className="w-4 h-4" />
@@ -1959,7 +1959,7 @@ export default function AdminDashboardPage() {
                           className={`py-2 rounded-xl border text-[11px] font-bold transition-colors cursor-pointer ${
                             notifTarget === t
                               ? 'bg-neutral-900 text-brand-300 border-neutral-900 dark:border-white/30'
-                              : 'bg-white text-neutral-600 border-neutral-300 hover:border-neutral-400 dark:bg-[#0e1a14] dark:text-neutral-300 dark:border-white/10'
+                              : 'bg-white text-neutral-600 border-neutral-300 hover:border-neutral-400 dark:bg-[#17140b] dark:text-neutral-300 dark:border-white/10'
                           }`}
                         >
                           {t === 'ALL' ? 'Everyone' : t === 'CUSTOMERS' ? 'Customers' : 'Sellers'}
@@ -1970,7 +1970,7 @@ export default function AdminDashboardPage() {
                   <button
                     type="submit"
                     disabled={isSendingNotif}
-                    className="w-full py-3 bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs rounded-xl shadow-sm transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+                    className="w-full py-3 bg-brand-600 hover:bg-brand-500 text-neutral-950 font-bold text-xs rounded-xl shadow-sm transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
                   >
                     <BellRing className="w-4 h-4" />
                     {isSendingNotif ? 'Sending…' : 'Send Notification'}
@@ -1985,7 +1985,7 @@ export default function AdminDashboardPage() {
 
             {/* History Panel */}
             <div className="lg:col-span-3">
-              <div className="bg-white rounded-2xl border border-neutral-200 shadow-soft overflow-hidden dark:bg-[#0e1a14] dark:border-white/10">
+              <div className="bg-white rounded-2xl border border-neutral-200 shadow-soft overflow-hidden dark:bg-[#17140b] dark:border-white/10">
                 <div className="p-4 border-b border-neutral-100 flex items-center justify-between dark:border-white/10">
                   <h3 className="font-bold text-sm text-neutral-950 dark:text-white">Broadcast History</h3>
                   <button
@@ -2048,13 +2048,13 @@ export default function AdminDashboardPage() {
               </div>
               <button
                 onClick={() => setIsAddCouponOpen(true)}
-                className="flex items-center gap-1.5 px-4 py-2.5 bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs rounded-xl shadow-sm transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-neutral-950 font-bold text-xs rounded-xl shadow-sm transition-colors cursor-pointer"
               >
                 <Plus className="w-4 h-4" /> New Coupon
               </button>
             </div>
 
-            <div className="bg-white rounded-2xl border border-neutral-200 shadow-soft overflow-hidden dark:bg-[#0e1a14] dark:border-white/10">
+            <div className="bg-white rounded-2xl border border-neutral-200 shadow-soft overflow-hidden dark:bg-[#17140b] dark:border-white/10">
               {couponsStatus === 'loading' ? (
                 <div className="p-8 text-center text-xs text-neutral-400 font-medium">Loading coupons…</div>
               ) : couponsStatus === 'error' ? (
@@ -2146,7 +2146,7 @@ export default function AdminDashboardPage() {
       {/* Add Product Modal */}
       {isAddProductOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-300">
-          <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-neutral-200 overflow-hidden max-h-[90vh] flex flex-col dark:bg-[#0e1a14] dark:border-white/10">
+          <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-neutral-200 overflow-hidden max-h-[90vh] flex flex-col dark:bg-[#17140b] dark:border-white/10">
             <div className="p-5 bg-neutral-950 text-white flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Plus className="w-5 h-5 text-brand-300" />
@@ -2377,7 +2377,7 @@ export default function AdminDashboardPage() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl dark:bg-[#0e1a14]"
+            className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl dark:bg-[#17140b]"
           >
             <div className="flex items-center justify-between px-5 py-4 bg-[#111111] rounded-t-2xl sticky top-0">
               <h3 className="text-white font-semibold flex items-center gap-2">
@@ -2429,7 +2429,7 @@ export default function AdminDashboardPage() {
                         className={`py-2 rounded-xl border text-[11px] font-bold cursor-pointer ${
                           newCouponType === t
                             ? 'bg-neutral-900 text-brand-300 border-neutral-900 dark:border-white/30'
-                            : 'bg-white text-neutral-600 border-neutral-300 dark:bg-[#0e1a14] dark:text-neutral-300 dark:border-white/10'
+                            : 'bg-white text-neutral-600 border-neutral-300 dark:bg-[#17140b] dark:text-neutral-300 dark:border-white/10'
                         }`}
                       >
                         {t === 'PERCENT' ? '% Off' : '₹ Off'}
@@ -2527,7 +2527,7 @@ export default function AdminDashboardPage() {
                 <button
                   type="submit"
                   disabled={isCreatingCoupon}
-                  className="flex-1 py-2.5 bg-brand-700 hover:bg-brand-600 text-white font-semibold rounded-xl shadow-sm disabled:opacity-50 cursor-pointer"
+                  className="flex-1 py-2.5 bg-brand-600 hover:bg-brand-500 text-neutral-950 font-semibold rounded-xl shadow-sm disabled:opacity-50 cursor-pointer"
                 >
                   {isCreatingCoupon ? 'Creating…' : 'Create Coupon'}
                 </button>

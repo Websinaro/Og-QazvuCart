@@ -7,52 +7,51 @@
 
 /* ───────────────────────── Design tokens ───────────────────────── */
 @theme {
-  --font-sans: var(--font-schibsted), var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* Brand: ixora leaf green. 200-500 are fills (dark text stays legible on them),
-     700-950 are deep greens for white text, headings and dark panels.
-     800 is the primary button green. */
-  --color-brand-50: #f1faf2;
-  --color-brand-100: #def3e1;
-  --color-brand-200: #bde8c4;
-  --color-brand-300: #90d79c;
-  --color-brand-400: #5fc06f;
-  --color-brand-500: #38a84a;
-  --color-brand-600: #2a923d;
-  --color-brand-700: #1f8035;
-  --color-brand-800: #1a6f2e;
-  --color-brand-900: #135223;
-  --color-brand-950: #0a2f14;
+  /* Brand: sunny yellow. 300-600 are fills (use dark text on them),
+     700-950 are deep ambers that stay readable as text on white. */
+  --color-brand-50: #fffbe8;
+  --color-brand-100: #fff4bd;
+  --color-brand-200: #ffe985;
+  --color-brand-300: #ffdc47;
+  --color-brand-400: #ffcf1f;
+  --color-brand-500: #ffc400;
+  --color-brand-600: #f5b300;
+  --color-brand-700: #946000;
+  --color-brand-800: #744a00;
+  --color-brand-900: #573700;
+  --color-brand-950: #331f00;
 
-  /* Neutrals with a faint green undertone so greys sit quietly next to the brand */
-  --color-neutral-50: #f8faf9;
-  --color-neutral-100: #f0f4f2;
-  --color-neutral-200: #e2e8e5;
-  --color-neutral-300: #ccd5d0;
-  --color-neutral-400: #98a59f;
-  --color-neutral-500: #6a7771;
-  --color-neutral-600: #4d5a54;
-  --color-neutral-700: #39443f;
-  --color-neutral-800: #252f2a;
-  --color-neutral-900: #151d19;
-  --color-neutral-950: #0a100d;
+  /* Warm (stone) neutrals so greys sit nicely next to yellow */
+  --color-neutral-50: #fafaf9;
+  --color-neutral-100: #f5f5f4;
+  --color-neutral-200: #e7e5e4;
+  --color-neutral-300: #d6d3d1;
+  --color-neutral-400: #a8a29e;
+  --color-neutral-500: #78716c;
+  --color-neutral-600: #57534e;
+  --color-neutral-700: #44403c;
+  --color-neutral-800: #292524;
+  --color-neutral-900: #1c1917;
+  --color-neutral-950: #0c0a09;
 
-  --shadow-soft: 0 1px 2px rgb(20 70 30 / 0.04), 0 8px 24px -12px rgb(20 70 30 / 0.12);
-  --shadow-lift: 0 2px 4px rgb(20 70 30 / 0.05), 0 22px 44px -20px rgb(20 80 36 / 0.30);
-  --shadow-glow: 0 10px 24px -10px rgb(26 111 46 / 0.55);
+  --shadow-soft: 0 1px 2px rgb(110 78 0 / 0.05), 0 4px 16px -4px rgb(110 78 0 / 0.09);
+  --shadow-lift: 0 2px 4px rgb(110 78 0 / 0.05), 0 18px 44px -14px rgb(160 110 0 / 0.30);
+  --shadow-glow: 0 8px 28px -8px rgb(255 190 0 / 0.65);
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @layer base {
   :root {
-    --page: #eef6ef;
+    --page: #fffdf4;
     --ink: #1c1917;
   }
   .dark {
-    --page: #07110a;
-    --ink: #eef7f1;
+    --page: #0f0d08;
+    --ink: #faf7ec;
   }
 
   html {
@@ -70,7 +69,7 @@
   body {
     background-color: var(--page);
     color: var(--ink);
-    font-feature-settings: "ss01";
+    font-feature-settings: "cv11", "ss01", "ss03";
     letter-spacing: -0.006em;
     overflow-x: hidden;
     overscroll-behavior-x: none;
@@ -80,17 +79,22 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* A single, very quiet wash at the top of the page. Fixed, so it never scrolls. */
+  /* Soft sunny aura behind the page, fixed so it never causes scroll. */
   body::before {
     content: "";
     position: fixed;
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    background: radial-gradient(60rem 24rem at 50% -8%, rgb(56 168 74 / 0.09), transparent 65%);
+    background:
+      radial-gradient(56rem 26rem at 8% -6%, rgb(255 213 0 / 0.20), transparent 62%),
+      radial-gradient(44rem 22rem at 100% 2%, rgb(255 236 150 / 0.30), transparent 60%),
+      radial-gradient(40rem 22rem at 50% 105%, rgb(255 200 0 / 0.08), transparent 60%);
   }
   .dark body::before {
-    background: radial-gradient(60rem 24rem at 50% -8%, rgb(56 168 74 / 0.12), transparent 65%);
+    background:
+      radial-gradient(56rem 26rem at 8% -6%, rgb(255 196 0 / 0.14), transparent 62%),
+      radial-gradient(44rem 22rem at 100% 2%, rgb(255 160 0 / 0.07), transparent 60%);
   }
 
   h1, h2, h3, h4 {
@@ -103,44 +107,44 @@
   pre, code { max-width: 100%; overflow-x: auto; }
   img, svg, video, canvas { max-width: 100%; height: auto; }
 
-  ::selection { background: rgb(56 168 74 / 0.30); color: #0a100d; }
+  ::selection { background: rgb(255 196 0 / 0.45); color: #1c1917; }
 
   :focus-visible {
-    outline: 2px solid var(--color-brand-500);
+    outline: 2px solid var(--color-brand-600);
     outline-offset: 2px;
     border-radius: 0.5rem;
   }
 
   /* Refined scrollbars */
-  * { scrollbar-width: thin; scrollbar-color: rgb(26 111 46 / 0.40) transparent; }
+  * { scrollbar-width: thin; scrollbar-color: rgb(160 120 20 / 0.40) transparent; }
   ::-webkit-scrollbar { width: 10px; height: 10px; }
-  ::-webkit-scrollbar-thumb { background: rgb(26 111 46 / 0.30); border-radius: 999px; border: 3px solid transparent; background-clip: content-box; }
-  ::-webkit-scrollbar-thumb:hover { background: rgb(26 111 46 / 0.55); background-clip: content-box; border: 3px solid transparent; }
+  ::-webkit-scrollbar-thumb { background: rgb(160 120 20 / 0.32); border-radius: 999px; border: 3px solid transparent; background-clip: content-box; }
+  ::-webkit-scrollbar-thumb:hover { background: rgb(160 120 20 / 0.55); background-clip: content-box; border: 3px solid transparent; }
 }
 
 /* ───────────────────────── Reusable utilities ───────────────────────── */
 @utility glass {
-  background-color: rgb(255 255 255 / 0.86);
+  background-color: rgb(255 253 244 / 0.78);
   backdrop-filter: saturate(180%) blur(18px);
   -webkit-backdrop-filter: saturate(180%) blur(18px);
   &:where(.dark, .dark *) {
-    background-color: rgb(8 18 13 / 0.78);
+    background-color: rgb(20 17 9 / 0.74);
   }
 }
 
 @utility surface {
   background-color: #fff;
-  border: 1px solid rgb(20 80 36 / 0.10);
+  border: 1px solid rgb(120 85 0 / 0.11);
   box-shadow: var(--shadow-soft);
   border-radius: 1.25rem;
   &:where(.dark, .dark *) {
-    background-color: #0e1a14;
+    background-color: #17140b;
     border-color: rgb(255 255 255 / 0.08);
   }
 }
 
 @utility text-gradient {
-  background-image: linear-gradient(120deg, #135223 0%, #1f8035 60%, #38a84a 100%);
+  background-image: linear-gradient(120deg, #b45f00 0%, #e08a00 45%, #ffb800 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -159,13 +163,13 @@
 
 /* Skeleton shimmer */
 @utility shimmer-bg {
-  background-color: #e2eee4;
-  background-image: linear-gradient(90deg, #e2eee4 0%, #f6fbf7 20%, #e2eee4 40%, #e2eee4 100%);
+  background-color: #f6efd2;
+  background-image: linear-gradient(90deg, #f6efd2 0%, #fffbe6 20%, #f6efd2 40%, #f6efd2 100%);
   background-size: 200% 100%;
   animation: shimmer-sweep 1.6s ease-in-out infinite;
   &:where(.dark, .dark *) {
-    background-color: #13231a;
-    background-image: linear-gradient(90deg, #13231a 0%, #1c3225 20%, #13231a 40%, #13231a 100%);
+    background-color: #211c0d;
+    background-image: linear-gradient(90deg, #211c0d 0%, #33290f 20%, #211c0d 40%, #211c0d 100%);
   }
 }
 
@@ -216,7 +220,7 @@
     transition: opacity 0.35s ease;
     background: radial-gradient(
       320px circle at var(--mx, 50%) var(--my, 0%),
-      rgb(56 168 74 / 0.10),
+      rgb(255 205 20 / 0.20),
       transparent 60%
     );
   }
@@ -248,7 +252,7 @@
 
 /* Soft dotted grid for hero / banner backgrounds */
 @utility bg-dots {
-  background-image: radial-gradient(rgb(20 80 36 / 0.16) 1.2px, transparent 1.2px);
+  background-image: radial-gradient(rgb(120 85 0 / 0.20) 1.2px, transparent 1.2px);
   background-size: 22px 22px;
 }
 
@@ -289,107 +293,3 @@
     scroll-behavior: auto !important;
   }
 }
-
-/* ───────────────────────── Intro (first visit) ───────────────────────── */
-html.intro-skip .intro-root { display: none; }
-html.intro-active { overflow: hidden; }
-
-.intro-root {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: grid;
-  place-items: center;
-  background: #eef6ef;
-  color: #1c1917;
-  cursor: pointer;
-  animation: intro-exit 0.85s var(--ease-out-expo) 2.3s forwards;
-}
-.intro-root[data-skip="true"] { animation: intro-exit 0.45s var(--ease-out-expo) 0s forwards; }
-.intro-stage { display: flex; flex-direction: column; align-items: center; gap: 1.1rem; }
-.intro-mark { width: 4.5rem; height: 4.5rem; color: var(--color-brand-800); }
-.intro-draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: intro-draw 0.85s cubic-bezier(0.65, 0, 0.35, 1) 0.2s forwards; }
-.intro-draw-tail { animation-delay: 0.85s; animation-duration: 0.35s; stroke: var(--color-brand-500); }
-.intro-word { overflow: hidden; padding-bottom: 0.15em; }
-.intro-word-inner {
-  display: block;
-  font-size: clamp(2rem, 5vw, 2.75rem);
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  transform: translateY(110%);
-  animation: intro-rise 0.7s var(--ease-out-expo) 0.9s forwards;
-}
-.intro-tag { font-size: 0.9rem; color: #57534e; text-align: center; opacity: 0; animation: intro-fade 0.6s ease-out 1.4s forwards; }
-.intro-line {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  height: 3px;
-  width: 100%;
-  background: var(--color-brand-600);
-  transform-origin: left;
-  transform: scaleX(0);
-  animation: intro-progress 2.1s cubic-bezier(0.4, 0, 0.2, 1) 0.15s forwards;
-}
-.intro-cta {
-  margin-top: 1.1rem;
-  display: inline-flex;
-  align-items: center;
-  height: 2.9rem;
-  padding: 0 2rem;
-  border-radius: 999px;
-  background: var(--color-brand-800);
-  color: #fff;
-  font-size: 0.9rem;
-  font-weight: 600;
-  box-shadow: var(--shadow-glow);
-  opacity: 0;
-  animation: intro-fade 0.6s ease-out 1.6s forwards;
-}
-@keyframes intro-draw { to { stroke-dashoffset: 0; } }
-@keyframes intro-rise { to { transform: translateY(0); } }
-@keyframes intro-fade { to { opacity: 1; } }
-@keyframes intro-progress { to { transform: scaleX(1); } }
-@keyframes intro-exit {
-  from { clip-path: inset(0 0 0 0); visibility: visible; }
-  99% { visibility: visible; }
-  to { clip-path: inset(0 0 100% 0); visibility: hidden; }
-}
-
-/* ───────────────────────── Hero / product motion ───────────────────────── */
-/* Hero entrances wait for the intro on a first visit, and play immediately otherwise. */
-:root { --intro-offset: 0s; }
-html:not(.intro-skip) { --intro-offset: 2.65s; }
-
-@keyframes hero-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-@utility hero-in { animation: hero-in 0.9s var(--ease-out-expo) calc(var(--intro-offset) + var(--d, 0s)) both; }
-
-/* Stage image is revealed by a wipe, once, after the intro has lifted. */
-@keyframes stage-wipe {
-  from { clip-path: inset(0 0 0 100%); }
-  to { clip-path: inset(0 0 0 0); }
-}
-@utility animate-stage-wipe { animation: stage-wipe 1.1s var(--ease-out-expo) calc(var(--intro-offset) + 0.1s) both; }
-
-/* Spec callouts: the leader line draws, then the label settles in. */
-@keyframes callout-line { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-@keyframes callout-label { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-@keyframes callout-dot { 0% { transform: scale(0); } 70% { transform: scale(1.35); } 100% { transform: scale(1); } }
-
-@utility callout-anim {
-  --c: calc(var(--intro-offset) + 1.2s + var(--i, 0) * 0.18s);
-  & .callout-dot { animation: callout-dot 0.45s ease-out var(--c) both; }
-  & .callout-line { transform-origin: left; animation: callout-line 0.5s var(--ease-out-expo) calc(var(--c) + 0.1s) both; }
-  & .callout-label { animation: callout-label 0.5s var(--ease-out-expo) calc(var(--c) + 0.4s) both; }
-}
-
-.dark .intro-root { background: #07110a; color: #fff; }
-.dark .intro-mark { color: #fff; }
-.dark .intro-tag { color: rgb(255 255 255 / 0.6); }
-
-/* Room for the mobile bottom tab bar */
-@utility pb-safe-nav {
-  padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
-  @media (min-width: 1024px) { padding-bottom: 0; }
-}
-@utility pb-safe { padding-bottom: env(safe-area-inset-bottom); }

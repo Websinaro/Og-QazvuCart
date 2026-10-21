@@ -388,7 +388,7 @@ export const sellerAdjustments = pgTable('seller_adjustments', {
 // PAYMENTS
 // =========================================================================
 
-export const PAYMENT_STATUSES = ['CREATED', 'PENDING', 'AUTHORIZED', 'PAID', 'FAILED', 'CANCELLED', 'REFUNDED'] as const;
+export const PAYMENT_STATUSES = ['CREATED', 'PENDING', 'AUTHORIZED', 'PAID', 'FAILED', 'CANCELLED', 'MISMATCH', 'REFUNDED'] as const;
 export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 
 export const payments = pgTable('payments', {
@@ -406,14 +406,106 @@ export const payments = pgTable('payments', {
   failureCode: varchar('failure_code', { length: 50 }),
   failureReason: text('failure_reason'),
   idempotencyKey: varchar('idempotency_key', { length: 100 }),
+  attemptNo: integer('attempt_no').default(1).notNull(),
+  // Paise the gateway actually captured (may differ from `amount` on a mismatch).
+  capturedAmount: integer('captured_amount').default(0).notNull(),
+  // Sum of PENDING + PROCESSED refunds, in paise.
+  refundedAmount: integer('refunded_amount').default(0).notNull(),
+  capturedAt: timestamp('captured_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
+  orderAttemptIdx: uniqueIndex('payments_order_attempt_idx').on(table.orderId, table.attemptNo),
   orderIdx: index('payments_order_id_idx').on(table.orderId),
   userIdx: index('payments_user_id_idx').on(table.userId),
   providerOrderIdx: uniqueIndex('payments_provider_order_id_idx').on(table.providerOrderId),
   providerPaymentIdx: uniqueIndex('payments_provider_payment_id_idx').on(table.providerPaymentId),
   idempotencyIdx: uniqueIndex('payments_idempotency_key_idx').on(table.idempotencyKey),
+}));
+
+export const paymentEvents = pgTable('payment_events', {
+  id: serial('id').primaryKey(),
+  eventId: varchar('event_id', { length: 128 }).notNull(),
+  eventType: varchar('event_type', { length: 60 }).notNull(),
+  payloadSha256: varchar('payload_sha256', { length: 64 }).notNull(),
+  status: varchar('status', { length: 12 }).default('PROCESSING').notNull(),
+  attempts: integer('attempts').default(1).notNull(),
+  outcome: varchar('outcome', { length: 60 }),
+  error: text('error'),
+  receivedAt: timestamp('received_at', { withTimezone: true }).defaultNow().notNull(),
+  lockedAt: timestamp('locked_at', { withTimezone: true }).defaultNow().notNull(),
+  processedAt: timestamp('processed_at', { withTimezone: true }),
+}, (table) => ({
+  eventIdIdx: uniqueIndex('payment_events_event_id_idx').on(table.eventId),
+}));
+
+export const REFUND_STATUSES = ['PENDING', 'PROCESSED', 'FAILED'] as const;
+export const REFUND_REASONS = ['ORDER_CANCELLED', 'ORDER_RETURNED', 'LATE_PAYMENT', 'DUPLICATE_PAYMENT', 'AMOUNT_MISMATCH', 'ADMIN', 'GATEWAY'] as const;
+
+export const refunds = pgTable('refunds', {
+  id: serial('id').primaryKey(),
+  paymentId: integer('payment_id').notNull().references(() => payments.id, { onDelete: 'cascade' }),
+  orderId: integer('order_id').notNull().references(() => orders.id, { onDelete: 'cascade' }),
+  providerPaymentId: varchar('provider_payment_id', { length: 100 }),
+  providerRefundId: varchar('provider_refund_id', { length: 100 }),
+  amount: integer('amount').notNull(),
+  currency: varchar('currency', { length: 10 }).default('INR').notNull(),
+  status: varchar('status', { length: 12 }).default('PENDING').notNull(),
+  reason: varchar('reason', { length: 30 }).notNull(),
+  note: text('note'),
+  source: varchar('source', { length: 10 }).default('SYSTEM').notNull(),
+  idempotencyKey: varchar('idempotency_key', { length: 120 }).notNull(),
+  attempts: integer('attempts').default(0).notNull(),
+  lastAttemptAt: timestamp('last_attempt_at', { withTimezone: true }),
+  failureReason: text('failure_reason'),
+  initiatedBy: integer('initiated_by').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  processedAt: timestamp('processed_at', { withTimezone: true }),
+}, (table) => ({
+  idempotencyIdx: uniqueIndex('refunds_idempotency_key_idx').on(table.idempotencyKey),
+  providerRefundIdx: uniqueIndex('refunds_provider_refund_id_idx').on(table.providerRefundId),
+  paymentIdx: index('refunds_payment_id_idx').on(table.paymentId),
+  orderIdx: index('refunds_order_id_idx').on(table.orderId),
+}));
+
+export const paymentReconciliationRuns = pgTable('payment_reconciliation_runs', {
+  id: serial('id').primaryKey(),
+  trigger: varchar('trigger', { length: 10 }).default('MANUAL').notNull(),
+  heal: boolean('heal').default(true).notNull(),
+  windowFrom: timestamp('window_from', { withTimezone: true }).notNull(),
+  windowTo: timestamp('window_to', { withTimezone: true }).notNull(),
+  status: varchar('status', { length: 12 }).default('RUNNING').notNull(),
+  gatewayPaymentsChecked: integer('gateway_payments_checked').default(0).notNull(),
+  gatewayRefundsChecked: integer('gateway_refunds_checked').default(0).notNull(),
+  localPaymentsChecked: integer('local_payments_checked').default(0).notNull(),
+  matched: integer('matched').default(0).notNull(),
+  autoHealed: integer('auto_healed').default(0).notNull(),
+  needsReview: integer('needs_review').default(0).notNull(),
+  error: text('error'),
+  triggeredBy: integer('triggered_by').references(() => users.id, { onDelete: 'set null' }),
+  startedAt: timestamp('started_at', { withTimezone: true }).defaultNow().notNull(),
+  finishedAt: timestamp('finished_at', { withTimezone: true }),
+});
+
+export const paymentReconciliationItems = pgTable('payment_reconciliation_items', {
+  id: serial('id').primaryKey(),
+  runId: integer('run_id').notNull().references(() => paymentReconciliationRuns.id, { onDelete: 'cascade' }),
+  kind: varchar('kind', { length: 50 }).notNull(),
+  resolution: varchar('resolution', { length: 12 }).notNull(),
+  paymentId: integer('payment_id').references(() => payments.id, { onDelete: 'set null' }),
+  orderId: integer('order_id').references(() => orders.id, { onDelete: 'set null' }),
+  providerOrderId: varchar('provider_order_id', { length: 100 }),
+  providerPaymentId: varchar('provider_payment_id', { length: 100 }),
+  providerRefundId: varchar('provider_refund_id', { length: 100 }),
+  localStatus: varchar('local_status', { length: 20 }),
+  remoteStatus: varchar('remote_status', { length: 20 }),
+  localAmount: integer('local_amount'),
+  remoteAmount: integer('remote_amount'),
+  details: jsonb('details'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  runIdx: index('payment_recon_items_run_idx').on(table.runId),
 }));
 
 // =========================================================================

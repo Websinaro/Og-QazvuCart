@@ -3,19 +3,22 @@ import { apiSuccess, apiError } from '@/src/lib/response';
 import { getAuthUser } from '@/src/lib/auth';
 import { PaymentService } from '@/src/server/modules/payments/paymentService';
 import { razorpayEnv } from '@/src/lib/env';
+import { paymentErrorResponse } from '@/src/lib/paymentHttp';
 
 /**
- * Creates (or reuses) a Razorpay order for an existing internal order that
- * this user owns. Returns only what the browser's Razorpay Checkout
- * widget needs: the Razorpay order id, amount, currency, and the PUBLIC
- * key id. The key SECRET never leaves the server.
+ * Creates (or reuses / retries) a Razorpay order for an existing internal
+ * order that this user owns. This is also the "retry payment" endpoint: after
+ * a failed attempt, calling it again opens a fresh attempt (up to a limit,
+ * within the payment window). The amount is ALWAYS the server-side order
+ * total — nothing in the request body can change it. Returns only what the
+ * browser's Razorpay Checkout needs; the key SECRET never leaves the server.
  */
 export async function POST(req: NextRequest) {
   const authUser = await getAuthUser(req);
   if (!authUser) return apiError('UNAUTHORIZED', 'Please log in to continue', 401);
 
   try {
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const orderId = Number(body.orderId);
     if (!Number.isInteger(orderId) || orderId <= 0) {
       return apiError('VALIDATION_ERROR', 'A valid orderId is required', 422);
@@ -28,16 +31,10 @@ export async function POST(req: NextRequest) {
       amount: result.amount,
       currency: result.currency,
       orderNumber: result.orderNumber,
+      attemptNo: result.attemptNo,
       razorpayKeyId: razorpayEnv.keyId,
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Failed to create payment';
-    // Razorpay/env misconfiguration surfaces here as a thrown error from
-    // razorpayEnv's fail-fast getters — report it as a service outage
-    // rather than a generic 400, and never fake a successful order.
-    if (message.includes('is required. Set it in your environment')) {
-      return apiError('PAYMENT_SERVICE_UNAVAILABLE', 'Payment service unavailable', 503);
-    }
-    return apiError('PAYMENT_CREATE_FAILED', message, 400);
+    return paymentErrorResponse(err, 'PAYMENT_CREATE_FAILED', 'Failed to create payment');
   }
 }

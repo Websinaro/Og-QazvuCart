@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { BrandMark } from '@/src/components/ui/BrandMark';
 import { ShieldCheck, Truck, RotateCcw, Lock, ArrowRight } from '@/src/components/ui/icons';
 
 const PILLARS = [
@@ -27,22 +26,27 @@ const CARE_LINKS = [
   { href: '/account?tab=settings', label: 'Account settings' },
 ];
 
-const linkCls = 'text-white/65 hover:text-white transition-colors inline-flex items-center gap-1 group';
+const linkCls = 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-white transition-colors inline-flex items-center gap-1 group';
 
 export function Footer() {
   return (
-    <footer className="relative mt-12 sm:mt-24 rounded-t-[2rem] bg-brand-950 text-white/70 overflow-hidden">
+    <footer className="relative mt-20 bg-gradient-to-b from-brand-50 to-brand-100 dark:from-[#14110a] dark:to-[#0f0d08] text-neutral-700 dark:text-neutral-300 border-t border-brand-400/40 dark:border-white/10 overflow-hidden">
+      <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[60rem] h-80 rounded-full bg-brand-400/30 blur-[120px]" />
+
       {/* Trust pillars */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-6 sm:gap-y-8 pb-8 sm:pb-12 border-b border-white/10">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-14">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {PILLARS.map(({ Icon, title, copy }) => (
-            <div key={title} className="flex items-start gap-3.5 min-w-0">
-              <span className="grid place-items-center w-10 h-10 rounded-full bg-brand-500/15 text-brand-300 shrink-0">
+            <div
+              key={title}
+              className="flex items-start gap-3.5 p-4 sm:p-5 rounded-2xl bg-white dark:bg-white/[0.04] border border-brand-700/10 dark:border-white/10 shadow-soft hover:shadow-lift hover:-translate-y-0.5 transition-all duration-300"
+            >
+              <span className="grid place-items-center w-10 h-10 rounded-xl bg-brand-400/30 text-brand-800 dark:text-brand-300 shrink-0">
                 <Icon className="w-5 h-5" />
               </span>
               <div className="min-w-0">
-                <h4 className="text-sm font-semibold text-white">{title}</h4>
-                <p className="text-xs text-white/60 mt-0.5">{copy}</p>
+                <h4 className="text-sm font-semibold text-neutral-950 dark:text-white">{title}</h4>
+                <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-0.5">{copy}</p>
               </div>
             </div>
           ))}
@@ -50,22 +54,24 @@ export function Footer() {
       </div>
 
       {/* Links */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-14 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 sm:gap-10 text-[13px]">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-14 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10 text-[13px]">
         <div className="col-span-2 space-y-5">
           <Link href="/" className="inline-flex items-center gap-2.5">
-            <BrandMark className="w-9 h-9 ring-1 ring-white/25" />
-            <span className="text-xl font-semibold text-white tracking-tight">
-              Qazvu<span className="text-brand-300">Cart</span>
+            <span className="grid place-items-center w-9 h-9 rounded-xl bg-gradient-to-br from-brand-300 to-brand-600 text-neutral-950 font-bold text-lg shadow-glow">
+              Q
+            </span>
+            <span className="text-xl font-semibold text-neutral-950 dark:text-white tracking-tight">
+              Qazvu<span className="text-brand-700 dark:text-brand-300">Cart</span>
             </span>
           </Link>
-          <p className="text-white/60 leading-relaxed max-w-sm">
+          <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-sm">
             A multi-vendor marketplace built for speed: authentic brands, verified reviews and seamless delivery.
           </p>
           <div className="flex flex-wrap items-center gap-1.5">
             {['UPI', 'Visa', 'Mastercard', 'NetBanking', 'COD'].map((m) => (
               <span
                 key={m}
-                className="px-2.5 py-1 rounded-md border border-white/15 text-[11px] font-medium text-white/75"
+                className="px-2.5 py-1 rounded-full border border-brand-700/15 dark:border-white/10 bg-white dark:bg-white/[0.04] text-[11px] font-medium text-neutral-700 dark:text-neutral-300"
               >
                 {m}
               </span>
@@ -74,7 +80,7 @@ export function Footer() {
         </div>
 
         <div className="space-y-4">
-          <h5 className="text-sm font-semibold text-white">Categories</h5>
+          <h5 className="text-[11px] font-semibold text-neutral-950 dark:text-white uppercase tracking-[0.16em]">Categories</h5>
           <ul className="space-y-2.5">
             {CATEGORY_LINKS.map((l) => (
               <li key={l.href}>
@@ -88,7 +94,7 @@ export function Footer() {
         </div>
 
         <div className="space-y-4">
-          <h5 className="text-sm font-semibold text-white">Customer care</h5>
+          <h5 className="text-[11px] font-semibold text-neutral-950 dark:text-white uppercase tracking-[0.16em]">Customer care</h5>
           <ul className="space-y-2.5">
             {CARE_LINKS.map((l) => (
               <li key={l.href}>
@@ -102,8 +108,8 @@ export function Footer() {
         </div>
 
         <div className="space-y-4">
-          <h5 className="text-sm font-semibold text-white">Multi-vendor hub</h5>
-          <ul className="space-y-2.5 text-white/50">
+          <h5 className="text-[11px] font-semibold text-neutral-950 dark:text-white uppercase tracking-[0.16em]">Multi-vendor hub</h5>
+          <ul className="space-y-2.5 text-neutral-500">
             <li>Sell on QazvuCart (Phase 2)</li>
             <li>Seller protection program</li>
             <li>Fulfilment by QazvuCart</li>
@@ -112,7 +118,7 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-[12px] text-white/45">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-6 border-t border-brand-700/10 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-[12px] text-neutral-500">
         <p>© 2026 QazvuCart Technologies Inc. All rights reserved.</p>
         <p>Built with Next.js &amp; PostgreSQL</p>
       </div>

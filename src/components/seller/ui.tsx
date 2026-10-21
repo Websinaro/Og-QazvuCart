@@ -56,7 +56,7 @@ export function useLoad<T>(loader: () => Promise<T>, deps: React.DependencyList)
 }
 
 export const cardCls =
-  'bg-white rounded-2xl border border-neutral-200 shadow-soft dark:bg-[#0e1a14] dark:border-white/10';
+  'bg-white rounded-2xl border border-neutral-200 shadow-soft dark:bg-[#17140b] dark:border-white/10';
 export const inputCls =
   'w-full px-3 py-2 bg-neutral-50 border border-neutral-200 rounded-xl text-sm text-neutral-900 focus:outline-none focus:border-neutral-950 dark:bg-white/[0.04] dark:text-white dark:border-white/10 dark:focus:border-white/40';
 export const labelCls = 'block text-[11px] font-bold uppercase tracking-wider text-neutral-500 mb-1 dark:text-neutral-400';
@@ -121,7 +121,7 @@ export function Modal({ title, onClose, children, wide }: { title: string; onClo
   return (
     <div className="fixed inset-0 z-[80] bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div className={`${cardCls} w-full ${wide ? 'sm:max-w-3xl' : 'sm:max-w-lg'} max-h-[92vh] overflow-y-auto rounded-b-none sm:rounded-b-2xl`}>
-        <div className="sticky top-0 flex items-center justify-between px-5 py-3 border-b border-neutral-200 bg-white/95 backdrop-blur dark:bg-[#0e1a14]/95 dark:border-white/10">
+        <div className="sticky top-0 flex items-center justify-between px-5 py-3 border-b border-neutral-200 bg-white/95 backdrop-blur dark:bg-[#17140b]/95 dark:border-white/10">
           <h3 className="font-bold text-neutral-950 dark:text-white">{title}</h3>
           <button onClick={onClose} aria-label="Close" className="p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-white/10"><X className="w-4 h-4" /></button>
         </div>

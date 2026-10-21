@@ -1,17 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PaymentService } from '@/src/server/modules/payments/paymentService';
+import { PaymentService, PaymentError } from '@/src/server/modules/payments/paymentService';
 
 /**
  * Razorpay server-to-server webhook. Configure in the Razorpay Dashboard:
  *   Settings -> Webhooks -> Add New Webhook
  *   URL: https://YOUR_DOMAIN/api/payments/razorpay/webhook
  *   Secret: must match RAZORPAY_WEBHOOK_SECRET
- *   Events: payment.captured, payment.authorized, payment.failed
+ *   Events: payment.authorized, payment.captured, payment.failed, order.paid,
+ *           refund.created, refund.processed, refund.failed
  *
- * The raw request body (not the parsed JSON) is what Razorpay signs, so
- * we read it as text before doing anything else — re-serializing a parsed
- * object can produce different bytes and would break signature
- * verification.
+ * The raw request body (not the parsed JSON) is what Razorpay signs, so we
+ * read it as text before doing anything else.
+ *
+ * Idempotency: `X-Razorpay-Event-Id` is recorded in a ledger, so a redelivery
+ * of the same event is acknowledged (200) without being re-applied; every
+ * state change underneath is also guarded, so even two different events
+ * describing the same payment converge. Status codes matter to Razorpay's
+ * retry logic: 2xx = done, 4xx/5xx = retry. We return 401/400 for forged or
+ * malformed requests (retrying cannot help, and nothing is recorded), and
+ * 500 only for genuine processing failures that a retry may fix.
  */
 export async function POST(req: NextRequest) {
   const signature = req.headers.get('x-razorpay-signature');
@@ -20,19 +27,19 @@ export async function POST(req: NextRequest) {
   }
 
   const rawBody = await req.text();
+  const eventId = req.headers.get('x-razorpay-event-id');
 
   try {
-    const result = await PaymentService.handleWebhook(rawBody, signature);
-    // Always 200 once signature-verified and processed (or safely
-    // no-op'd) — Razorpay retries on non-2xx, and since our handling is
-    // idempotent, a 200 is correct even when we intentionally did nothing
-    // (e.g. an event type we don't act on).
+    const result = await PaymentService.handleWebhook(rawBody, signature, eventId);
     return NextResponse.json({ success: true, data: result });
   } catch (err) {
+    if (err instanceof PaymentError) {
+      if (err.httpStatus === 401) console.warn('[payments] webhook with invalid signature rejected');
+      return NextResponse.json({ success: false, error: { code: err.code, message: err.message } }, { status: err.httpStatus });
+    }
     const message = err instanceof Error ? err.message : 'Webhook processing failed';
-    const status = message.includes('Invalid webhook signature') ? 401 : 500;
-    // Never log the webhook secret or full payment payload here.
+    // Never log the webhook secret or the full payload.
     console.error('Razorpay webhook error:', message);
-    return NextResponse.json({ success: false, error: { code: 'WEBHOOK_ERROR', message } }, { status });
+    return NextResponse.json({ success: false, error: { code: 'WEBHOOK_ERROR', message: 'Webhook processing failed' } }, { status: 500 });
   }
 }

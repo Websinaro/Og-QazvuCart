@@ -75,7 +75,7 @@ export default function CartPage() {
           </p>
           <Link
             href="/products"
-            className="group mt-8 inline-flex items-center justify-center gap-2 h-12 px-8 rounded-full bg-brand-800 dark:bg-brand-500 text-white dark:text-neutral-950 text-sm font-semibold hover:bg-brand-700 dark:hover:bg-brand-400 transition-colors hover:text-white dark:hover:text-neutral-950 shadow-glow"
+            className="group mt-8 inline-flex items-center justify-center gap-2 h-12 px-8 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-sm font-semibold hover:bg-brand-600 dark:hover:bg-brand-200 transition-colors hover:text-neutral-950"
           >
             Explore marketplace
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" weight="bold" />
@@ -90,7 +90,7 @@ export default function CartPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12">
         <div className="flex items-end justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl sm:text-4xl font-semibold tracking-[-0.03em] text-neutral-950 dark:text-white">Shopping cart</h1>
+            <h1 className="text-3xl sm:text-4xl font-semibold tracking-[-0.03em] text-neutral-950 dark:text-white">Shopping cart</h1>
             <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1.5">
               {cart.totalItems} {cart.totalItems === 1 ? 'item' : 'items'} in your basket
             </p>
@@ -128,16 +128,16 @@ export default function CartPage() {
               <div className="w-full bg-neutral-900/10 dark:bg-white/10 h-1.5 rounded-full overflow-hidden">
                 <div
                   className={`h-full transition-all duration-500 rounded-full ${
-                    cart.freeDeliveryRemaining > 0 ? 'bg-brand-500' : 'bg-emerald-500'
+                    cart.freeDeliveryRemaining > 0 ? 'bg-gradient-to-r from-brand-400 to-brand-600' : 'bg-emerald-500'
                   }`}
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
             </div>
 
-            <div className="space-y-3 sm:space-y-4">
+            <div className="surface divide-y divide-neutral-900/5 dark:divide-white/10 overflow-hidden">
               {cart.items.map((item) => (
-                <div key={item.id} className="surface rounded-[1.25rem] shadow-soft p-3.5 sm:p-5 flex gap-3.5 sm:gap-6">
+                <div key={item.id} className="p-5 sm:p-6 flex gap-4 sm:gap-6">
                   <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-neutral-100 dark:bg-neutral-900 shrink-0 overflow-hidden">
                     <Image
                       src={item.productImage || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=900&q=80'}
@@ -185,7 +185,7 @@ export default function CartPage() {
 
                     <div className="flex flex-wrap items-center justify-between gap-3 pt-4 mt-2">
                       <div className="flex items-center gap-3 sm:gap-4">
-                        <div className="flex items-center rounded-full bg-brand-50 dark:bg-white/10 ring-1 ring-brand-700/15 dark:ring-white/10 overflow-hidden">
+                        <div className="flex items-center rounded-full bg-white dark:bg-white/10 ring-1 ring-neutral-900/10 dark:ring-white/10 overflow-hidden">
                           <button
                             onClick={() => handleQtyChange(item.id, item.quantity, -1)}
                             disabled={isLoading}
@@ -217,9 +217,9 @@ export default function CartPage() {
 
                       <button
                         onClick={() => removeItem(item.id)}
-                        className="text-xs font-medium text-rose-600 dark:text-rose-400 hover:text-rose-700 flex items-center gap-1.5 transition-colors cursor-pointer rounded-full bg-rose-500/10 px-3 h-8"
+                        className="text-xs font-medium text-rose-600 dark:text-rose-400 hover:text-rose-700 flex items-center gap-1.5 transition-colors cursor-pointer"
                       >
-                        <Trash2 className="w-4 h-4" /> <span className="hidden sm:inline">Remove</span><span className="sm:hidden sr-only">Remove</span>
+                        <Trash2 className="w-4 h-4" /> Remove
                       </button>
                     </div>
                   </div>
@@ -230,7 +230,7 @@ export default function CartPage() {
 
           {/* Summary */}
           <aside className="lg:col-span-4 space-y-4 lg:sticky lg:top-[170px]">
-            <div className="surface rounded-[1.5rem] shadow-soft p-5 sm:p-6 space-y-5">
+            <div className="surface p-6 space-y-5">
               <h3 className="text-base font-semibold tracking-tight text-neutral-950 dark:text-white">Order summary</h3>
 
               <div className="space-y-3 text-sm">
@@ -275,9 +275,9 @@ export default function CartPage() {
 
               <button
                 onClick={() => router.push('/checkout')}
-                className="group w-full h-12 px-6 rounded-full bg-brand-800 hover:bg-brand-700 text-white font-semibold text-sm shadow-glow active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="group w-full h-12 px-6 rounded-full bg-brand-600 hover:bg-brand-500 text-neutral-950 font-semibold text-sm shadow-glow active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                Proceed to Checkout
+                Proceed to checkout
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" weight="bold" />
               </button>
 
@@ -287,7 +287,7 @@ export default function CartPage() {
               </div>
             </div>
 
-            <div className="relative isolate overflow-hidden rounded-[1.5rem] bg-brand-900 text-white p-5 space-y-4 text-xs">
+            <div className="relative isolate overflow-hidden rounded-[1.25rem] bg-neutral-950 text-white p-5 space-y-4 text-xs">
               <div className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-brand-600/30 blur-3xl -z-10" />
               <div className="flex items-center gap-3">
                 <span className="grid place-items-center w-10 h-10 rounded-xl bg-white/10 text-brand-200 shrink-0">

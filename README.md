@@ -101,6 +101,60 @@ Order status transitions are validated against an explicit state machine
 (`src/lib/orderStateMachine.ts`) — e.g. `DELIVERED → PROCESSING` is always
 rejected, regardless of caller.
 
+## Payments, refunds and reconciliation (Razorpay)
+
+The server is authoritative for payment status and order totals. The amount
+sent to Razorpay is always `orders.total * 100`, read from the database; a
+browser-supplied id is only used to look up what Razorpay itself reports.
+
+**One write path.** The browser verify call, the webhook and the reconciler
+all feed `PaymentEngine.applyRemotePayment` (`src/server/modules/payments`),
+which runs in one transaction holding the order and payment row locks (always
+in that order) and applies the pure rules in `src/lib/paymentRules.ts`.
+
+| Situation | Result |
+| --- | --- |
+| Forged checkout signature / webhook signature | Rejected (400/401); no state change, nothing in the ledger |
+| Same webhook delivered again (same `X-Razorpay-Event-Id`, or same body) | Acknowledged, not re-applied (`payment_events` ledger); failed runs are retried |
+| Different events describing the same payment | State guards make them converge: order confirmed once, sellers notified once |
+| Captured amount / currency differs from the attempt, or the attempt differs from the order total | Order is **not** confirmed; payment marked `MISMATCH`; full refund queued |
+| `authorized` but not captured | Captured by the server for the server-side amount, only if amounts match |
+| `payment.failed` | Attempt marked `FAILED`; order stays `PENDING_PAYMENT` so the customer can retry (max 5 failures, within the 15 min window), then it is cancelled and stock released |
+| Paid after the order was cancelled / paid twice | Payment recorded, then refunded automatically; the order is never resurrected |
+| Webhook lost, tab closed | `syncOrderWithGateway` / reconciliation finds the captured payment and applies it |
+
+**Refunds.** `refunds` rows are written in the same transaction as their cause
+(cancel, return, mismatch, duplicate, admin request) and sent to Razorpay
+afterwards with `X-Refund-Idempotency`; pending ones are retried until they
+succeed or fail permanently. Capacity is reserved under a row lock and
+guarded by a CHECK constraint, so concurrent refunds cannot exceed the
+captured amount. Status follows `refund.created/processed/failed` webhooks.
+Cancelling the last live parcel or returning an order refunds whatever is
+still refundable automatically. Admin: `POST /api/admin/orders/:id/refund`
+(requires an `Idempotency-Key` header; `amount` in rupees, omit for the full
+remainder), `GET /api/admin/refunds`.
+
+**Retry.** `POST /api/payments/razorpay/create-order` is idempotent: it reuses
+an open attempt or starts a new one. `GET /api/payments/razorpay/status?orderId=`
+returns the server's view plus `canRetry`. The account page shows
+"Pay now / Retry payment" for orders awaiting payment.
+
+**Reconciliation.** `POST /api/admin/payments/reconcile` (`{hours, heal}`)
+compares Razorpay payments/refunds with ours, auto-heals safe cases and records
+the rest as `NEEDS_REVIEW` in `payment_reconciliation_items`
+(`heal:false` = report only). Schedule
+`POST /api/internal/payments/maintenance` with `Authorization: Bearer $CRON_SECRET`
+every 5-15 minutes (recover missed payments, expire unpaid orders, retry
+refunds, reconcile last 48 h).
+
+**Setup.** Run `npm run db:migrate` (adds migration `0005`), set `CRON_SECRET`, and
+subscribe the webhook to `payment.authorized, payment.captured, payment.failed,
+order.paid, refund.created, refund.processed, refund.failed`.
+
+**Tests.** `npm test` runs `tests/payments.test.ts` (forged signatures,
+duplicate/concurrent webhooks, mismatched amounts, retries, refunds,
+reconciliation) against an in-memory store and fake gateway.
+
 ## UI / design system
 
 The storefront UI was rebuilt with a modern, premium visual language. All

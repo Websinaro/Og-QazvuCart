@@ -30,6 +30,7 @@ import {
 import { assertValidTransition } from '@/src/lib/orderStateMachine';
 import { aggregateOrderStatus, SELLER_ALLOWED_TARGETS } from '@/src/lib/fulfilmentStatus';
 import { NotificationService } from '../notifications/notificationService';
+import { enqueueRefundsForClosedOrder } from '../payments/refundLedger';
 
 export type DbClient =
   | typeof db
@@ -113,6 +114,14 @@ export async function recomputeOrderStatus(tx: DbClient, orderId: number) {
 
   if (next === 'CANCELLED') {
     await releaseCouponRedemption(tx, orderId);
+  }
+
+  // The whole order has ended (every parcel cancelled, or returned): whatever
+  // the customer paid online and has not already had back is refunded. The
+  // refund row commits with this status change; the gateway call is made
+  // after commit by the caller (kickPendingRefunds) or the maintenance job.
+  if (next === 'CANCELLED' || next === 'RETURNED') {
+    await enqueueRefundsForClosedOrder(tx, orderId, next === 'CANCELLED' ? 'cancel' : 'return');
   }
 
   await tx.insert(orderTimeline).values({

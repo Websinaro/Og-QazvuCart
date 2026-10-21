@@ -8,7 +8,6 @@ import { useAuth } from '@/src/context/AuthContext';
 import { useCart } from '@/src/context/CartContext';
 import { useToast } from '@/src/context/ToastContext';
 import { AuthModal } from '@/src/components/auth/AuthModal';
-import { BrandMark } from '@/src/components/ui/BrandMark';
 import { authFetch } from '@/src/lib/api';
 import {
   MapPin,
@@ -317,7 +316,7 @@ export default function CheckoutPage() {
   if (!isAuthLoading && !isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 pb-20">
-        <div className="bg-white rounded-3xl p-10 text-center border border-neutral-200 shadow-sm max-w-md w-full space-y-4 dark:bg-[#0e1a14] dark:border-white/10">
+        <div className="bg-white rounded-3xl p-10 text-center border border-neutral-200 shadow-sm max-w-md w-full space-y-4 dark:bg-[#17140b] dark:border-white/10">
           <div className="w-16 h-16 bg-brand-500/15 text-neutral-950 rounded-2xl flex items-center justify-center mx-auto font-bold text-2xl dark:text-white">
             M
           </div>
@@ -327,7 +326,7 @@ export default function CheckoutPage() {
           </p>
           <button
             onClick={() => setIsAuthModalOpen(true)}
-            className="w-full py-3.5 bg-brand-800 hover:bg-brand-700 text-white font-semibold text-xs rounded-full shadow-glow transition-all"
+            className="w-full py-3.5 bg-brand-600 hover:bg-brand-500 text-neutral-950 font-semibold text-xs rounded-xl shadow-md transition-all"
           >
             Sign In / Register
           </button>
@@ -344,7 +343,7 @@ export default function CheckoutPage() {
   if (placedOrder) {
     return (
       <div className="min-h-screen py-12 px-4 sm:px-6">
-        <div className="max-w-2xl mx-auto bg-white rounded-3xl p-8 sm:p-12 border border-neutral-200 shadow-xl text-center space-y-6 animate-in fade-in duration-300 dark:bg-[#0e1a14] dark:border-white/10">
+        <div className="max-w-2xl mx-auto bg-white rounded-3xl p-8 sm:p-12 border border-neutral-200 shadow-xl text-center space-y-6 animate-in fade-in duration-300 dark:bg-[#17140b] dark:border-white/10">
           <div className="w-20 h-20 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto shadow-inner dark:bg-emerald-500/15 dark:text-emerald-300">
             <CheckCircle2 className="w-10 h-10" />
           </div>
@@ -384,14 +383,14 @@ export default function CheckoutPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
             <Link
               href="/account?tab=orders"
-              className="w-full sm:w-auto px-8 py-3.5 bg-brand-800 hover:bg-brand-700 text-white font-bold text-xs rounded-full shadow-glow transition-colors flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-8 py-3.5 bg-neutral-950 hover:bg-neutral-800 text-brand-300 font-bold text-xs rounded-xl shadow transition-colors flex items-center justify-center gap-2"
             >
               <Package className="w-4 h-4" />
               <span>Track Order Details</span>
             </Link>
             <Link
               href="/products"
-              className="w-full sm:w-auto px-8 py-3.5 bg-white hover:bg-brand-50 border border-neutral-900/10 text-neutral-900 font-bold text-xs rounded-full transition-colors dark:bg-white/10 dark:hover:bg-white/10 dark:text-white"
+              className="w-full sm:w-auto px-8 py-3.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-900 font-bold text-xs rounded-xl transition-colors dark:bg-white/10 dark:hover:bg-white/10 dark:text-white"
             >
               Continue Shopping
             </Link>
@@ -407,12 +406,14 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen pb-24">
       {/* Checkout Header */}
-      <div className="border-b border-neutral-900/5 py-5 sm:py-8 dark:border-white/10">
+      <div className="border-b border-neutral-900/5 py-8 dark:border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-1.5">
-              <BrandMark className="w-8 h-8" />
-              <span className="text-xl font-semibold tracking-tight text-neutral-950 dark:text-white">Qazvu<span className="text-brand-700 dark:text-brand-300">Cart</span></span>
+              <div className="w-8 h-8 rounded-xl bg-neutral-950 text-brand-300 font-bold text-lg flex items-center justify-center">
+                M
+              </div>
+              <span className="text-xl font-bold text-neutral-950 dark:text-white">Market<span className="text-brand-300 bg-neutral-950 px-1 rounded-sm ml-0.5">X</span></span>
             </Link>
             <span className="text-neutral-300">|</span>
             <h1 className="text-lg font-semibold text-neutral-900 dark:text-white">Secure Express Checkout</h1>
@@ -425,48 +426,15 @@ export default function CheckoutPage() {
         </div>
       </div>
 
-      {/* Progress stepper (visual only; derived from existing state) */}
-      <div className="max-w-xl mx-auto px-6 pt-6">
-        <ol className="flex items-center" aria-label="Checkout progress">
-          {[
-            { n: 1, label: 'Address' },
-            { n: 2, label: 'Payment' },
-            { n: 3, label: 'Review' },
-          ].map(({ n, label }, i) => {
-            const current = selectedAddressId ? 2 : 1;
-            const done = n < current;
-            const active = n === current;
-            return (
-              <React.Fragment key={n}>
-                <li className="flex flex-col items-center gap-1.5 w-16">
-                  <span
-                    className={`grid place-items-center size-8 rounded-full text-xs font-semibold border-2 ${
-                      done || active
-                        ? 'bg-brand-800 border-brand-800 text-white'
-                        : 'bg-white border-neutral-300 text-neutral-500 dark:bg-transparent dark:border-white/20'
-                    }`}
-                    aria-current={active ? 'step' : undefined}
-                  >
-                    {done ? '✓' : n}
-                  </span>
-                  <span className={`text-[11px] ${active || done ? 'font-semibold text-brand-800 dark:text-brand-300' : 'text-neutral-500'}`}>{label}</span>
-                </li>
-                {i < 2 && <span className={`flex-1 h-px -mt-5 ${n < current ? 'bg-brand-700' : 'bg-neutral-300 dark:bg-white/15'}`} />}
-              </React.Fragment>
-            );
-          })}
-        </ol>
-      </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left Column: Steps (8 cols) */}
           <div className="lg:col-span-8 space-y-6">
             {/* Step 1: Delivery Address */}
-            <div className="bg-white rounded-[1.5rem] p-5 sm:p-8 border border-neutral-900/[0.05] shadow-soft dark:bg-[#0e1a14] dark:border-white/10">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-neutral-200 shadow-soft dark:bg-[#17140b] dark:border-white/10">
               <div className="flex items-center justify-between pb-4 border-b border-neutral-100 dark:border-white/10">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-brand-800 text-white font-bold text-xs flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-neutral-950 text-brand-300 font-bold text-xs flex items-center justify-center">
                     1
                   </div>
                   <h2 className="text-base font-bold text-neutral-950 uppercase tracking-wider dark:text-white">
@@ -475,7 +443,7 @@ export default function CheckoutPage() {
                 </div>
                 <button
                   onClick={() => setIsAddressModalOpen(true)}
-                  className="flex items-center gap-1.5 text-xs font-bold text-brand-800 bg-brand-100 hover:bg-brand-200 px-3.5 py-1.5 rounded-full transition-colors dark:bg-white/10 dark:hover:bg-white/10 dark:text-white"
+                  className="flex items-center gap-1.5 text-xs font-bold text-neutral-900 bg-neutral-100 hover:bg-neutral-200 px-3 py-1.5 rounded-xl transition-colors dark:bg-white/10 dark:hover:bg-white/10 dark:text-white"
                 >
                   <Plus className="w-3.5 h-3.5" /> Add New Address
                 </button>
@@ -487,7 +455,7 @@ export default function CheckoutPage() {
                   <p className="text-xs text-neutral-500 dark:text-neutral-400">No saved addresses found. Please add a shipping address.</p>
                   <button
                     onClick={() => setIsAddressModalOpen(true)}
-                    className="px-5 py-2 bg-brand-800 hover:bg-brand-700 text-white font-bold text-xs rounded-full"
+                    className="px-5 py-2 bg-brand-600 text-neutral-950 font-bold text-xs rounded-xl"
                   >
                     Add Address Now
                   </button>
@@ -498,10 +466,10 @@ export default function CheckoutPage() {
                     <div
                       key={addr.id}
                       onClick={() => setSelectedAddressId(addr.id)}
-                      className={`p-4 rounded-[1.25rem] border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                      className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
                         selectedAddressId === addr.id
-                          ? 'border-brand-700 ring-2 ring-brand-700/20 bg-brand-50/70 dark:bg-brand-500/10 shadow-sm'
-                          : 'border-neutral-200 hover:border-brand-300 bg-white dark:bg-[#0e1a14] dark:border-white/10'
+                          ? 'border-neutral-950 bg-neutral-50/70 shadow-sm'
+                          : 'border-neutral-200 hover:border-neutral-400 bg-white dark:bg-[#17140b] dark:border-white/10'
                       }`}
                     >
                       <div>
@@ -512,7 +480,7 @@ export default function CheckoutPage() {
                               {addr.type}
                             </span>
                             {addr.isDefault && (
-                              <span className="bg-brand-700 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md">
+                              <span className="bg-brand-600 text-neutral-950 text-[10px] font-semibold px-2 py-0.5 rounded-md">
                                 DEFAULT
                               </span>
                             )}
@@ -535,7 +503,7 @@ export default function CheckoutPage() {
                           name="selectedAddress"
                           checked={selectedAddressId === addr.id}
                           onChange={() => setSelectedAddressId(addr.id)}
-                          className="accent-brand-700 text-brand-700 focus:ring-0"
+                          className="text-neutral-950 focus:ring-0 dark:text-white"
                         />
                       </div>
                     </div>
@@ -545,9 +513,9 @@ export default function CheckoutPage() {
             </div>
 
             {/* Step 2: Payment Method */}
-            <div className="bg-white rounded-[1.5rem] p-5 sm:p-8 border border-neutral-900/[0.05] shadow-soft dark:bg-[#0e1a14] dark:border-white/10">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-neutral-200 shadow-soft dark:bg-[#17140b] dark:border-white/10">
               <div className="flex items-center gap-3 pb-4 border-b border-neutral-100 dark:border-white/10">
-                <div className="w-8 h-8 rounded-full bg-brand-800 text-white font-bold text-xs flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-neutral-950 text-brand-300 font-bold text-xs flex items-center justify-center">
                   2
                 </div>
                 <h2 className="text-base font-bold text-neutral-950 uppercase tracking-wider dark:text-white">
@@ -559,13 +527,13 @@ export default function CheckoutPage() {
                 {/* UPI Option */}
                 <div
                   onClick={() => setPaymentMethod('UPI')}
-                  className={`p-4 rounded-[1.25rem] border-2 transition-all cursor-pointer ${
-                    paymentMethod === 'UPI' ? 'border-brand-700 ring-2 ring-brand-700/20 bg-brand-50/70 dark:bg-brand-500/10' : 'border-neutral-200 hover:border-brand-300 dark:border-white/10'
+                  className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${
+                    paymentMethod === 'UPI' ? 'border-neutral-950 bg-neutral-50 dark:bg-white/[0.04]' : 'border-neutral-200 hover:border-neutral-300 dark:border-white/10'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-brand-100 text-brand-800 flex items-center justify-center font-bold text-xs dark:bg-brand-500/20 dark:text-brand-200">
+                      <div className="w-9 h-9 rounded-xl bg-brand-500/15 text-neutral-950 flex items-center justify-center font-bold text-xs dark:text-white">
                         UPI
                       </div>
                       <div>
@@ -578,7 +546,7 @@ export default function CheckoutPage() {
                       name="paymentMethod"
                       checked={paymentMethod === 'UPI'}
                       onChange={() => setPaymentMethod('UPI')}
-                      className="accent-brand-700 text-brand-700"
+                      className="text-neutral-950 dark:text-white"
                     />
                   </div>
 
@@ -593,11 +561,11 @@ export default function CheckoutPage() {
                           value={upiId}
                           onChange={(e) => setUpiId(e.target.value)}
                           placeholder="e.g. 9876543210@upi"
-                          className="flex-1 px-3 py-2 text-xs border border-neutral-300 rounded-xl bg-white focus:outline-none dark:bg-[#0e1a14] dark:border-white/10"
+                          className="flex-1 px-3 py-2 text-xs border border-neutral-300 rounded-xl bg-white focus:outline-none dark:bg-[#17140b] dark:border-white/10"
                         />
                         <button
                           type="button"
-                          className="px-4 py-2 bg-brand-800 text-white font-bold text-xs rounded-full"
+                          className="px-4 py-2 bg-neutral-900 text-brand-300 font-bold text-xs rounded-xl"
                         >
                           Verify VPA
                         </button>
@@ -609,8 +577,8 @@ export default function CheckoutPage() {
                 {/* Card Option */}
                 <div
                   onClick={() => setPaymentMethod('CARD')}
-                  className={`p-4 rounded-[1.25rem] border-2 transition-all cursor-pointer ${
-                    paymentMethod === 'CARD' ? 'border-brand-700 ring-2 ring-brand-700/20 bg-brand-50/70 dark:bg-brand-500/10' : 'border-neutral-200 hover:border-brand-300 dark:border-white/10'
+                  className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${
+                    paymentMethod === 'CARD' ? 'border-neutral-950 bg-neutral-50 dark:bg-white/[0.04]' : 'border-neutral-200 hover:border-neutral-300 dark:border-white/10'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -628,7 +596,7 @@ export default function CheckoutPage() {
                       name="paymentMethod"
                       checked={paymentMethod === 'CARD'}
                       onChange={() => setPaymentMethod('CARD')}
-                      className="accent-brand-700 text-brand-700"
+                      className="text-neutral-950 dark:text-white"
                     />
                   </div>
                 </div>
@@ -636,8 +604,8 @@ export default function CheckoutPage() {
                 {/* Net Banking */}
                 <div
                   onClick={() => setPaymentMethod('NETBANKING')}
-                  className={`p-4 rounded-[1.25rem] border-2 transition-all cursor-pointer ${
-                    paymentMethod === 'NETBANKING' ? 'border-brand-700 ring-2 ring-brand-700/20 bg-brand-50/70 dark:bg-brand-500/10' : 'border-neutral-200 hover:border-brand-300 dark:border-white/10'
+                  className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${
+                    paymentMethod === 'NETBANKING' ? 'border-neutral-950 bg-neutral-50 dark:bg-white/[0.04]' : 'border-neutral-200 hover:border-neutral-300 dark:border-white/10'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -655,7 +623,7 @@ export default function CheckoutPage() {
                       name="paymentMethod"
                       checked={paymentMethod === 'NETBANKING'}
                       onChange={() => setPaymentMethod('NETBANKING')}
-                      className="accent-brand-700 text-brand-700"
+                      className="text-neutral-950 dark:text-white"
                     />
                   </div>
                 </div>
@@ -663,8 +631,8 @@ export default function CheckoutPage() {
                 {/* Cash on Delivery */}
                 <div
                   onClick={() => setPaymentMethod('COD')}
-                  className={`p-4 rounded-[1.25rem] border-2 transition-all cursor-pointer ${
-                    paymentMethod === 'COD' ? 'border-brand-700 ring-2 ring-brand-700/20 bg-brand-50/70 dark:bg-brand-500/10' : 'border-neutral-200 hover:border-brand-300 dark:border-white/10'
+                  className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${
+                    paymentMethod === 'COD' ? 'border-neutral-950 bg-neutral-50 dark:bg-white/[0.04]' : 'border-neutral-200 hover:border-neutral-300 dark:border-white/10'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -682,7 +650,7 @@ export default function CheckoutPage() {
                       name="paymentMethod"
                       checked={paymentMethod === 'COD'}
                       onChange={() => setPaymentMethod('COD')}
-                      className="accent-brand-700 text-brand-700"
+                      className="text-neutral-950 dark:text-white"
                     />
                   </div>
                 </div>
@@ -692,7 +660,7 @@ export default function CheckoutPage() {
 
           {/* Right Column: Order Summary & Place Order Button (4 cols) */}
           <div className="lg:col-span-4 space-y-4">
-            <div className="bg-white rounded-[1.5rem] p-5 sm:p-6 border border-neutral-900/[0.05] shadow-soft space-y-4 dark:bg-[#0e1a14] dark:border-white/10">
+            <div className="bg-white rounded-3xl p-6 border border-neutral-200 shadow-sm space-y-4 dark:bg-[#17140b] dark:border-white/10">
               <h3 className="text-base font-bold text-neutral-950 uppercase tracking-wider pb-3 border-b border-neutral-100 dark:text-white dark:border-white/10">
                 Order Summary
               </h3>
@@ -754,7 +722,7 @@ export default function CheckoutPage() {
                       <button
                         onClick={handleApplyCoupon}
                         disabled={couponStatus === 'checking' || !couponInput.trim()}
-                        className="px-4 py-2 bg-brand-800 hover:bg-brand-700 text-white font-bold text-xs rounded-full disabled:opacity-50 cursor-pointer"
+                        className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-brand-300 font-bold text-xs rounded-xl disabled:opacity-50 cursor-pointer"
                       >
                         {couponStatus === 'checking' ? '...' : 'Apply'}
                       </button>
@@ -803,10 +771,10 @@ export default function CheckoutPage() {
               <button
                 onClick={handlePlaceOrder}
                 disabled={isProcessingOrder || !selectedAddressId || cart.items.length === 0}
-                className="w-full py-4 px-6 bg-brand-800 hover:bg-brand-700 text-white font-bold text-sm rounded-full shadow-glow transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full py-4 px-6 bg-brand-600 hover:bg-brand-500 text-neutral-950 font-bold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {isProcessingOrder ? (
-                  <span className="inline-block animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
+                  <span className="inline-block animate-spin w-5 h-5 border-2 border-neutral-950 border-t-transparent rounded-full" />
                 ) : (
                   <>
                     <span>Place Order & Pay {formatINR(finalTotal)}</span>
@@ -822,7 +790,7 @@ export default function CheckoutPage() {
       {/* Add Address Modal */}
       {isAddressModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 sm:p-8 border border-neutral-200 dark:bg-[#0e1a14] dark:border-white/10">
+          <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 sm:p-8 border border-neutral-200 dark:bg-[#17140b] dark:border-white/10">
             <div className="flex items-center justify-between pb-4 border-b border-neutral-100 dark:border-white/10">
               <h3 className="text-base font-bold text-neutral-950 dark:text-white">Add New Delivery Address</h3>
               <button onClick={() => setIsAddressModalOpen(false)}>
@@ -918,7 +886,7 @@ export default function CheckoutPage() {
                   <select
                     value={newType}
                     onChange={(e) => setNewType(e.target.value as 'HOME' | 'WORK' | 'OTHER')}
-                    className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-xl bg-white dark:bg-[#0e1a14] dark:border-white/10"
+                    className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-xl bg-white dark:bg-[#17140b] dark:border-white/10"
                   >
                     <option value="HOME">Home</option>
                     <option value="WORK">Work</option>
@@ -932,14 +900,14 @@ export default function CheckoutPage() {
                   type="checkbox"
                   checked={isDefaultAddr}
                   onChange={(e) => setIsDefaultAddr(e.target.checked)}
-                  className="rounded accent-brand-700 text-brand-700"
+                  className="rounded text-neutral-950 dark:text-white"
                 />
                 <span>Set as default shipping address</span>
               </label>
 
               <button
                 type="submit"
-                className="w-full mt-2 py-3 bg-brand-800 hover:bg-brand-700 text-white font-bold text-xs rounded-full shadow transition-colors"
+                className="w-full mt-2 py-3 bg-brand-600 hover:bg-brand-500 text-neutral-950 font-bold text-xs rounded-xl shadow transition-colors"
               >
                 Save & Use This Address
               </button>
