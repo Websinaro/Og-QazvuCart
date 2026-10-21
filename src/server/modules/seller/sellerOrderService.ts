@@ -210,6 +210,7 @@ export class SellerQuestionService {
       .where(
         and(
           eq(products.sellerId, sellerId),
+          eq(questions.status, 'APPROVED'),
           params.unansweredOnly
             ? sql`NOT EXISTS (SELECT 1 FROM ${answers} WHERE ${answers.questionId} = ${questions.id} AND ${answers.isSellerAnswer} = true)`
             : undefined

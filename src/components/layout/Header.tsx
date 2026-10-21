@@ -1,5 +1,6 @@
 'use client';
 
+import { SearchSuggestions } from '@/src/components/layout/SearchSuggestions';
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -203,9 +204,10 @@ export function Header() {
               </div>
 
               {/* Search (md+) */}
+              <div className="relative flex-1 max-w-2xl hidden md:block">
               <form
                 onSubmit={handleSearchSubmit}
-                className="flex-1 max-w-2xl hidden md:flex items-center h-11 rounded-full bg-neutral-900/[0.045] dark:bg-white/[0.07] border border-transparent focus-within:border-brand-500/60 focus-within:bg-white dark:focus-within:bg-neutral-900 focus-within:ring-4 focus-within:ring-brand-500/15 transition-all overflow-hidden"
+                className="w-full flex items-center h-11 rounded-full bg-neutral-900/[0.045] dark:bg-white/[0.07] border border-transparent focus-within:border-brand-500/60 focus-within:bg-white dark:focus-within:bg-neutral-900 focus-within:ring-4 focus-within:ring-brand-500/15 transition-all overflow-hidden"
               >
                 <select
                   value={selectedCategory}
@@ -237,6 +239,8 @@ export function Header() {
                   <span className="hidden lg:inline">Search</span>
                 </button>
               </form>
+              <SearchSuggestions query={searchQuery} />
+              </div>
 
               <div className="flex-1 md:hidden" />
 
@@ -389,9 +393,10 @@ export function Header() {
             </div>
 
             {/* Mobile search */}
+            <div className="md:hidden relative">
             <form
               onSubmit={handleSearchSubmit}
-              className="md:hidden pb-3 -mt-1 flex items-center gap-2"
+              className="pb-3 -mt-1 flex items-center gap-2"
             >
               <div className="flex-1 flex items-center gap-2 h-10 px-3.5 rounded-full bg-neutral-900/[0.05] dark:bg-white/[0.08] focus-within:ring-4 focus-within:ring-brand-500/15">
                 <Search className="w-4 h-4 text-neutral-400 shrink-0" />
@@ -407,6 +412,8 @@ export function Header() {
                 Go
               </button>
             </form>
+            <SearchSuggestions query={searchQuery} />
+            </div>
           </div>
 
           {/* 3. Category strip */}

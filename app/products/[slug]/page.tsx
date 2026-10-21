@@ -12,6 +12,7 @@ import { useToast } from '@/src/context/ToastContext';
 import { authFetch } from '@/src/lib/api';
 import { flyToCart } from '@/src/lib/flyToCart';
 import { recordProductView } from '@/src/lib/recentlyViewed';
+import { FrequentlyBoughtTogether } from '@/src/components/product/FrequentlyBoughtTogether';
 import { RecentlyViewedRail } from '@/src/components/product/RecentlyViewedRail';
 import { ProductCard, ProductCardProps } from '@/src/components/product/ProductCard';
 import { AnimatedGrid } from '@/src/components/ui/AnimatedGrid';
@@ -1330,6 +1331,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
           </AnimatedGrid>
         </div>
       )}
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+        <FrequentlyBoughtTogether slug={product.slug} currentId={product.id} currentName={product.name} currentPrice={currentDiscountPrice} />
+      </div>
 
       {/* Recently Viewed — excludes the product currently being viewed */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6">

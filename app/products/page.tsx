@@ -37,11 +37,14 @@ function ProductsCatalogContent() {
   const inStockParam = searchParams.get('inStock') === 'true';
   const isDealParam = searchParams.get('isDeal') === 'true';
   const isFeaturedParam = searchParams.get('isFeatured') === 'true';
+  const brandsParam = searchParams.get('brands') || '';
+  const selectedBrands = brandsParam ? brandsParam.split(',') : [];
   const sortParam = searchParams.get('sort') || 'relevance';
   const pageParam = Number(searchParams.get('page')) || 1;
 
   // Local filter states
   const [categories, setCategories] = useState<CategoryItem[]>([]);
+  const [brandFacets, setBrandFacets] = useState<{ brand: string; count: number }[]>([]);
   const [products, setProducts] = useState<ProductCardProps[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -52,6 +55,10 @@ function ProductsCatalogContent() {
   // Price inputs local state
   const [minPriceInput, setMinPriceInput] = useState(minPriceParam);
   const [maxPriceInput, setMaxPriceInput] = useState(maxPriceParam);
+
+  useEffect(() => {
+    fetch(`/api/products/facets?category=${encodeURIComponent(categoryParam)}`).then((r) => r.json()).then((j) => { if (j.success) setBrandFacets(j.data.brands); }).catch(() => {});
+  }, [categoryParam]);
 
   // Load categories
   useEffect(() => {
@@ -432,6 +439,30 @@ function ProductsCatalogContent() {
                 ))}
               </div>
             </div>
+
+            {/* Brand */}
+            {brandFacets.length > 0 && (
+              <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-soft space-y-2 text-xs dark:bg-[#17140b] dark:border-white/10">
+                <h3 className="text-xs font-semibold text-neutral-900 uppercase tracking-wider dark:text-white">Brand</h3>
+                <div className="max-h-48 overflow-y-auto space-y-1.5">
+                  {brandFacets.map((b) => (
+                    <label key={b.brand} className="flex items-center gap-2 cursor-pointer text-neutral-800 font-medium dark:text-neutral-100">
+                      <input
+                        type="checkbox"
+                        checked={selectedBrands.includes(b.brand)}
+                        onChange={() => {
+                          const next = selectedBrands.includes(b.brand) ? selectedBrands.filter((x) => x !== b.brand) : [...selectedBrands, b.brand];
+                          updateFilters({ brands: next.join(',') || null });
+                        }}
+                        className="rounded"
+                      />
+                      <span className="flex-1">{b.brand}</span>
+                      <span className="text-neutral-400">{b.count}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Availability & Deals */}
             <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-soft space-y-3 text-xs dark:bg-[#17140b] dark:border-white/10">

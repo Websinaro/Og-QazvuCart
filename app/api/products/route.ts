@@ -18,6 +18,7 @@ export async function GET(req: NextRequest) {
     category: sp.get('category') || undefined,
     categories: parseIntList(sp.get('categories')),
     ids: parseIntList(sp.get('ids')),
+    brands: sp.get('brands') ? sp.get('brands')!.split(',').map((b) => b.trim()).filter(Boolean).slice(0, 20) : undefined,
     excludeIds: parseIntList(sp.get('excludeIds')),
     minPrice: sp.get('minPrice') ? Number(sp.get('minPrice')) : undefined,
     maxPrice: sp.get('maxPrice') ? Number(sp.get('maxPrice')) : undefined,

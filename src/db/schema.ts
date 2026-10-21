@@ -198,6 +198,7 @@ export const carts = pgTable('carts', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').notNull().unique().references(() => users.id, { onDelete: 'cascade' }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  reminderSentAt: timestamp('reminder_sent_at', { withTimezone: true }),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -539,6 +540,8 @@ export const questions = pgTable('questions', {
   productId: integer('product_id').notNull().references(() => products.id, { onDelete: 'cascade' }),
   userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   questionText: text('question_text').notNull(),
+  // PENDING until an admin approves; only APPROVED questions are public.
+  status: varchar('status', { length: 10 }).default('APPROVED').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   productIdx: index('questions_product_id_idx').on(table.productId),

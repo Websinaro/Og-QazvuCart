@@ -11,6 +11,7 @@ import { useToast } from '@/src/context/ToastContext';
 import { Heart, Star, ShoppingBag, Truck, Eye, Check, Zap } from '@/src/components/ui/icons';
 import { formatINR } from '@/src/lib/date';
 import { flyToCart } from '@/src/lib/flyToCart';
+import { CompareToggle } from '@/src/components/product/CompareToggle';
 import { QuickViewModal } from '@/src/components/product/QuickViewModal';
 
 export interface ProductCardProps {
@@ -152,6 +153,7 @@ export function ProductCard({
             <Heart className="w-[18px] h-[18px]" weight={isFav ? 'fill' : 'regular'} />
           </motion.span>
         </motion.button>
+        <CompareToggle id={id} />
 
         {/* Quick view */}
         <button

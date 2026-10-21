@@ -1,4 +1,4 @@
-import { desc, eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { db } from '@/src/db';
 import { questions, answers, products, users } from '@/src/db/schema';
 
@@ -9,7 +9,7 @@ export class QuestionService {
 
     const [question] = await db
       .insert(questions)
-      .values({ productId, userId, questionText: questionText.trim() })
+      .values({ productId, userId, questionText: questionText.trim(), status: 'PENDING' })
       .returning();
 
     return question;
@@ -38,7 +38,23 @@ export class QuestionService {
       })
       .from(questions)
       .innerJoin(users, eq(questions.userId, users.id))
-      .where(eq(questions.productId, productId))
+      .where(and(eq(questions.productId, productId), eq(questions.status, 'APPROVED')))
       .orderBy(desc(questions.createdAt));
+  }
+
+  static async listForModeration(status = 'PENDING') {
+    return db
+      .select({ id: questions.id, questionText: questions.questionText, status: questions.status, createdAt: questions.createdAt, productName: products.name, askedBy: users.username })
+      .from(questions)
+      .innerJoin(products, eq(questions.productId, products.id))
+      .innerJoin(users, eq(questions.userId, users.id))
+      .where(eq(questions.status, status))
+      .orderBy(desc(questions.createdAt))
+      .limit(100);
+  }
+
+  static async moderate(id: number, status: 'APPROVED' | 'REJECTED') {
+    const [q] = await db.update(questions).set({ status }).where(eq(questions.id, id)).returning({ id: questions.id });
+    if (!q) throw new Error('Question not found');
   }
 }

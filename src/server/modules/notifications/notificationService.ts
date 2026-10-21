@@ -94,7 +94,7 @@ export class NotificationService {
 
   static async notifyUser(
     userId: number,
-    input: { type?: 'ORDER' | 'SYSTEM'; title: string; body: string; link?: string }
+    input: { type?: 'ORDER' | 'SYSTEM' | 'CART'; title: string; body: string; link?: string }
   ): Promise<void> {
     try {
       await db.insert(notifications).values({
@@ -120,11 +120,14 @@ export class NotificationService {
       }
 
       // Order updates also go out by email + SMS when those providers are configured.
-      if (input.type === 'ORDER') {
+      if (input.type === 'ORDER' || input.type === 'CART') {
         try {
           const [u] = await db.select({ email: users.email, phone: users.phone }).from(users).where(eq(users.id, userId)).limit(1);
           if (u) {
-            await Promise.allSettled([sendEmail(u.email, input.title, input.body), sendSms(u.phone, `${input.title}: ${input.body}`)]);
+            await Promise.allSettled([
+              sendEmail(u.email, input.title, input.body),
+              input.type === 'ORDER' ? sendSms(u.phone, `${input.title}: ${input.body}`) : Promise.resolve(),
+            ]);
           }
         } catch (msgErr) {
           console.error('[NotificationService] email/sms failed:', msgErr);

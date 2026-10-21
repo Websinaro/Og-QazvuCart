@@ -9,6 +9,7 @@ import { NotificationProvider } from '@/src/context/NotificationContext';
 import { Header } from '@/src/components/layout/Header';
 import { Footer } from '@/src/components/layout/Footer';
 import { CartDrawer } from '@/src/components/layout/CartDrawer';
+import { CompareBar } from '@/src/components/product/CompareToggle';
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
@@ -22,6 +23,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
                 <main className="flex-1">{children}</main>
                 <Footer />
                 <CartDrawer />
+                <CompareBar />
               </div>
             </NotificationProvider>
           </ToastProvider>

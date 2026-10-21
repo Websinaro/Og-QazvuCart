@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, lte, like, or, sql, SQL, inArray, notInArray } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, lte, ilike, or, sql, SQL, inArray, notInArray } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { db } from '@/src/db';
 import {
@@ -16,12 +16,14 @@ import {
   orderItems,
 } from '@/src/db/schema';
 import { getDeliveryEstimate } from '@/src/lib/date';
+import { hasTrigram } from '@/src/lib/trigram';
 
 export interface ProductQueryParams {
   q?: string;
   category?: string;
   categories?: number[];
   ids?: number[];
+  brands?: string[];
   excludeIds?: number[];
   minPrice?: number;
   maxPrice?: number;
@@ -48,16 +50,25 @@ export class ProductService {
     // Only products from APPROVED sellers are ever visible on the storefront.
     const conditions: SQL[] = [eq(products.status, 'ACTIVE'), eq(sellers.status, 'APPROVED')];
 
-    if (params.q && params.q.trim().length > 0) {
-      const term = `%${params.q.trim()}%`;
+    const qText = params.q?.trim() || '';
+    const fuzzy = qText.length > 0 && (await hasTrigram());
+    if (qText.length > 0) {
+      const term = `%${qText}%`;
       conditions.push(
         or(
-          like(products.name, term),
-          like(products.description, term),
-          like(products.brand, term),
-          like(categories.name, term)
+          ilike(products.name, term),
+          ilike(products.description, term),
+          ilike(products.brand, term),
+          ilike(categories.name, term),
+          // Typo tolerance: "hedphones" still finds "Headphones".
+          fuzzy ? sql`word_similarity(${qText}, ${products.name}) > 0.4` : sql`false`,
+          fuzzy ? sql`word_similarity(${qText}, ${products.brand}) > 0.5` : sql`false`
         )!
       );
+    }
+
+    if (params.brands && params.brands.length > 0) {
+      conditions.push(inArray(sql`lower(${products.brand})`, params.brands.map((b) => b.toLowerCase())));
     }
 
     if (params.category && params.category !== 'all') {
@@ -135,7 +146,9 @@ export class ProductService {
             )}]::int[], ${products.id})`,
           ];
         } else {
-          orderBy = [desc(products.isFeatured), desc(products.rating), desc(products.id)];
+          orderBy = fuzzy
+            ? [desc(sql`word_similarity(${qText}, ${products.name})`), desc(products.isFeatured), desc(products.rating), desc(products.id)]
+            : [desc(products.isFeatured), desc(products.rating), desc(products.id)];
         }
         break;
     }
@@ -408,7 +421,7 @@ export class ProductService {
       .innerJoin(users, eq(questions.userId, users.id))
       .leftJoin(answers, eq(answers.questionId, questions.id))
       .leftJoin(answerUsers, eq(answers.userId, answerUsers.id))
-      .where(eq(questions.productId, productId))
+      .where(and(eq(questions.productId, productId), eq(questions.status, 'APPROVED')))
       .orderBy(desc(questions.createdAt));
 
     const specsMap: Record<string, string> = {};
