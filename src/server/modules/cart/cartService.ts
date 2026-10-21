@@ -1,4 +1,5 @@
 import { and, eq, isNull, sql } from 'drizzle-orm';
+import { computeDeliveryFee, FREE_DELIVERY_THRESHOLD } from '@/src/lib/delivery';
 import { db } from '@/src/db';
 import { carts, cartItems, products, productVariants, productImages, sellers } from '@/src/db/schema';
 import { getDeliveryEstimate } from '@/src/lib/date';
@@ -36,7 +37,7 @@ export interface CartSummary {
   grandTotal: number;
 }
 
-const FREE_THRESHOLD = 999;
+const FREE_THRESHOLD = FREE_DELIVERY_THRESHOLD;
 
 export class CartService {
   static async getOrCreateUserCartId(userId: number): Promise<number> {
@@ -133,7 +134,7 @@ export class CartService {
       });
     }
 
-    const finalDeliveryFee = items.length === 0 ? 0 : subtotal >= FREE_THRESHOLD ? 0 : maxDeliveryFee || 40;
+    const finalDeliveryFee = items.length === 0 ? 0 : computeDeliveryFee(subtotal);
     const freeDeliveryRemaining = Math.max(0, FREE_THRESHOLD - subtotal);
     const totalDiscount = Math.max(0, totalOriginalPrice - subtotal);
     const grandTotal = subtotal + finalDeliveryFee;

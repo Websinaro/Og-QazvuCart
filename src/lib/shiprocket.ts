@@ -133,3 +133,24 @@ export async function trackWaybill(awb: string): Promise<'OUT_FOR_DELIVERY' | 'D
   if (/out for delivery/i.test(st) || Number(t?.shipment_status) === 17) return 'OUT_FOR_DELIVERY';
   return null;
 }
+
+/**
+ * Courier-quoted delivery time (days) from a seller's pickup PIN to the customer's PIN, using
+ * Shiprocket's recommended courier. Returns null when unconfigured/unavailable so callers fall
+ * back to the seller's own estimate. Never throws; gives up after 3s so checkout is not held up.
+ */
+export async function estimateDeliveryDays(pickupPin: string, deliveryPin: string): Promise<number | null> {
+  if (!isShiprocketConfigured() || !PINCODE_RE.test(pickupPin) || !PINCODE_RE.test(deliveryPin)) return null;
+  try {
+    const qs = new URLSearchParams({ pickup_postcode: pickupPin, delivery_postcode: deliveryPin, weight: '0.5', cod: '0' });
+    const res = await sr(`/courier/serviceability/?${qs}`, { signal: AbortSignal.timeout(3000) });
+    if (!res.ok) return null;
+    const d = (await res.json().catch(() => null))?.data;
+    const list: Array<{ courier_company_id?: number; estimated_delivery_days?: string | number }> = d?.available_courier_companies ?? [];
+    const pick = list.find((c) => c.courier_company_id === d?.recommended_courier_company_id) ?? list[0];
+    const days = Number(pick?.estimated_delivery_days);
+    return Number.isFinite(days) && days > 0 ? Math.ceil(days) : null;
+  } catch {
+    return null;
+  }
+}

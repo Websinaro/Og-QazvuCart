@@ -1,4 +1,5 @@
 import { and, eq, inArray, sql } from 'drizzle-orm';
+import { computeDeliveryFee } from '@/src/lib/delivery';
 import type { PgTransaction, PgQueryResultHKT } from 'drizzle-orm/pg-core';
 import type { ExtractTablesWithRelations } from 'drizzle-orm';
 import { db } from '@/src/db';
@@ -23,6 +24,7 @@ import { AddressService } from '../addresses/addressService';
 import { CartService } from '../cart/cartService';
 import { CouponService } from '../coupons/couponService';
 import { getDeliveryEstimate } from '@/src/lib/date';
+import { estimateDeliveryDays } from '@/src/lib/shiprocket';
 import { assertValidTransition, canTransition, isValidOrderStatus } from '@/src/lib/orderStateMachine';
 import { priceLine, resolveCommissionRate, summarizeSellerParcel } from '@/src/lib/commission';
 import { canCustomerCancel } from '@/src/lib/fulfilmentStatus';
@@ -284,7 +286,7 @@ export class OrderService {
       // 4. Totals & delivery estimate ----------------------------------------
       const subtotal = itemsToOrder.reduce((acc, item) => acc + item.totalPrice, 0);
       const maxEstimatedDays = Math.max(...itemsToOrder.map((i) => i.estimatedDays), 2);
-      const deliveryFee = subtotal >= 999 ? 0 : Math.max(...itemsToOrder.map((i) => i.deliveryFee), 40);
+      const deliveryFee = computeDeliveryFee(subtotal);
 
       // 4b. Coupon (optional) -------------------------------------------
       // Re-validated here, inside the same transaction that will record
@@ -302,7 +304,19 @@ export class OrderService {
       }
 
       const total = subtotal - couponDiscount + deliveryFee;
-      const deliveryEstimate = getDeliveryEstimate(maxEstimatedDays, deliveryFee);
+      // Courier-quoted transit time (slowest seller parcel) + the seller's own handling days; falls back to the seller estimate.
+      let etaDays = maxEstimatedDays;
+      const destPin = String((addressSnapshot as Record<string, unknown> | undefined)?.postalCode ?? '');
+      if (destPin) {
+        const pickups = await db
+          .select({ pin: schema.sellers.pickupPincode })
+          .from(schema.sellers)
+          .where(inArray(schema.sellers.id, [...new Set(itemsToOrder.map((i) => i.sellerId))]));
+        const quotes = await Promise.all(pickups.map((p) => (p.pin ? estimateDeliveryDays(p.pin, destPin) : Promise.resolve(null))));
+        const valid = quotes.filter((q): q is number => q !== null);
+        if (valid.length && valid.length === pickups.length) etaDays = Math.max(...valid) + 1; // +1 day to pack & hand over
+      }
+      const deliveryEstimate = getDeliveryEstimate(etaDays, deliveryFee);
 
       const orderNumber = `ORD-${Math.floor(100000 + Math.random() * 900000)}`;
       const paymentMethod = params.paymentMethod || 'CARD';
