@@ -11,15 +11,15 @@
 import crypto from 'node:crypto';
 import {
   MAX_REFUND_ATTEMPTS, WEBHOOK_LOCK_SECONDS, planRefund, countsTowardRefunded,
-} from '../../src/lib/paymentRules.ts';
+} from '../../src/lib/paymentRules';
 import type {
   OrderPaymentView, PaymentRecord, RemotePayment, RemoteRefund,
-} from '../../src/lib/paymentRules.ts';
-import { RefundError } from '../../src/server/modules/payments/ports.ts';
+} from '../../src/lib/paymentRules';
+import { RefundError } from '../../src/server/modules/payments/ports';
 import type {
   Locked, NewRefund, PaymentGateway, PaymentPatch, PaymentsStore, PaymentUow, ReconItemInput,
   ReconRunInput, RefundRecord, WebhookClaim,
-} from '../../src/server/modules/payments/ports.ts';
+} from '../../src/server/modules/payments/ports';
 
 export const TEST_ENV = {
   RAZORPAY_KEY_ID: 'rzp_test_key',

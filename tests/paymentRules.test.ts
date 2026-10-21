@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import {
   canTransitionPayment, planRefund, refundableAmount, checkPaymentAmount, classifyPayment,
   isRetryableGatewayStatus, nextRefundStatus, mapRefundStatus, rupeesToPaise,
-} from '../src/lib/paymentRules.ts';
-import type { PaymentRecord, PaymentStatus } from '../src/lib/paymentRules.ts';
+} from '../src/lib/paymentRules';
+import type { PaymentRecord, PaymentStatus } from '../src/lib/paymentRules';
 
 const pay = (o: Partial<PaymentRecord> = {}): PaymentRecord => ({
   id: 1, orderId: 1, userId: 1, providerOrderId: 'order_1', providerPaymentId: null, amount: 100_00, capturedAmount: 0,

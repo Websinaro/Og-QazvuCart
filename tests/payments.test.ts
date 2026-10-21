@@ -2,12 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   Clock, FakeGateway, FakeStore, checkoutSignature, signedWebhook, webhookSignature,
-} from './helpers/fakePayments.ts';
-import { PaymentEngine, PaymentError } from '../src/server/modules/payments/paymentEngine.ts';
-import { PaymentReconciler } from '../src/server/modules/payments/reconciler.ts';
-import { RefundError } from '../src/server/modules/payments/ports.ts';
-import { verifyCheckoutSignature, verifyWebhookSignature } from '../src/lib/razorpay.ts';
-import { MAX_PAYMENT_ATTEMPTS } from '../src/lib/paymentRules.ts';
+} from './helpers/fakePayments';
+import { PaymentEngine, PaymentError } from '../src/server/modules/payments/paymentEngine';
+import { PaymentReconciler } from '../src/server/modules/payments/reconciler';
+import { RefundError } from '../src/server/modules/payments/ports';
+import { verifyCheckoutSignature, verifyWebhookSignature } from '../src/lib/razorpay';
+import { MAX_PAYMENT_ATTEMPTS } from '../src/lib/paymentRules';
 
 function setup(orderTotal = 1000) {
   const clock = new Clock();
@@ -131,7 +131,7 @@ test('webhook signed with the API key secret (wrong secret) is rejected', async 
   const ctx = setup();
   const { remote } = await startAndPay(ctx);
   const raw = JSON.stringify({ event: 'payment.captured', payload: { payment: { entity: remote } } });
-  const wrong = (await import('./helpers/fakePayments.ts')).hmac('test_key_secret', raw);
+  const wrong = (await import('./helpers/fakePayments')).hmac('test_key_secret', raw);
   await rejects(ctx.engine.handleWebhook(raw, wrong, 'evt_1'), 'INVALID_SIGNATURE');
 });
 
