@@ -311,7 +311,7 @@ export class OrderService {
         const pickups = await db
           .select({ pin: schema.sellers.pickupPincode })
           .from(schema.sellers)
-          .where(inArray(schema.sellers.id, [...new Set(itemsToOrder.map((i) => i.sellerId))]));
+          .where(inArray(schema.sellers.id, [...new Set(pricedItems.map((i) => i.sellerId))]));
         const quotes = await Promise.all(pickups.map((p) => (p.pin ? estimateDeliveryDays(p.pin, destPin) : Promise.resolve(null))));
         const valid = quotes.filter((q): q is number => q !== null);
         if (valid.length && valid.length === pickups.length) etaDays = Math.max(...valid) + 1; // +1 day to pack & hand over
