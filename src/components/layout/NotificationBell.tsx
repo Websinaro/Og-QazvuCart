@@ -100,7 +100,7 @@ export function NotificationBell() {
             initial={{ scale: 0.5 }}
             animate={{ scale: 1 }}
             transition={{ type: 'spring', stiffness: 500, damping: 15 }}
-            className="absolute top-1 right-0.5 min-w-[17px] h-[17px] px-1 rounded-full bg-brand-600 text-neutral-950 font-semibold text-[10px] grid place-items-center ring-2 ring-white dark:ring-neutral-950"
+            className="absolute top-1 right-0.5 min-w-[17px] h-[17px] px-1 rounded-full bg-brand-700 text-white font-semibold text-[10px] grid place-items-center ring-2 ring-white dark:ring-neutral-950"
           >
             {unreadCount > 9 ? '9+' : unreadCount}
           </motion.span>

@@ -95,7 +95,7 @@ export function CartDrawer() {
 
           <div className="fixed inset-y-0 right-0 max-w-full flex pl-4 sm:pl-10">
             <motion.div
-              className="w-screen max-w-md bg-white dark:bg-[#14110a] shadow-2xl flex flex-col sm:rounded-l-[2rem] overflow-hidden border-l border-neutral-900/5 dark:border-white/10"
+              className="w-screen max-w-md bg-white dark:bg-[#0a150f] shadow-2xl flex flex-col sm:rounded-l-[2rem] overflow-hidden border-l border-neutral-900/5 dark:border-white/10"
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
@@ -168,7 +168,7 @@ export function CartDrawer() {
                   <div className="w-full bg-neutral-900/10 dark:bg-white/10 h-1.5 rounded-full overflow-hidden">
                     <motion.div
                       className={`h-full rounded-full ${
-                        justUnlockedFreeDelivery ? 'bg-emerald-500' : 'bg-gradient-to-r from-brand-400 to-brand-600'
+                        justUnlockedFreeDelivery ? 'bg-emerald-500' : 'bg-brand-500'
                       }`}
                       initial={false}
                       animate={{ width: `${progressPercent}%` }}
@@ -192,7 +192,7 @@ export function CartDrawer() {
                     <Link
                       href="/products"
                       onClick={closeCartDrawer}
-                      className="h-11 px-7 grid place-items-center rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-[13px] font-semibold hover:bg-brand-600 dark:hover:bg-brand-200 transition-colors hover:text-neutral-950"
+                      className="h-11 px-7 grid place-items-center rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-[13px] font-semibold hover:bg-brand-700 dark:hover:bg-brand-200 transition-colors hover:text-white dark:hover:text-neutral-950"
                     >
                       Start shopping
                     </Link>
@@ -327,7 +327,7 @@ export function CartDrawer() {
                   <Link
                     href="/checkout"
                     onClick={closeCartDrawer}
-                    className="group w-full h-12 px-5 rounded-full bg-brand-600 hover:bg-brand-500 text-neutral-950 font-semibold text-sm shadow-glow active:scale-[0.99] transition-all flex items-center justify-center gap-2"
+                    className="group w-full h-12 px-5 rounded-full bg-brand-700 hover:bg-brand-600 text-white font-semibold text-sm shadow-glow active:scale-[0.99] transition-all flex items-center justify-center gap-2"
                   >
                     Checkout
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" weight="bold" />

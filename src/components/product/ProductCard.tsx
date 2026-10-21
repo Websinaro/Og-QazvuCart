@@ -59,12 +59,19 @@ export function ProductCard({
 
   const isFav = isInWishlist(id);
 
-  // Feeds the pointer-follow yellow spotlight (see .card-spotlight in globals.css).
+  // Subtle image parallax: the photo drifts a few pixels toward the pointer.
+  // Written to CSS variables (no React state), so it costs nothing per move.
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.pointerType === 'touch') return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    e.currentTarget.style.setProperty('--mx', `${e.clientX - rect.left}px`);
-    e.currentTarget.style.setProperty('--my', `${e.clientY - rect.top}px`);
+    if (e.pointerType === 'touch' || !imageRef.current) return;
+    const rect = imageRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    imageRef.current.style.setProperty('--px', `${(x * -8).toFixed(2)}px`);
+    imageRef.current.style.setProperty('--py', `${(y * -8).toFixed(2)}px`);
+  };
+  const handlePointerLeave = () => {
+    imageRef.current?.style.setProperty('--px', '0px');
+    imageRef.current?.style.setProperty('--py', '0px');
   };
 
   const handleWishlistToggle = async (e: React.MouseEvent) => {
@@ -102,31 +109,31 @@ export function ProductCard({
   return (
     <div
       onPointerMove={handlePointerMove}
-      className="group card-spotlight relative flex flex-col h-full rounded-[1.375rem] bg-white dark:bg-[#17140b] border border-brand-700/10 dark:border-white/[0.08] shadow-soft hover:shadow-lift hover:border-brand-400/70 dark:hover:border-brand-400/40 hover:-translate-y-1 transition-[transform,box-shadow,border-color] duration-300 ease-out overflow-hidden"
+      onPointerLeave={handlePointerLeave}
+      className="group relative flex flex-col h-full rounded-2xl bg-white dark:bg-[#0e1a14] border border-neutral-900/[0.08] dark:border-white/[0.08] hover:border-brand-600/40 dark:hover:border-brand-400/40 hover:shadow-lift hover:-translate-y-0.5 transition-[transform,box-shadow,border-color] duration-300 ease-out overflow-hidden"
     >
       {/* Media */}
-      <div ref={imageRef} className="shine-sweep relative aspect-[4/4.2] w-full bg-brand-50 dark:bg-neutral-900 overflow-hidden shrink-0 m-0">
+      <div ref={imageRef} className="relative aspect-[4/4.2] w-full bg-neutral-100 dark:bg-neutral-900 overflow-hidden shrink-0 m-0">
         <Link href={`/products/${slug}`} className="block w-full h-full" aria-label={name}>
           <Image
             src={validImage}
             alt={name}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover group-hover:scale-[1.08] group-hover:rotate-[0.4deg] transition-transform duration-700 ease-out"
+            className="object-cover scale-[1.02] group-hover:scale-[1.07] transition-transform duration-700 ease-out will-change-transform [translate:var(--px,0px)_var(--py,0px)]"
             referrerPolicy="no-referrer"
           />
-          <span className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        </Link>
+                  </Link>
 
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col items-start gap-1.5 z-10 pointer-events-none">
           {discountPercent > 0 && (
-            <span className="rounded-full bg-rose-600 text-white text-[10px] sm:text-[11px] font-semibold px-2.5 py-1 shadow-sm">
+            <span className="rounded-md bg-brand-700 text-white text-[10px] sm:text-[11px] font-semibold px-2 py-1">
               −{discountPercent}%
             </span>
           )}
           {isDeal && (
-            <span className="inline-flex items-center gap-1 rounded-full glass text-neutral-900 dark:text-white text-[10px] font-semibold px-2.5 py-1 shadow-sm">
+            <span className="inline-flex items-center gap-1 rounded-md glass text-neutral-900 dark:text-white text-[10px] font-semibold px-2 py-1">
               <Zap className="w-3 h-3 text-brand-700 dark:text-brand-300" weight="fill" /> Deal
             </span>
           )}
@@ -160,14 +167,14 @@ export function ProductCard({
             e.stopPropagation();
             setIsQuickViewOpen(true);
           }}
-          className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 h-8 px-3.5 rounded-full glass text-neutral-900 dark:text-white text-[11px] font-semibold shadow-lg opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 max-sm:hidden cursor-pointer hover:bg-white dark:hover:bg-neutral-800"
+          className="absolute inset-x-3 bottom-3 z-10 flex items-center justify-center gap-1.5 h-9 rounded-lg glass text-neutral-900 dark:text-white text-xs font-semibold opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0 focus-visible:opacity-100 focus-visible:translate-y-0 transition-[opacity,transform] duration-300 ease-out max-sm:hidden cursor-pointer hover:bg-white dark:hover:bg-neutral-800"
         >
           <Eye className="w-3.5 h-3.5" /> Quick view
         </button>
 
         {!inStock && (
           <div className="absolute inset-0 bg-white/70 dark:bg-black/60 backdrop-blur-[2px] grid place-items-center z-10">
-            <span className="rounded-full bg-neutral-950 text-white text-[11px] font-semibold px-3 py-1.5 tracking-wide">
+            <span className="rounded-md bg-neutral-950 text-white text-xs font-semibold px-3 py-1.5">
               Sold out
             </span>
           </div>
@@ -176,8 +183,8 @@ export function ProductCard({
 
       {/* Content */}
       <div className="p-3.5 sm:p-4 flex-1 flex flex-col">
-        <div className="flex items-center justify-between gap-2 text-[10px] sm:text-[11px] mb-1.5">
-          <span className="font-semibold uppercase tracking-[0.12em] text-brand-700 dark:text-brand-300 truncate">{brand}</span>
+        <div className="flex items-center justify-between gap-2 text-[11px] sm:text-xs mb-1.5">
+          <span className="font-medium text-brand-700 dark:text-brand-300 truncate">{brand}</span>
           {categoryName && <span className="text-neutral-400 truncate shrink-0 max-w-[45%]">{categoryName}</span>}
         </div>
 
@@ -208,7 +215,7 @@ export function ProductCard({
 
           {deliveryInfo && (
             <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400 flex items-center gap-1 truncate">
-              <Truck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <Truck className="w-3.5 h-3.5 text-brand-600 dark:text-brand-300 shrink-0" />
               <span className="truncate">
                 Arrives <span className="font-medium text-neutral-700 dark:text-neutral-300">{deliveryInfo.dateString}</span>
               </span>
@@ -218,10 +225,10 @@ export function ProductCard({
           <button
             onClick={handleQuickAdd}
             disabled={!inStock || isLoading}
-            className={`mt-3 w-full h-10 px-3 text-[13px] font-semibold rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] cursor-pointer ${
+            className={`mt-3 w-full h-10 px-3 text-[13px] font-semibold rounded-lg border transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] cursor-pointer ${
               justAdded
-                ? 'bg-emerald-500 text-white'
-                : 'bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 hover:bg-brand-600 dark:hover:bg-brand-200 hover:shadow-glow hover:text-neutral-950'
+                ? 'bg-brand-700 border-brand-700 text-white'
+                : 'border-brand-800/25 dark:border-white/20 text-brand-800 dark:text-brand-200 hover:bg-brand-800 hover:border-brand-800 hover:text-white dark:hover:bg-brand-500 dark:hover:border-brand-500 dark:hover:text-neutral-950'
             }`}
           >
             <AnimatePresence mode="wait" initial={false}>

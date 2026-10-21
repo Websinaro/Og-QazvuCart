@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
+import { Schibsted_Grotesk } from 'next/font/google';
+import { Intro } from '@/src/components/ui/Intro';
 import { AppProviders } from '@/src/components/providers/AppProviders';
 import { ThemeProvider } from '@/src/context/ThemeContext';
 
@@ -17,11 +19,19 @@ import { ThemeProvider } from '@/src/context/ThemeContext';
 // the old bug are handled separately (theme-matched real <img> assets in
 // Header/NotificationBell — see ThemeContext's resolvedTheme comment for
 // why that still can't be pure CSS recoloring).
+// Primary typeface: a grotesk with a little more character than the system
+// default, still very legible at small sizes and for prices (tabular figures).
+const schibsted = Schibsted_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-schibsted',
+  display: 'swap',
+});
+
 export const viewport: Viewport = {
   colorScheme: 'light dark',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#fffdf4' },
-    { media: '(prefers-color-scheme: dark)', color: '#0f0d08' },
+    { media: '(prefers-color-scheme: light)', color: '#f7fbf8' },
+    { media: '(prefers-color-scheme: dark)', color: '#07110c' },
   ],
 };
 
@@ -58,16 +68,31 @@ const themeInitScript = `
 })();
 `;
 
+// First-visit intro gate. Repeat visits in the same session and visitors who
+// prefer reduced motion never see the overlay (no flash, no scroll lock).
+const introInitScript = `
+(function () {
+  var d = document.documentElement;
+  try {
+    var seen = sessionStorage.getItem('qazvucart-intro') === '1';
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    d.classList.add(seen || reduce ? 'intro-skip' : 'intro-active');
+  } catch (e) { d.classList.add('intro-skip'); }
+})();
+`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${GeistSans.variable} ${GeistMono.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${schibsted.variable} ${GeistSans.variable} ${GeistMono.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <script dangerouslySetInnerHTML={{ __html: introInitScript }} />
       </head>
       <body
         suppressHydrationWarning
         className="font-sans antialiased"
       >
+        <Intro />
         <ThemeProvider>
           <AppProviders>{children}</AppProviders>
         </ThemeProvider>

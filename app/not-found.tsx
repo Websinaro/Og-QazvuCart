@@ -24,7 +24,7 @@ export default function NotFoundPage() {
         <Link
           id="not-found-home-link"
           href="/"
-          className="group inline-flex items-center justify-center gap-2 h-12 px-7 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-sm font-semibold hover:bg-brand-600 dark:hover:bg-brand-200 transition-colors shadow-soft hover:text-neutral-950"
+          className="group inline-flex items-center justify-center gap-2 h-12 px-7 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-sm font-semibold hover:bg-brand-700 dark:hover:bg-brand-200 transition-colors shadow-soft hover:text-white dark:hover:text-neutral-950"
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" weight="bold" />
           Continue shopping

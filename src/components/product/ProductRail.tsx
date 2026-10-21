@@ -37,9 +37,9 @@ export function ProductRail({
         <div className="flex items-center gap-3 min-w-0">
           {Icon && (
             <span
-              className={`grid place-items-center w-10 h-10 rounded-2xl shrink-0 ${
+              className={`grid place-items-center w-10 h-10 rounded-xl shrink-0 ${
                 accent === 'amber'
-                  ? 'bg-gradient-to-br from-brand-300 to-brand-600 text-neutral-950 shadow-glow'
+                  ? 'bg-brand-700 text-white'
                   : 'bg-brand-500/10 text-brand-700 dark:text-brand-300'
               }`}
             >

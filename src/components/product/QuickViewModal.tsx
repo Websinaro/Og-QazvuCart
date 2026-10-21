@@ -121,7 +121,7 @@ export function QuickViewModal({
           role="dialog"
           aria-modal="true"
           aria-label="Quick product preview"
-          className="relative bg-white w-full sm:max-w-2xl sm:rounded-3xl rounded-t-3xl shadow-2xl overflow-hidden max-h-[92vh] sm:max-h-[85vh] flex flex-col dark:bg-[#17140b]"
+          className="relative bg-white w-full sm:max-w-2xl sm:rounded-3xl rounded-t-3xl shadow-2xl overflow-hidden max-h-[92vh] sm:max-h-[85vh] flex flex-col dark:bg-[#0e1a14]"
           initial={{ y: 40, opacity: 0, scale: 0.98 }}
           animate={{ y: 0, opacity: 1, scale: 1 }}
           exit={{ y: 20, opacity: 0, scale: 0.98 }}
@@ -252,7 +252,7 @@ export function QuickViewModal({
                   <button
                     onClick={handleAddToCart}
                     disabled={product.stock <= 0 || isCartLoading}
-                    className="flex-1 py-3 px-4 bg-brand-600 hover:bg-brand-500 text-neutral-950 font-bold text-sm rounded-xl shadow-soft transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                    className="flex-1 py-3 px-4 bg-brand-700 hover:bg-brand-600 text-white font-bold text-sm rounded-xl shadow-soft transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                   >
                     <ShoppingBag className="w-4 h-4" />
                     {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
@@ -263,7 +263,7 @@ export function QuickViewModal({
                     className={`p-3 rounded-xl border cursor-pointer ${
                       isFav
                         ? 'bg-red-50 text-red-600 border-red-200 dark:bg-red-500/15 dark:border-red-500/25'
-                        : 'bg-white text-neutral-600 border-neutral-300 hover:border-red-300 hover:text-red-600 dark:bg-[#17140b] dark:text-neutral-300 dark:border-white/10'
+                        : 'bg-white text-neutral-600 border-neutral-300 hover:border-red-300 hover:text-red-600 dark:bg-[#0e1a14] dark:text-neutral-300 dark:border-white/10'
                     }`}
                     aria-label="Toggle wishlist"
                   >

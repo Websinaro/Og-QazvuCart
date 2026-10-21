@@ -8,7 +8,7 @@ export function ProductCardSkeleton({ index = 0 }: { index?: number }) {
   return (
     <div
       style={{ animationDelay: `${Math.min(index, 11) * 60}ms` }}
-      className="animate-skeleton-in rounded-[1.375rem] bg-white dark:bg-[#17140b] border border-brand-700/10 dark:border-white/[0.08] overflow-hidden h-full flex flex-col"
+      className="animate-skeleton-in rounded-2xl bg-white dark:bg-[#0e1a14] border border-neutral-900/[0.08] dark:border-white/[0.08] overflow-hidden h-full flex flex-col"
     >
       <div className="relative aspect-[4/4.2] w-full shimmer-bg" />
       <div className="p-3.5 sm:p-4 flex-1 flex flex-col gap-2.5">
@@ -18,7 +18,7 @@ export function ProductCardSkeleton({ index = 0 }: { index?: number }) {
         <div className="h-3 w-20 rounded-full shimmer-bg mt-1" />
         <div className="mt-auto pt-3 space-y-2.5">
           <div className="h-5 w-24 rounded-full shimmer-bg" />
-          <div className="h-10 w-full rounded-xl shimmer-bg" />
+          <div className="h-10 w-full rounded-lg shimmer-bg" />
         </div>
       </div>
     </div>

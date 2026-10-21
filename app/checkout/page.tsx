@@ -316,7 +316,7 @@ export default function CheckoutPage() {
   if (!isAuthLoading && !isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 pb-20">
-        <div className="bg-white rounded-3xl p-10 text-center border border-neutral-200 shadow-sm max-w-md w-full space-y-4 dark:bg-[#17140b] dark:border-white/10">
+        <div className="bg-white rounded-3xl p-10 text-center border border-neutral-200 shadow-sm max-w-md w-full space-y-4 dark:bg-[#0e1a14] dark:border-white/10">
           <div className="w-16 h-16 bg-brand-500/15 text-neutral-950 rounded-2xl flex items-center justify-center mx-auto font-bold text-2xl dark:text-white">
             M
           </div>
@@ -326,7 +326,7 @@ export default function CheckoutPage() {
           </p>
           <button
             onClick={() => setIsAuthModalOpen(true)}
-            className="w-full py-3.5 bg-brand-600 hover:bg-brand-500 text-neutral-950 font-semibold text-xs rounded-xl shadow-md transition-all"
+            className="w-full py-3.5 bg-brand-700 hover:bg-brand-600 text-white font-semibold text-xs rounded-xl shadow-md transition-all"
           >
             Sign In / Register
           </button>
@@ -343,7 +343,7 @@ export default function CheckoutPage() {
   if (placedOrder) {
     return (
       <div className="min-h-screen py-12 px-4 sm:px-6">
-        <div className="max-w-2xl mx-auto bg-white rounded-3xl p-8 sm:p-12 border border-neutral-200 shadow-xl text-center space-y-6 animate-in fade-in duration-300 dark:bg-[#17140b] dark:border-white/10">
+        <div className="max-w-2xl mx-auto bg-white rounded-3xl p-8 sm:p-12 border border-neutral-200 shadow-xl text-center space-y-6 animate-in fade-in duration-300 dark:bg-[#0e1a14] dark:border-white/10">
           <div className="w-20 h-20 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto shadow-inner dark:bg-emerald-500/15 dark:text-emerald-300">
             <CheckCircle2 className="w-10 h-10" />
           </div>
@@ -431,7 +431,7 @@ export default function CheckoutPage() {
           {/* Left Column: Steps (8 cols) */}
           <div className="lg:col-span-8 space-y-6">
             {/* Step 1: Delivery Address */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-neutral-200 shadow-soft dark:bg-[#17140b] dark:border-white/10">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-neutral-200 shadow-soft dark:bg-[#0e1a14] dark:border-white/10">
               <div className="flex items-center justify-between pb-4 border-b border-neutral-100 dark:border-white/10">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-neutral-950 text-brand-300 font-bold text-xs flex items-center justify-center">
@@ -455,7 +455,7 @@ export default function CheckoutPage() {
                   <p className="text-xs text-neutral-500 dark:text-neutral-400">No saved addresses found. Please add a shipping address.</p>
                   <button
                     onClick={() => setIsAddressModalOpen(true)}
-                    className="px-5 py-2 bg-brand-600 text-neutral-950 font-bold text-xs rounded-xl"
+                    className="px-5 py-2 bg-brand-700 text-white font-bold text-xs rounded-xl"
                   >
                     Add Address Now
                   </button>
@@ -469,7 +469,7 @@ export default function CheckoutPage() {
                       className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
                         selectedAddressId === addr.id
                           ? 'border-neutral-950 bg-neutral-50/70 shadow-sm'
-                          : 'border-neutral-200 hover:border-neutral-400 bg-white dark:bg-[#17140b] dark:border-white/10'
+                          : 'border-neutral-200 hover:border-neutral-400 bg-white dark:bg-[#0e1a14] dark:border-white/10'
                       }`}
                     >
                       <div>
@@ -480,7 +480,7 @@ export default function CheckoutPage() {
                               {addr.type}
                             </span>
                             {addr.isDefault && (
-                              <span className="bg-brand-600 text-neutral-950 text-[10px] font-semibold px-2 py-0.5 rounded-md">
+                              <span className="bg-brand-700 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md">
                                 DEFAULT
                               </span>
                             )}
@@ -513,7 +513,7 @@ export default function CheckoutPage() {
             </div>
 
             {/* Step 2: Payment Method */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-neutral-200 shadow-soft dark:bg-[#17140b] dark:border-white/10">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-neutral-200 shadow-soft dark:bg-[#0e1a14] dark:border-white/10">
               <div className="flex items-center gap-3 pb-4 border-b border-neutral-100 dark:border-white/10">
                 <div className="w-8 h-8 rounded-full bg-neutral-950 text-brand-300 font-bold text-xs flex items-center justify-center">
                   2
@@ -561,7 +561,7 @@ export default function CheckoutPage() {
                           value={upiId}
                           onChange={(e) => setUpiId(e.target.value)}
                           placeholder="e.g. 9876543210@upi"
-                          className="flex-1 px-3 py-2 text-xs border border-neutral-300 rounded-xl bg-white focus:outline-none dark:bg-[#17140b] dark:border-white/10"
+                          className="flex-1 px-3 py-2 text-xs border border-neutral-300 rounded-xl bg-white focus:outline-none dark:bg-[#0e1a14] dark:border-white/10"
                         />
                         <button
                           type="button"
@@ -660,7 +660,7 @@ export default function CheckoutPage() {
 
           {/* Right Column: Order Summary & Place Order Button (4 cols) */}
           <div className="lg:col-span-4 space-y-4">
-            <div className="bg-white rounded-3xl p-6 border border-neutral-200 shadow-sm space-y-4 dark:bg-[#17140b] dark:border-white/10">
+            <div className="bg-white rounded-3xl p-6 border border-neutral-200 shadow-sm space-y-4 dark:bg-[#0e1a14] dark:border-white/10">
               <h3 className="text-base font-bold text-neutral-950 uppercase tracking-wider pb-3 border-b border-neutral-100 dark:text-white dark:border-white/10">
                 Order Summary
               </h3>
@@ -771,7 +771,7 @@ export default function CheckoutPage() {
               <button
                 onClick={handlePlaceOrder}
                 disabled={isProcessingOrder || !selectedAddressId || cart.items.length === 0}
-                className="w-full py-4 px-6 bg-brand-600 hover:bg-brand-500 text-neutral-950 font-bold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full py-4 px-6 bg-brand-700 hover:bg-brand-600 text-white font-bold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {isProcessingOrder ? (
                   <span className="inline-block animate-spin w-5 h-5 border-2 border-neutral-950 border-t-transparent rounded-full" />
@@ -790,7 +790,7 @@ export default function CheckoutPage() {
       {/* Add Address Modal */}
       {isAddressModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 sm:p-8 border border-neutral-200 dark:bg-[#17140b] dark:border-white/10">
+          <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 sm:p-8 border border-neutral-200 dark:bg-[#0e1a14] dark:border-white/10">
             <div className="flex items-center justify-between pb-4 border-b border-neutral-100 dark:border-white/10">
               <h3 className="text-base font-bold text-neutral-950 dark:text-white">Add New Delivery Address</h3>
               <button onClick={() => setIsAddressModalOpen(false)}>
@@ -886,7 +886,7 @@ export default function CheckoutPage() {
                   <select
                     value={newType}
                     onChange={(e) => setNewType(e.target.value as 'HOME' | 'WORK' | 'OTHER')}
-                    className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-xl bg-white dark:bg-[#17140b] dark:border-white/10"
+                    className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-xl bg-white dark:bg-[#0e1a14] dark:border-white/10"
                   >
                     <option value="HOME">Home</option>
                     <option value="WORK">Work</option>
@@ -907,7 +907,7 @@ export default function CheckoutPage() {
 
               <button
                 type="submit"
-                className="w-full mt-2 py-3 bg-brand-600 hover:bg-brand-500 text-neutral-950 font-bold text-xs rounded-xl shadow transition-colors"
+                className="w-full mt-2 py-3 bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs rounded-xl shadow transition-colors"
               >
                 Save & Use This Address
               </button>

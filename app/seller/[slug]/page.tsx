@@ -113,7 +113,7 @@ export default function SellerStorePage({ params }: { params: Promise<{ slug: st
       {/* Store Banner */}
       <div className="bg-neutral-950 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10 flex flex-col sm:flex-row sm:items-center gap-5">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-brand-600 flex items-center justify-center shrink-0 font-bold text-2xl text-neutral-950">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-brand-700 flex items-center justify-center shrink-0 font-bold text-2xl text-white">
             {seller.avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={seller.avatarUrl} alt={seller.name} className="w-full h-full object-cover rounded-2xl" referrerPolicy="no-referrer" />
@@ -166,7 +166,7 @@ export default function SellerStorePage({ params }: { params: Promise<{ slug: st
         )}
 
         {!isLoading && productList.length === 0 && (
-          <div className="text-center py-16 text-sm text-neutral-500 bg-white border border-neutral-200 rounded-2xl dark:bg-[#17140b] dark:text-neutral-400 dark:border-white/10">
+          <div className="text-center py-16 text-sm text-neutral-500 bg-white border border-neutral-200 rounded-2xl dark:bg-[#0e1a14] dark:text-neutral-400 dark:border-white/10">
             This store hasn&apos;t listed any products yet. Check back soon.
           </div>
         )}

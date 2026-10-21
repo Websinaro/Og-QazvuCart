@@ -75,7 +75,7 @@ export default function CartPage() {
           </p>
           <Link
             href="/products"
-            className="group mt-8 inline-flex items-center justify-center gap-2 h-12 px-8 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-sm font-semibold hover:bg-brand-600 dark:hover:bg-brand-200 transition-colors hover:text-neutral-950"
+            className="group mt-8 inline-flex items-center justify-center gap-2 h-12 px-8 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-sm font-semibold hover:bg-brand-700 dark:hover:bg-brand-200 transition-colors hover:text-white dark:hover:text-neutral-950"
           >
             Explore marketplace
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" weight="bold" />
@@ -128,7 +128,7 @@ export default function CartPage() {
               <div className="w-full bg-neutral-900/10 dark:bg-white/10 h-1.5 rounded-full overflow-hidden">
                 <div
                   className={`h-full transition-all duration-500 rounded-full ${
-                    cart.freeDeliveryRemaining > 0 ? 'bg-gradient-to-r from-brand-400 to-brand-600' : 'bg-emerald-500'
+                    cart.freeDeliveryRemaining > 0 ? 'bg-brand-500' : 'bg-emerald-500'
                   }`}
                   style={{ width: `${progressPercent}%` }}
                 />
@@ -275,7 +275,7 @@ export default function CartPage() {
 
               <button
                 onClick={() => router.push('/checkout')}
-                className="group w-full h-12 px-6 rounded-full bg-brand-600 hover:bg-brand-500 text-neutral-950 font-semibold text-sm shadow-glow active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="group w-full h-12 px-6 rounded-full bg-brand-700 hover:bg-brand-600 text-white font-semibold text-sm shadow-glow active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 Proceed to checkout
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" weight="bold" />

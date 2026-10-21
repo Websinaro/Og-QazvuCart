@@ -81,7 +81,7 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
   const labelCls = 'block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1.5';
   const iconCls = 'w-[18px] h-[18px] text-neutral-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none';
   const submitCls =
-    'w-full h-12 px-5 rounded-full bg-brand-600 hover:bg-brand-500 text-neutral-950 font-semibold text-sm shadow-glow active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed';
+    'w-full h-12 px-5 rounded-full bg-brand-700 hover:bg-brand-600 text-white font-semibold text-sm shadow-glow active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed';
 
   const spinner = <Loader2 className="w-[18px] h-[18px] animate-spin" />;
 
@@ -95,7 +95,7 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
       aria-modal="true"
       aria-label={mode === 'login' ? 'Sign in' : 'Create account'}
     >
-      <div className="relative w-full sm:max-w-[26rem] max-h-[96vh] overflow-y-auto bg-white dark:bg-[#14110a] rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl border border-neutral-900/5 dark:border-white/10 animate-in slide-in-from-bottom-6 sm:zoom-in-95 duration-300">
+      <div className="relative w-full sm:max-w-[26rem] max-h-[96vh] overflow-y-auto bg-white dark:bg-[#0a150f] rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl border border-neutral-900/5 dark:border-white/10 animate-in slide-in-from-bottom-6 sm:zoom-in-95 duration-300">
         {/* Header */}
         <div className="relative isolate overflow-hidden px-7 pt-8 pb-6 text-neutral-950 bg-gradient-to-br from-brand-200 via-brand-300 to-brand-400">
           <div className="absolute -top-16 -right-10 w-56 h-56 rounded-full bg-white/70 blur-3xl -z-10 animate-pulse-glow" />

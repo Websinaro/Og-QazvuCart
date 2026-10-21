@@ -1,10 +1,10 @@
-import { OrderStatus } from '@/src/db/schema';
+import type { OrderStatus } from '@/src/db/schema';
 
 /**
  * Explicit allow-list of transitions. Any pair not listed here is rejected,
  * so e.g. DELIVERED -> PROCESSING is always invalid regardless of caller.
  */
-const ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
+export const ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   PENDING_PAYMENT: ['PROCESSING', 'CANCELLED', 'CONFIRMED'],
   PROCESSING: ['CONFIRMED', 'CANCELLED'],
   CONFIRMED: ['PACKED', 'CANCELLED'],
