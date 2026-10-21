@@ -30,8 +30,8 @@ const schibsted = Schibsted_Grotesk({
 export const viewport: Viewport = {
   colorScheme: 'light dark',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#f7fbf8' },
-    { media: '(prefers-color-scheme: dark)', color: '#07110c' },
+    { media: '(prefers-color-scheme: light)', color: '#eef6ef' },
+    { media: '(prefers-color-scheme: dark)', color: '#07110a' },
   ],
 };
 

@@ -468,7 +468,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
   if (!product) {
     return (
       <div className="min-h-screen flex items-center justify-center p-8">
-        <div className="text-center max-w-md bg-white p-8 rounded-3xl border border-neutral-200 shadow-sm dark:bg-[#0e1a14] dark:border-white/10">
+        <div className="text-center max-w-md bg-white p-8 rounded-[1.75rem] border border-neutral-900/[0.05] shadow-soft dark:bg-[#0e1a14] dark:border-white/10">
           <h2 className="text-xl font-bold text-neutral-900 mb-2 dark:text-white">Product Not Found</h2>
           <p className="text-xs text-neutral-500 mb-6 dark:text-neutral-400">
             The item you are looking for is currently unavailable or has been removed.
@@ -509,7 +509,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
           <button
             onClick={handleShare}
-            className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-neutral-600 hover:text-neutral-900 px-3 py-1 bg-neutral-100 rounded-lg transition-colors cursor-pointer dark:bg-white/10 dark:text-neutral-300 dark:hover:text-white"
+            className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-neutral-600 hover:text-neutral-900 px-3.5 py-1.5 bg-white border border-neutral-900/[0.06] rounded-full transition-colors cursor-pointer dark:bg-white/10 dark:text-neutral-300 dark:hover:text-white"
           >
             <Share2 className="w-3.5 h-3.5" />
             <span>Share</span>
@@ -519,7 +519,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
       {/* 2. Main Product Hero (Gallery + Buy Box) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
-        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-neutral-200 shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 dark:bg-[#0e1a14] dark:border-white/10">
+        <div className="bg-white rounded-[1.75rem] p-4 sm:p-10 border border-neutral-900/[0.05] shadow-soft grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 dark:bg-[#0e1a14] dark:border-white/10">
           {/* Left: Gallery (5 cols) */}
           <div className="lg:col-span-5 flex flex-col-reverse sm:flex-row gap-4">
             {/* Thumbnails */}
@@ -548,7 +548,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
             )}
 
             {/* Primary Main Image with Zoom Trigger */}
-            <div ref={mainImageRef} className="flex-1 relative aspect-square bg-neutral-50 rounded-2xl overflow-hidden border border-neutral-200 group dark:bg-white/[0.04] dark:border-white/10">
+            <div ref={mainImageRef} className="flex-1 relative aspect-square bg-brand-50/70 rounded-[1.5rem] overflow-hidden border border-neutral-900/[0.04] group dark:bg-white/[0.04] dark:border-white/10">
               <div
                 ref={sliderRef}
                 onScroll={handleSliderScroll}
@@ -574,14 +574,14 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               {imagesList.length > 1 && (
                 <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 pointer-events-none">
                   {imagesList.map((_, idx) => (
-                    <span key={idx} className={`h-1.5 rounded-full transition-all ${imagesList[idx] === activeMainImage ? 'w-4 bg-neutral-950 dark:bg-white' : 'w-1.5 bg-neutral-950/30 dark:bg-white/40'}`} />
+                    <span key={idx} className={`h-1.5 rounded-full transition-all ${imagesList[idx] === activeMainImage ? 'w-4 bg-brand-700 dark:bg-white' : 'w-1.5 bg-neutral-950/30 dark:bg-white/40'}`} />
                   ))}
                 </div>
               )}
 
               {/* Discount Badge */}
               {effectiveDiscountPercent > 0 && (
-                <div className="absolute top-4 left-4 bg-rose-600 text-white text-xs font-bold px-2.5 py-1 rounded-md shadow-md uppercase tracking-wider flex items-center gap-1">
+                <div className="absolute top-4 left-4 bg-brand-700 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md uppercase tracking-wider flex items-center gap-1">
                   <Tag className="w-3 h-3" />
                   <span>{effectiveDiscountPercent}% OFF</span>
                 </div>
@@ -601,7 +601,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               {/* Zoom In Hint Overlay */}
               <button
                 onClick={() => setIsLightboxOpen(true)}
-                className="absolute bottom-4 right-4 p-2 bg-neutral-950/80 hover:bg-neutral-950 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 backdrop-blur-xs transition-opacity opacity-0 group-hover:opacity-100 cursor-pointer shadow-md"
+                className="absolute bottom-4 right-4 p-2 bg-brand-900/80 hover:bg-brand-900 text-white rounded-full text-xs font-bold flex items-center gap-1.5 backdrop-blur-xs transition-opacity opacity-0 group-hover:opacity-100 cursor-pointer shadow-md"
               >
                 <ZoomIn className="w-3.5 h-3.5 text-brand-300" />
                 <span>Enlarge</span>
@@ -637,7 +637,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
               {/* Ratings & Q&A Summary Bar */}
               <div className="flex flex-wrap items-center gap-3 pb-4 border-b border-neutral-100 dark:border-white/10">
-                <div className="flex items-center gap-1 bg-emerald-50 text-emerald-900 border border-emerald-200 px-2 py-0.5 rounded-lg text-xs font-semibold dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/25">
+                <div className="flex items-center gap-1 bg-emerald-50 text-emerald-900 border border-emerald-200 px-2.5 py-0.5 rounded-full text-xs font-semibold dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/25">
                   <span>{product.rating > 0 ? product.rating.toFixed(1) : '4.6'}</span>
                   <Star className="w-3.5 h-3.5 fill-emerald-700 text-emerald-700 dark:text-emerald-300" />
                 </div>
@@ -683,7 +683,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               <div className="py-4 space-y-1.5 bg-neutral-50/70 p-4 rounded-2xl border border-neutral-100 my-4 dark:bg-white/[0.04] dark:border-white/10">
                 <div className="flex flex-wrap items-baseline gap-3">
                   {/* Final Discounted Price */}
-                  <span className="text-3xl sm:text-4xl font-bold text-neutral-950 tracking-tight dark:text-white">
+                  <span className="text-3xl sm:text-4xl font-bold text-brand-900 tracking-tight dark:text-white">
                     {formatINR(currentDiscountPrice)}
                   </span>
 
@@ -735,7 +735,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                           onClick={() => setSelectedVariant(v)}
                           className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all flex items-center gap-2 cursor-pointer ${
                             isSelected
-                              ? 'bg-neutral-950 text-brand-300 border-neutral-950 shadow-sm ring-2 ring-brand-500/30'
+                              ? 'bg-brand-800 text-white border-brand-800 shadow-sm ring-2 ring-brand-500/30'
                               : 'bg-neutral-50 hover:bg-neutral-100 text-neutral-800 border-neutral-200 dark:bg-white/[0.04] dark:hover:bg-white/10 dark:text-neutral-100 dark:border-white/10'
                           }`}
                         >
@@ -767,7 +767,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                     <button
                       type="submit"
                       disabled={pincode.length !== 6 || pincodeStatus === 'checking'}
-                      className="absolute right-1 top-1 bottom-1 px-3 bg-neutral-900 hover:bg-neutral-800 text-brand-300 font-bold text-xs rounded-lg transition-colors disabled:opacity-40 cursor-pointer"
+                      className="absolute right-1 top-1 bottom-1 px-4 bg-brand-800 hover:bg-brand-700 text-white font-bold text-xs rounded-full transition-colors disabled:opacity-40 cursor-pointer"
                     >
                       {pincodeStatus === 'checking' ? 'Checking...' : 'Check'}
                     </button>
@@ -854,7 +854,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                   onClick={handleAddToCart}
                   disabled={!product.inStock || isCartLoading || availableStock <= 0}
                   className={`py-3.5 px-5 font-bold text-sm rounded-xl shadow-md transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer ${
-                    justAddedToCart ? 'bg-emerald-500 text-white' : 'bg-brand-700 hover:bg-brand-600 text-white'
+                    justAddedToCart ? 'bg-brand-600 text-white' : 'bg-brand-800 hover:bg-brand-700 text-white shadow-glow'
                   }`}
                 >
                   <AnimatePresence mode="wait" initial={false}>
@@ -887,7 +887,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 <button
                   onClick={handleBuyNow}
                   disabled={!product.inStock || isCartLoading || availableStock <= 0}
-                  className="py-3.5 px-5 bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
+                  className="py-3.5 px-5 bg-brand-100 hover:bg-brand-200 text-brand-900 font-bold text-sm rounded-2xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer dark:bg-brand-500/20 dark:text-brand-200 dark:hover:bg-brand-500/30"
                 >
                   <Zap className="w-4 h-4 text-brand-300 fill-brand-300" />
                   <span>Buy Now</span>
@@ -900,7 +900,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
       {/* 3. Tabbed Content: Description, Specifications, Reviews & Q&A */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10">
-        <div className="bg-white rounded-3xl border border-neutral-200 shadow-sm overflow-hidden dark:bg-[#0e1a14] dark:border-white/10">
+        <div className="bg-white rounded-[1.75rem] border border-neutral-900/[0.05] shadow-soft overflow-hidden dark:bg-[#0e1a14] dark:border-white/10">
           {/* Tab Headers */}
           <div className="flex border-b border-neutral-200 bg-neutral-50 px-4 sm:px-6 overflow-x-auto no-scrollbar dark:bg-white/[0.04] dark:border-white/10">
             <button
@@ -1114,7 +1114,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                         setIsReviewModalOpen(true);
                       }
                     }}
-                    className="px-5 py-2.5 bg-neutral-950 hover:bg-neutral-800 text-brand-300 font-bold text-xs rounded-xl shadow-soft transition-colors cursor-pointer"
+                    className="px-5 py-2.5 bg-brand-800 hover:bg-brand-700 text-white font-bold text-xs rounded-full shadow-glow transition-colors cursor-pointer"
                   >
                     Write a Customer Review
                   </button>
@@ -1127,7 +1127,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                   <span className="text-xs font-bold text-neutral-500 dark:text-neutral-400">Filter by:</span>
                   <button
                     onClick={() => setStarFilter('ALL')}
-                    className={`px-3 py-1 text-xs font-bold rounded-lg border transition-colors cursor-pointer ${
+                    className={`px-3.5 py-1 text-xs font-bold rounded-full border transition-colors cursor-pointer ${
                       starFilter === 'ALL'
                         ? 'bg-neutral-900 text-white border-neutral-900 dark:border-white/30'
                         : 'bg-white text-neutral-700 border-neutral-200 hover:bg-neutral-100 dark:bg-[#0e1a14] dark:hover:bg-white/10 dark:text-neutral-300 dark:border-white/10'
@@ -1139,7 +1139,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                     <button
                       key={st}
                       onClick={() => setStarFilter(st)}
-                      className={`px-2.5 py-1 text-xs font-bold rounded-lg border flex items-center gap-1 transition-colors cursor-pointer ${
+                      className={`px-3 py-1 text-xs font-bold rounded-full border flex items-center gap-1 transition-colors cursor-pointer ${
                         starFilter === st
                           ? 'bg-neutral-900 text-white border-neutral-900 dark:border-white/30'
                           : 'bg-white text-neutral-700 border-neutral-200 hover:bg-neutral-100 dark:bg-[#0e1a14] dark:hover:bg-white/10 dark:text-neutral-300 dark:border-white/10'
@@ -1439,7 +1439,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               <button
                 type="submit"
                 disabled={isSubmittingReview}
-                className="w-full py-3 bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs rounded-xl shadow transition-colors disabled:opacity-50 cursor-pointer"
+                className="w-full py-3 bg-brand-800 hover:bg-brand-700 text-white font-bold text-xs rounded-full shadow transition-colors disabled:opacity-50 cursor-pointer"
               >
                 {isSubmittingReview ? 'Submitting...' : 'Submit Verified Review'}
               </button>
@@ -1489,7 +1489,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
       {/* Sticky mobile add-to-cart bar — mirrors the desktop buttons in the
           gallery/summary column above, but stays reachable with a thumb
           no matter how far the person has scrolled down the page. */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden bg-white border-t border-neutral-200 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] px-3 py-2.5 pb-[calc(0.625rem+env(safe-area-inset-bottom))] flex items-center gap-2.5 dark:bg-[#0e1a14] dark:border-white/10">
+      <div className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-0 right-0 z-40 sm:hidden bg-white/95 backdrop-blur-xl border-t border-neutral-900/5 shadow-[0_-8px_24px_-12px_rgb(20_80_36/0.25)] px-3 py-2.5 flex items-center gap-2.5 dark:bg-[#0e1a14] dark:border-white/10">
         <div className="min-w-0 shrink-0">
           <div className="flex items-baseline gap-1.5">
             <span className="text-base font-bold text-neutral-950 dark:text-white">{formatINR(currentDiscountPrice)}</span>
@@ -1537,7 +1537,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
         <button
           onClick={handleBuyNow}
           disabled={!product.inStock || isCartLoading || availableStock <= 0}
-          className="flex-1 py-3 px-3 bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs rounded-xl shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
+          className="flex-1 py-3 px-3 bg-brand-800 hover:bg-brand-700 text-white font-bold text-xs rounded-full shadow-glow shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
         >
           Buy Now
         </button>

@@ -37,10 +37,10 @@ export function ProductRail({
         <div className="flex items-center gap-3 min-w-0">
           {Icon && (
             <span
-              className={`grid place-items-center w-10 h-10 rounded-xl shrink-0 ${
+              className={`grid place-items-center w-10 h-10 rounded-2xl shrink-0 ${
                 accent === 'amber'
-                  ? 'bg-brand-700 text-white'
-                  : 'bg-brand-500/10 text-brand-700 dark:text-brand-300'
+                  ? 'bg-brand-800 text-white'
+                  : 'bg-brand-100 text-brand-800 dark:bg-brand-500/15 dark:text-brand-300'
               }`}
             >
               <Icon className="w-5 h-5" />
@@ -55,14 +55,14 @@ export function ProductRail({
           <button
             onClick={() => scrollBy(-320)}
             aria-label="Scroll left"
-            className="grid place-items-center w-9 h-9 rounded-full border border-neutral-900/10 dark:border-white/15 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-950 hover:text-white dark:hover:bg-white dark:hover:text-neutral-950 hover:border-transparent active:scale-95 transition cursor-pointer"
+            className="grid place-items-center w-9 h-9 rounded-full border border-neutral-900/10 dark:border-white/15 text-neutral-600 dark:text-neutral-300 hover:bg-brand-800 hover:text-white dark:hover:bg-white dark:hover:text-neutral-950 hover:border-transparent active:scale-95 transition cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           <button
             onClick={() => scrollBy(320)}
             aria-label="Scroll right"
-            className="grid place-items-center w-9 h-9 rounded-full border border-neutral-900/10 dark:border-white/15 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-950 hover:text-white dark:hover:bg-white dark:hover:text-neutral-950 hover:border-transparent active:scale-95 transition cursor-pointer"
+            className="grid place-items-center w-9 h-9 rounded-full border border-neutral-900/10 dark:border-white/15 text-neutral-600 dark:text-neutral-300 hover:bg-brand-800 hover:text-white dark:hover:bg-white dark:hover:text-neutral-950 hover:border-transparent active:scale-95 transition cursor-pointer"
           >
             <ChevronRight className="w-4 h-4" />
           </button>

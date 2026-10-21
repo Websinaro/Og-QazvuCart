@@ -10,19 +10,20 @@
   --font-sans: var(--font-schibsted), var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* Brand: pine green. 200-600 are fills (dark text stays legible on them),
-     700-950 are deep greens for white text, headings and dark panels. */
-  --color-brand-50: #f1faf5;
-  --color-brand-100: #dcf3e6;
-  --color-brand-200: #b9e6cd;
-  --color-brand-300: #86d4a9;
-  --color-brand-400: #4cbd84;
-  --color-brand-500: #25a468;
-  --color-brand-600: #168a54;
-  --color-brand-700: #0e6e43;
-  --color-brand-800: #0b5736;
-  --color-brand-900: #093f29;
-  --color-brand-950: #052618;
+  /* Brand: ixora leaf green. 200-500 are fills (dark text stays legible on them),
+     700-950 are deep greens for white text, headings and dark panels.
+     800 is the primary button green. */
+  --color-brand-50: #f1faf2;
+  --color-brand-100: #def3e1;
+  --color-brand-200: #bde8c4;
+  --color-brand-300: #90d79c;
+  --color-brand-400: #5fc06f;
+  --color-brand-500: #38a84a;
+  --color-brand-600: #2a923d;
+  --color-brand-700: #1f8035;
+  --color-brand-800: #1a6f2e;
+  --color-brand-900: #135223;
+  --color-brand-950: #0a2f14;
 
   /* Neutrals with a faint green undertone so greys sit quietly next to the brand */
   --color-neutral-50: #f8faf9;
@@ -37,20 +38,20 @@
   --color-neutral-900: #151d19;
   --color-neutral-950: #0a100d;
 
-  --shadow-soft: 0 1px 2px rgb(6 50 30 / 0.05), 0 4px 14px -6px rgb(6 50 30 / 0.08);
-  --shadow-lift: 0 2px 4px rgb(6 50 30 / 0.05), 0 20px 40px -18px rgb(6 60 36 / 0.28);
-  --shadow-glow: 0 8px 24px -10px rgb(14 110 67 / 0.55);
+  --shadow-soft: 0 1px 2px rgb(20 70 30 / 0.04), 0 8px 24px -12px rgb(20 70 30 / 0.12);
+  --shadow-lift: 0 2px 4px rgb(20 70 30 / 0.05), 0 22px 44px -20px rgb(20 80 36 / 0.30);
+  --shadow-glow: 0 10px 24px -10px rgb(26 111 46 / 0.55);
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @layer base {
   :root {
-    --page: #f7fbf8;
+    --page: #eef6ef;
     --ink: #1c1917;
   }
   .dark {
-    --page: #07110c;
+    --page: #07110a;
     --ink: #eef7f1;
   }
 
@@ -86,10 +87,10 @@
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    background: radial-gradient(60rem 24rem at 50% -8%, rgb(37 164 104 / 0.09), transparent 65%);
+    background: radial-gradient(60rem 24rem at 50% -8%, rgb(56 168 74 / 0.09), transparent 65%);
   }
   .dark body::before {
-    background: radial-gradient(60rem 24rem at 50% -8%, rgb(37 164 104 / 0.12), transparent 65%);
+    background: radial-gradient(60rem 24rem at 50% -8%, rgb(56 168 74 / 0.12), transparent 65%);
   }
 
   h1, h2, h3, h4 {
@@ -102,7 +103,7 @@
   pre, code { max-width: 100%; overflow-x: auto; }
   img, svg, video, canvas { max-width: 100%; height: auto; }
 
-  ::selection { background: rgb(37 164 104 / 0.30); color: #0a100d; }
+  ::selection { background: rgb(56 168 74 / 0.30); color: #0a100d; }
 
   :focus-visible {
     outline: 2px solid var(--color-brand-500);
@@ -111,15 +112,15 @@
   }
 
   /* Refined scrollbars */
-  * { scrollbar-width: thin; scrollbar-color: rgb(14 110 67 / 0.40) transparent; }
+  * { scrollbar-width: thin; scrollbar-color: rgb(26 111 46 / 0.40) transparent; }
   ::-webkit-scrollbar { width: 10px; height: 10px; }
-  ::-webkit-scrollbar-thumb { background: rgb(14 110 67 / 0.30); border-radius: 999px; border: 3px solid transparent; background-clip: content-box; }
-  ::-webkit-scrollbar-thumb:hover { background: rgb(14 110 67 / 0.55); background-clip: content-box; border: 3px solid transparent; }
+  ::-webkit-scrollbar-thumb { background: rgb(26 111 46 / 0.30); border-radius: 999px; border: 3px solid transparent; background-clip: content-box; }
+  ::-webkit-scrollbar-thumb:hover { background: rgb(26 111 46 / 0.55); background-clip: content-box; border: 3px solid transparent; }
 }
 
 /* ───────────────────────── Reusable utilities ───────────────────────── */
 @utility glass {
-  background-color: rgb(255 255 255 / 0.82);
+  background-color: rgb(255 255 255 / 0.86);
   backdrop-filter: saturate(180%) blur(18px);
   -webkit-backdrop-filter: saturate(180%) blur(18px);
   &:where(.dark, .dark *) {
@@ -129,9 +130,9 @@
 
 @utility surface {
   background-color: #fff;
-  border: 1px solid rgb(6 60 36 / 0.10);
+  border: 1px solid rgb(20 80 36 / 0.10);
   box-shadow: var(--shadow-soft);
-  border-radius: 1rem;
+  border-radius: 1.25rem;
   &:where(.dark, .dark *) {
     background-color: #0e1a14;
     border-color: rgb(255 255 255 / 0.08);
@@ -139,7 +140,7 @@
 }
 
 @utility text-gradient {
-  background-image: linear-gradient(120deg, #0b5736 0%, #168a54 60%, #25a468 100%);
+  background-image: linear-gradient(120deg, #135223 0%, #1f8035 60%, #38a84a 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -158,8 +159,8 @@
 
 /* Skeleton shimmer */
 @utility shimmer-bg {
-  background-color: #e3efe8;
-  background-image: linear-gradient(90deg, #e3efe8 0%, #f6fbf8 20%, #e3efe8 40%, #e3efe8 100%);
+  background-color: #e2eee4;
+  background-image: linear-gradient(90deg, #e2eee4 0%, #f6fbf7 20%, #e2eee4 40%, #e2eee4 100%);
   background-size: 200% 100%;
   animation: shimmer-sweep 1.6s ease-in-out infinite;
   &:where(.dark, .dark *) {
@@ -215,7 +216,7 @@
     transition: opacity 0.35s ease;
     background: radial-gradient(
       320px circle at var(--mx, 50%) var(--my, 0%),
-      rgb(37 164 104 / 0.10),
+      rgb(56 168 74 / 0.10),
       transparent 60%
     );
   }
@@ -247,7 +248,7 @@
 
 /* Soft dotted grid for hero / banner backgrounds */
 @utility bg-dots {
-  background-image: radial-gradient(rgb(6 60 36 / 0.16) 1.2px, transparent 1.2px);
+  background-image: radial-gradient(rgb(20 80 36 / 0.16) 1.2px, transparent 1.2px);
   background-size: 22px 22px;
 }
 
@@ -299,16 +300,16 @@ html.intro-active { overflow: hidden; }
   z-index: 100;
   display: grid;
   place-items: center;
-  background: #093f29;
-  color: #fff;
+  background: #eef6ef;
+  color: #1c1917;
   cursor: pointer;
   animation: intro-exit 0.85s var(--ease-out-expo) 2.3s forwards;
 }
 .intro-root[data-skip="true"] { animation: intro-exit 0.45s var(--ease-out-expo) 0s forwards; }
 .intro-stage { display: flex; flex-direction: column; align-items: center; gap: 1.1rem; }
-.intro-mark { width: 4.5rem; height: 4.5rem; color: #fff; }
+.intro-mark { width: 4.5rem; height: 4.5rem; color: var(--color-brand-800); }
 .intro-draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: intro-draw 0.85s cubic-bezier(0.65, 0, 0.35, 1) 0.2s forwards; }
-.intro-draw-tail { animation-delay: 0.85s; animation-duration: 0.35s; stroke: #86d4a9; }
+.intro-draw-tail { animation-delay: 0.85s; animation-duration: 0.35s; stroke: var(--color-brand-500); }
 .intro-word { overflow: hidden; padding-bottom: 0.15em; }
 .intro-word-inner {
   display: block;
@@ -318,17 +319,32 @@ html.intro-active { overflow: hidden; }
   transform: translateY(110%);
   animation: intro-rise 0.7s var(--ease-out-expo) 0.9s forwards;
 }
-.intro-tag { font-size: 0.8rem; color: rgb(255 255 255 / 0.6); opacity: 0; animation: intro-fade 0.6s ease-out 1.4s forwards; }
+.intro-tag { font-size: 0.9rem; color: #57534e; text-align: center; opacity: 0; animation: intro-fade 0.6s ease-out 1.4s forwards; }
 .intro-line {
   position: absolute;
   left: 0;
   bottom: 0;
   height: 3px;
   width: 100%;
-  background: #86d4a9;
+  background: var(--color-brand-600);
   transform-origin: left;
   transform: scaleX(0);
   animation: intro-progress 2.1s cubic-bezier(0.4, 0, 0.2, 1) 0.15s forwards;
+}
+.intro-cta {
+  margin-top: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  height: 2.9rem;
+  padding: 0 2rem;
+  border-radius: 999px;
+  background: var(--color-brand-800);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-glow);
+  opacity: 0;
+  animation: intro-fade 0.6s ease-out 1.6s forwards;
 }
 @keyframes intro-draw { to { stroke-dashoffset: 0; } }
 @keyframes intro-rise { to { transform: translateY(0); } }
@@ -366,3 +382,14 @@ html:not(.intro-skip) { --intro-offset: 2.65s; }
   & .callout-line { transform-origin: left; animation: callout-line 0.5s var(--ease-out-expo) calc(var(--c) + 0.1s) both; }
   & .callout-label { animation: callout-label 0.5s var(--ease-out-expo) calc(var(--c) + 0.4s) both; }
 }
+
+.dark .intro-root { background: #07110a; color: #fff; }
+.dark .intro-mark { color: #fff; }
+.dark .intro-tag { color: rgb(255 255 255 / 0.6); }
+
+/* Room for the mobile bottom tab bar */
+@utility pb-safe-nav {
+  padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+  @media (min-width: 1024px) { padding-bottom: 0; }
+}
+@utility pb-safe { padding-bottom: env(safe-area-inset-bottom); }

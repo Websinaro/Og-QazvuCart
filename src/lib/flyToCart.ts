@@ -8,7 +8,12 @@
 export function flyToCart(sourceEl: HTMLElement, imageUrl: string) {
   if (typeof window === 'undefined') return;
 
-  const target = document.getElementById('header-cart-icon');
+  // The header cart (desktop) and the bottom-nav cart tab (mobile) both carry
+  // data-cart-target; fly to whichever one is actually visible.
+  const target = Array.from(document.querySelectorAll<HTMLElement>('[data-cart-target]')).find((el) => {
+    const r = el.getBoundingClientRect();
+    return r.width > 0 && r.height > 0;
+  });
   if (!target) return;
 
   const sourceRect = sourceEl.getBoundingClientRect();

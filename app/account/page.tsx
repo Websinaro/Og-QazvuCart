@@ -375,7 +375,7 @@ function AccountDashboardContent() {
           </p>
           <button
             onClick={() => setIsAuthModalOpen(true)}
-            className="w-full py-3.5 bg-brand-700 hover:bg-brand-600 text-white font-semibold text-xs rounded-xl shadow-md transition-all"
+            className="w-full py-3.5 bg-brand-800 hover:bg-brand-700 text-white font-semibold text-xs rounded-xl shadow-md transition-all"
           >
             Sign In / Register
           </button>
@@ -407,11 +407,11 @@ function AccountDashboardContent() {
   return (
     <div className="min-h-screen pb-24">
       {/* Account Hero Banner */}
-      <div className="bg-white border-b border-neutral-200 py-8 dark:bg-[#0e1a14] dark:border-white/10">
+      <div className="pt-4 sm:pt-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white rounded-[1.75rem] border border-neutral-900/[0.05] shadow-soft p-5 sm:p-6 dark:bg-[#0e1a14] dark:border-white/10">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-neutral-950 text-brand-300 font-bold text-2xl flex items-center justify-center shadow-sm">
+              <div className="w-16 h-16 rounded-full bg-brand-800 text-white font-bold text-2xl flex items-center justify-center shadow-sm">
                 {user?.username?.charAt(0).toUpperCase()}
               </div>
               <div>
@@ -422,7 +422,7 @@ function AccountDashboardContent() {
                       <Shield className="w-3 h-3 text-amber-700 dark:text-amber-300" /> Admin
                     </span>
                   ) : (
-                    <span className="bg-brand-700 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase">
+                    <span className="bg-brand-100 text-brand-800 text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase dark:bg-brand-500/20 dark:text-brand-300">
                       Verified Customer
                     </span>
                   )}
@@ -438,7 +438,7 @@ function AccountDashboardContent() {
               {user?.role === 'ADMIN' && (
                 <Link
                   href="/admin"
-                  className="flex items-center gap-2 py-2 px-3.5 bg-neutral-950 hover:bg-neutral-800 text-brand-300 border border-brand-400/40 rounded-2xl font-semibold text-xs shadow-sm transition-all group"
+                  className="flex items-center gap-2 py-2 px-3.5 bg-brand-800 hover:bg-brand-700 text-white border border-brand-400/40 rounded-2xl font-semibold text-xs shadow-sm transition-all group"
                   title="Open Admin Management Panel"
                 >
                   <Shield className="w-4 h-4 text-brand-300 group-hover:rotate-12 transition-transform" />
@@ -446,15 +446,15 @@ function AccountDashboardContent() {
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               )}
-              <div className="bg-neutral-50 border border-neutral-200 rounded-2xl px-4 py-2 text-center dark:bg-white/[0.04] dark:border-white/10">
+              <div className="bg-brand-50 border border-brand-100 rounded-2xl px-4 py-2 text-center dark:bg-white/[0.04] dark:border-white/10">
                 <span className="text-xs font-bold text-neutral-400 uppercase">Orders</span>
                 <p className="text-base font-bold text-neutral-950 dark:text-white">{stats?.orders || orders.length}</p>
               </div>
-              <div className="bg-neutral-50 border border-neutral-200 rounded-2xl px-4 py-2 text-center dark:bg-white/[0.04] dark:border-white/10">
+              <div className="bg-brand-50 border border-brand-100 rounded-2xl px-4 py-2 text-center dark:bg-white/[0.04] dark:border-white/10">
                 <span className="text-xs font-bold text-neutral-400 uppercase">Wishlist</span>
                 <p className="text-base font-bold text-neutral-950 dark:text-white">{wishlistItems.length}</p>
               </div>
-              <div className="bg-neutral-50 border border-neutral-200 rounded-2xl px-4 py-2 text-center dark:bg-white/[0.04] dark:border-white/10">
+              <div className="bg-brand-50 border border-brand-100 rounded-2xl px-4 py-2 text-center dark:bg-white/[0.04] dark:border-white/10">
                 <span className="text-xs font-bold text-neutral-400 uppercase">Addresses</span>
                 <p className="text-base font-bold text-neutral-950 dark:text-white">{addresses.length}</p>
               </div>
@@ -467,8 +467,8 @@ function AccountDashboardContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left Tab Navigator (3 cols) */}
-          <aside className="lg:col-span-3 space-y-2">
-            <div className="bg-white rounded-2xl border border-neutral-200 p-2 shadow-soft space-y-1 text-xs font-bold dark:bg-[#0e1a14] dark:border-white/10">
+          <aside className="lg:col-span-3 space-y-2 lg:sticky lg:top-40 lg:self-start">
+            <div className="bg-white rounded-[1.5rem] border border-neutral-900/[0.05] p-2 shadow-soft space-y-1 text-[13px] font-semibold dark:bg-[#0e1a14] dark:border-white/10">
               {/* Admin Panel Quick Link for Admin Role */}
               {user?.role === 'ADMIN' && (
                 <Link
@@ -487,8 +487,8 @@ function AccountDashboardContent() {
 
               <button
                 onClick={() => handleTabChange('orders')}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-colors ${
-                  activeTab === 'orders' ? 'bg-neutral-950 text-brand-300' : 'text-neutral-700 hover:bg-neutral-100 dark:hover:bg-white/10 dark:text-neutral-300'
+                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl transition-colors ${
+                  activeTab === 'orders' ? 'bg-brand-800 text-white' : 'text-neutral-700 hover:bg-neutral-100 dark:hover:bg-white/10 dark:text-neutral-300'
                 }`}
               >
                 <div className="flex items-center gap-2.5">
@@ -500,8 +500,8 @@ function AccountDashboardContent() {
 
               <button
                 onClick={() => handleTabChange('wishlist')}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-colors ${
-                  activeTab === 'wishlist' ? 'bg-neutral-950 text-brand-300' : 'text-neutral-700 hover:bg-neutral-100 dark:hover:bg-white/10 dark:text-neutral-300'
+                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl transition-colors ${
+                  activeTab === 'wishlist' ? 'bg-brand-800 text-white' : 'text-neutral-700 hover:bg-neutral-100 dark:hover:bg-white/10 dark:text-neutral-300'
                 }`}
               >
                 <div className="flex items-center gap-2.5">
@@ -513,8 +513,8 @@ function AccountDashboardContent() {
 
               <button
                 onClick={() => handleTabChange('addresses')}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-colors ${
-                  activeTab === 'addresses' ? 'bg-neutral-950 text-brand-300' : 'text-neutral-700 hover:bg-neutral-100 dark:hover:bg-white/10 dark:text-neutral-300'
+                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl transition-colors ${
+                  activeTab === 'addresses' ? 'bg-brand-800 text-white' : 'text-neutral-700 hover:bg-neutral-100 dark:hover:bg-white/10 dark:text-neutral-300'
                 }`}
               >
                 <div className="flex items-center gap-2.5">
@@ -526,8 +526,8 @@ function AccountDashboardContent() {
 
               <button
                 onClick={() => handleTabChange('reviews')}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-colors ${
-                  activeTab === 'reviews' ? 'bg-neutral-950 text-brand-300' : 'text-neutral-700 hover:bg-neutral-100 dark:hover:bg-white/10 dark:text-neutral-300'
+                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl transition-colors ${
+                  activeTab === 'reviews' ? 'bg-brand-800 text-white' : 'text-neutral-700 hover:bg-neutral-100 dark:hover:bg-white/10 dark:text-neutral-300'
                 }`}
               >
                 <div className="flex items-center gap-2.5">
@@ -539,8 +539,8 @@ function AccountDashboardContent() {
 
               <button
                 onClick={() => handleTabChange('settings')}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-colors ${
-                  activeTab === 'settings' ? 'bg-neutral-950 text-brand-300' : 'text-neutral-700 hover:bg-neutral-100 dark:hover:bg-white/10 dark:text-neutral-300'
+                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl transition-colors ${
+                  activeTab === 'settings' ? 'bg-brand-800 text-white' : 'text-neutral-700 hover:bg-neutral-100 dark:hover:bg-white/10 dark:text-neutral-300'
                 }`}
               >
                 <div className="flex items-center gap-2.5">
@@ -557,7 +557,7 @@ function AccountDashboardContent() {
             {activeTab === 'orders' && (
               <div className="space-y-6">
                 {/* Filter bar */}
-                <div className="flex items-center justify-between flex-wrap gap-3 bg-white p-4 rounded-2xl border border-neutral-200 shadow-soft dark:bg-[#0e1a14] dark:border-white/10">
+                <div className="flex items-center justify-between flex-wrap gap-3 bg-white p-4 rounded-[1.5rem] border border-neutral-900/[0.05] shadow-soft dark:bg-[#0e1a14] dark:border-white/10">
                   <h3 className="text-base font-bold text-neutral-950 uppercase tracking-wider dark:text-white">
                     Order History
                   </h3>
@@ -566,10 +566,10 @@ function AccountDashboardContent() {
                       <button
                         key={st}
                         onClick={() => setOrderStatusFilter(st)}
-                        className={`px-3 py-1 rounded-lg transition-colors ${
+                        className={`px-3.5 py-1.5 rounded-full whitespace-nowrap transition-colors ${
                           orderStatusFilter === st
-                            ? 'bg-neutral-950 text-brand-300'
-                            : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200 dark:bg-white/10 dark:hover:bg-white/10 dark:text-neutral-300'
+                            ? 'bg-brand-800 text-white'
+                            : 'bg-brand-50 text-neutral-700 hover:bg-brand-100 dark:bg-white/10 dark:hover:bg-white/10 dark:text-neutral-300'
                         }`}
                       >
                         {st}
@@ -583,13 +583,13 @@ function AccountDashboardContent() {
                     <div className="w-8 h-8 border-4 border-neutral-900 border-t-brand-500 rounded-full animate-spin mx-auto dark:border-white/30" />
                   </div>
                 ) : orders.length === 0 ? (
-                  <div className="bg-white rounded-3xl p-12 text-center border border-neutral-200 shadow-soft space-y-3 dark:bg-[#0e1a14] dark:border-white/10">
+                  <div className="bg-white rounded-[1.75rem] p-12 text-center border border-neutral-900/[0.05] shadow-soft space-y-3 dark:bg-[#0e1a14] dark:border-white/10">
                     <Package className="w-12 h-12 text-neutral-300 mx-auto" />
                     <h4 className="text-base font-bold text-neutral-950 dark:text-white">No orders found</h4>
                     <p className="text-xs text-neutral-500 dark:text-neutral-400">You haven&apos;t placed any orders matching this filter yet.</p>
                     <Link
                       href="/products"
-                      className="inline-flex items-center gap-1.5 px-6 py-2.5 bg-brand-700 text-white font-bold text-xs rounded-xl shadow-soft"
+                      className="inline-flex items-center gap-1.5 px-6 py-2.5 bg-brand-800 text-white font-bold text-xs rounded-full shadow-soft"
                     >
                       Start Shopping Deals
                     </Link>
@@ -599,10 +599,10 @@ function AccountDashboardContent() {
                     {orders.map((order) => (
                       <div
                         key={order.id}
-                        className="bg-white rounded-3xl border border-neutral-200 shadow-soft overflow-hidden divide-y divide-neutral-100 dark:bg-[#0e1a14] dark:border-white/10 dark:divide-white/10"
+                        className="bg-white rounded-[1.75rem] border border-neutral-900/[0.05] shadow-soft overflow-hidden divide-y divide-neutral-100 dark:bg-[#0e1a14] dark:border-white/10 dark:divide-white/10"
                       >
                         {/* Order Header */}
-                        <div className="p-5 bg-neutral-50/70 dark:bg-white/[0.04] flex flex-wrap items-center justify-between gap-3 text-xs">
+                        <div className="p-5 bg-brand-50/70 dark:bg-white/[0.04] flex flex-wrap items-center justify-between gap-3 text-xs">
                           <div className="flex items-center gap-4">
                             <div>
                               <span className="text-[10px] text-neutral-400 font-bold uppercase">Order No</span>
@@ -636,7 +636,7 @@ function AccountDashboardContent() {
                           {order.items?.map((item) => (
                             <div key={item.id} className="flex items-center justify-between gap-4">
                               <div className="flex items-center gap-3">
-                                <div className="relative w-14 h-14 rounded-xl bg-neutral-50 border border-neutral-200 shrink-0 overflow-hidden dark:bg-white/[0.04] dark:border-white/10">
+                                <div className="relative w-14 h-14 rounded-2xl bg-neutral-50 border border-neutral-100 shrink-0 overflow-hidden dark:bg-white/[0.04] dark:border-white/10">
                                   <Image
                                     src={item.productImage || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=900&q=80'}
                                     alt={item.productName}
@@ -663,7 +663,7 @@ function AccountDashboardContent() {
 
                         {/* Interactive Tracking Stepper */}
                         {order.timeline && order.timeline.length > 0 && (
-                          <div className="p-5 bg-neutral-50/40 dark:bg-white/[0.03]">
+                          <div className="p-5 bg-brand-50/40 dark:bg-white/[0.03]">
                             <h5 className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider mb-3 dark:text-neutral-400">
                               Live Delivery Tracking
                             </h5>
@@ -671,7 +671,7 @@ function AccountDashboardContent() {
                               {order.timeline.map((stepItem, idx) => (
                                 <div
                                   key={idx}
-                                  className={`p-2 rounded-xl border flex flex-col items-center justify-center ${
+                                  className={`p-2 rounded-2xl border flex flex-col items-center justify-center ${
                                     stepItem.completed
                                       ? 'bg-emerald-50 border-emerald-200 text-emerald-900 font-bold dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/25'
                                       : stepItem.current
@@ -700,7 +700,7 @@ function AccountDashboardContent() {
             {/* Tab 2: Wishlist */}
             {activeTab === 'wishlist' && (
               <div className="space-y-6">
-                <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-soft flex items-center justify-between dark:bg-[#0e1a14] dark:border-white/10">
+                <div className="bg-white p-5 rounded-[1.5rem] border border-neutral-900/[0.05] shadow-soft flex items-center justify-between dark:bg-[#0e1a14] dark:border-white/10">
                   <div>
                     <h3 className="text-base font-bold text-neutral-950 uppercase tracking-wider dark:text-white">
                       My Saved Wishlist
@@ -712,13 +712,13 @@ function AccountDashboardContent() {
                 </div>
 
                 {wishlistItems.length === 0 ? (
-                  <div className="bg-white rounded-3xl p-12 text-center border border-neutral-200 shadow-soft space-y-3 dark:bg-[#0e1a14] dark:border-white/10">
+                  <div className="bg-white rounded-[1.75rem] p-12 text-center border border-neutral-900/[0.05] shadow-soft space-y-3 dark:bg-[#0e1a14] dark:border-white/10">
                     <Heart className="w-12 h-12 text-neutral-300 mx-auto" />
                     <h4 className="text-base font-bold text-neutral-950 dark:text-white">Your Wishlist is Empty</h4>
                     <p className="text-xs text-neutral-500 dark:text-neutral-400">Explore products and click the heart icon to save them here.</p>
                     <Link
                       href="/products"
-                      className="inline-flex items-center gap-1.5 px-6 py-2.5 bg-brand-700 text-white font-bold text-xs rounded-xl shadow-soft"
+                      className="inline-flex items-center gap-1.5 px-6 py-2.5 bg-brand-800 text-white font-bold text-xs rounded-full shadow-soft"
                     >
                       Explore Products
                     </Link>
@@ -728,10 +728,10 @@ function AccountDashboardContent() {
                     {wishlistItems.map((item) => (
                       <div
                         key={item.productId}
-                        className="bg-white rounded-2xl border border-neutral-200 p-3 sm:p-4 shadow-soft flex flex-col justify-between h-full dark:bg-[#0e1a14] dark:border-white/10"
+                        className="bg-white rounded-[1.5rem] border border-neutral-900/[0.05] p-3 sm:p-4 shadow-soft flex flex-col justify-between h-full dark:bg-[#0e1a14] dark:border-white/10"
                       >
                         <div>
-                          <div className="relative aspect-square rounded-xl bg-neutral-50 overflow-hidden mb-3 dark:bg-white/[0.04]">
+                          <div className="relative aspect-square rounded-2xl bg-neutral-50 overflow-hidden mb-3 dark:bg-white/[0.04]">
                             <Image
                               src={item.primaryImage || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=900&q=80'}
                               alt={item.name}
@@ -775,7 +775,7 @@ function AccountDashboardContent() {
                               error(errObj.message || 'Could not move item to cart');
                             }
                           }}
-                          className="w-full mt-3 sm:mt-4 py-2 sm:py-2.5 bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs rounded-xl shadow-soft flex items-center justify-center gap-1.5 cursor-pointer"
+                          className="w-full mt-3 sm:mt-4 py-2 sm:py-2.5 bg-brand-800 hover:bg-brand-800 text-white font-bold text-xs rounded-full shadow-soft flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                           <ShoppingBag className="w-3.5 h-3.5" />
                           <span>Move to Cart</span>
@@ -790,7 +790,7 @@ function AccountDashboardContent() {
             {/* Tab 3: Addresses */}
             {activeTab === 'addresses' && (
               <div className="space-y-6">
-                <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-soft flex items-center justify-between dark:bg-[#0e1a14] dark:border-white/10">
+                <div className="bg-white p-5 rounded-[1.5rem] border border-neutral-900/[0.05] shadow-soft flex items-center justify-between dark:bg-[#0e1a14] dark:border-white/10">
                   <div>
                     <h3 className="text-base font-bold text-neutral-950 uppercase tracking-wider dark:text-white">
                       Saved Shipping Addresses
@@ -799,7 +799,7 @@ function AccountDashboardContent() {
                   </div>
                   <button
                     onClick={() => setIsAddressModalOpen(true)}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-neutral-950 text-brand-300 font-bold text-xs rounded-xl shadow-soft"
+                    className="flex items-center gap-1.5 px-4 py-2 bg-brand-800 text-white font-bold text-xs rounded-xl shadow-soft"
                   >
                     <Plus className="w-3.5 h-3.5" /> Add Address
                   </button>
@@ -809,7 +809,7 @@ function AccountDashboardContent() {
                   {addresses.map((addr) => (
                     <div
                       key={addr.id}
-                      className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-soft flex flex-col justify-between dark:bg-[#0e1a14] dark:border-white/10"
+                      className="bg-white p-5 rounded-[1.5rem] border border-neutral-900/[0.05] shadow-soft flex flex-col justify-between dark:bg-[#0e1a14] dark:border-white/10"
                     >
                       <div>
                         <div className="flex items-center justify-between mb-2">
@@ -861,7 +861,7 @@ function AccountDashboardContent() {
             {activeTab === 'reviews' && (
               <div className="space-y-6">
                 {/* Pending Reviews */}
-                <div className="bg-white p-6 rounded-3xl border border-neutral-200 shadow-soft space-y-4 dark:bg-[#0e1a14] dark:border-white/10">
+                <div className="bg-white p-6 rounded-[1.75rem] border border-neutral-900/[0.05] shadow-soft space-y-4 dark:bg-[#0e1a14] dark:border-white/10">
                   <h3 className="text-base font-bold text-neutral-950 uppercase tracking-wider dark:text-white">
                     Eligible Purchases to Review ({pendingReviews.length})
                   </h3>
@@ -875,7 +875,7 @@ function AccountDashboardContent() {
                       {pendingReviews.map((item) => (
                         <div key={item.productId} className="py-3 flex items-center justify-between gap-4">
                           <div className="flex items-center gap-3">
-                            <div className="relative w-12 h-12 rounded-xl bg-neutral-50 border border-neutral-200 shrink-0 overflow-hidden dark:bg-white/[0.04] dark:border-white/10">
+                            <div className="relative w-12 h-12 rounded-2xl bg-neutral-50 border border-neutral-100 shrink-0 overflow-hidden dark:bg-white/[0.04] dark:border-white/10">
                               <Image
                                 src={item.productImage || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=900&q=80'}
                                 alt={item.productName}
@@ -895,7 +895,7 @@ function AccountDashboardContent() {
                               setSelectedReviewProduct(item);
                               setIsReviewModalOpen(true);
                             }}
-                            className="px-4 py-2 bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs rounded-xl shadow-soft shrink-0"
+                            className="px-4 py-2 bg-brand-800 hover:bg-brand-800 text-white font-bold text-xs rounded-full shadow-soft shrink-0"
                           >
                             Rate & Review
                           </button>
@@ -906,7 +906,7 @@ function AccountDashboardContent() {
                 </div>
 
                 {/* Submitted User Reviews */}
-                <div className="bg-white p-6 rounded-3xl border border-neutral-200 shadow-soft space-y-4 dark:bg-[#0e1a14] dark:border-white/10">
+                <div className="bg-white p-6 rounded-[1.75rem] border border-neutral-900/[0.05] shadow-soft space-y-4 dark:bg-[#0e1a14] dark:border-white/10">
                   <h3 className="text-base font-bold text-neutral-950 uppercase tracking-wider dark:text-white">
                     Your Past Reviews ({userReviews.length})
                   </h3>
@@ -942,7 +942,7 @@ function AccountDashboardContent() {
             {activeTab === 'settings' && (
               <div className="space-y-6">
                 {/* Profile Edit */}
-                <div className="bg-white p-6 sm:p-8 rounded-3xl border border-neutral-200 shadow-soft space-y-4 dark:bg-[#0e1a14] dark:border-white/10">
+                <div className="bg-white p-6 sm:p-8 rounded-[1.75rem] border border-neutral-900/[0.05] shadow-soft space-y-4 dark:bg-[#0e1a14] dark:border-white/10">
                   <h3 className="text-base font-bold text-neutral-950 uppercase tracking-wider dark:text-white">
                     Personal Information
                   </h3>
@@ -954,7 +954,7 @@ function AccountDashboardContent() {
                         value={profileName}
                         onChange={(e) => setProfileName(e.target.value)}
                         required
-                        className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-xl dark:border-white/10"
+                        className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-2xl dark:border-white/10"
                       />
                     </div>
                     <div>
@@ -964,7 +964,7 @@ function AccountDashboardContent() {
                         value={profileEmail}
                         onChange={(e) => setProfileEmail(e.target.value)}
                         required
-                        className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-xl dark:border-white/10"
+                        className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-2xl dark:border-white/10"
                       />
                     </div>
                     <div>
@@ -973,12 +973,12 @@ function AccountDashboardContent() {
                         type="tel"
                         value={profilePhone}
                         onChange={(e) => setProfilePhone(e.target.value)}
-                        className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-xl dark:border-white/10"
+                        className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-2xl dark:border-white/10"
                       />
                     </div>
                     <button
                       type="submit"
-                      className="px-6 py-2.5 bg-neutral-950 hover:bg-neutral-800 text-brand-300 font-bold text-xs rounded-xl shadow-soft"
+                      className="px-6 py-2.5 bg-brand-800 hover:bg-brand-800 text-white font-bold text-xs rounded-full shadow-soft"
                     >
                       Save Profile Changes
                     </button>
@@ -986,7 +986,7 @@ function AccountDashboardContent() {
                 </div>
 
                 {/* Password Change */}
-                <div className="bg-white p-6 sm:p-8 rounded-3xl border border-neutral-200 shadow-soft space-y-4 dark:bg-[#0e1a14] dark:border-white/10">
+                <div className="bg-white p-6 sm:p-8 rounded-[1.75rem] border border-neutral-900/[0.05] shadow-soft space-y-4 dark:bg-[#0e1a14] dark:border-white/10">
                   <h3 className="text-base font-bold text-neutral-950 uppercase tracking-wider dark:text-white">
                     Security & Password
                   </h3>
@@ -998,7 +998,7 @@ function AccountDashboardContent() {
                         value={currentPwd}
                         onChange={(e) => setCurrentPwd(e.target.value)}
                         required
-                        className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-xl dark:border-white/10"
+                        className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-2xl dark:border-white/10"
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
@@ -1009,7 +1009,7 @@ function AccountDashboardContent() {
                           value={newPwd}
                           onChange={(e) => setNewPwd(e.target.value)}
                           required
-                          className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-xl dark:border-white/10"
+                          className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-2xl dark:border-white/10"
                         />
                       </div>
                       <div>
@@ -1019,13 +1019,13 @@ function AccountDashboardContent() {
                           value={confirmPwd}
                           onChange={(e) => setConfirmPwd(e.target.value)}
                           required
-                          className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-xl dark:border-white/10"
+                          className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-2xl dark:border-white/10"
                         />
                       </div>
                     </div>
                     <button
                       type="submit"
-                      className="px-6 py-2.5 bg-neutral-950 hover:bg-neutral-800 text-brand-300 font-bold text-xs rounded-xl shadow-soft"
+                      className="px-6 py-2.5 bg-brand-800 hover:bg-brand-800 text-white font-bold text-xs rounded-full shadow-soft"
                     >
                       Update Password
                     </button>
@@ -1055,7 +1055,7 @@ function AccountDashboardContent() {
                     <div className="pt-2 flex flex-wrap items-center gap-3">
                       <Link
                         href="/admin"
-                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-700 hover:bg-brand-600 text-white font-bold text-xs rounded-xl transition-all shadow-sm"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-800 hover:bg-brand-800 text-white font-bold text-xs rounded-full transition-all shadow-sm"
                       >
                         <Shield className="w-4 h-4" />
                         <span>Launch Admin Panel</span>
@@ -1073,7 +1073,7 @@ function AccountDashboardContent() {
       {/* Address Modal */}
       {isAddressModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 border border-neutral-200 dark:bg-[#0e1a14] dark:border-white/10">
+          <div className="relative w-full max-w-md bg-white rounded-[1.75rem] shadow-2xl p-6 border border-neutral-200 dark:bg-[#0e1a14] dark:border-white/10">
             <div className="flex items-center justify-between pb-3 border-b border-neutral-100 dark:border-white/10">
               <h3 className="text-base font-bold text-neutral-950 dark:text-white">Add Shipping Address</h3>
               <button onClick={() => setIsAddressModalOpen(false)}>
@@ -1088,7 +1088,7 @@ function AccountDashboardContent() {
                   value={addrFullName}
                   onChange={(e) => setAddrFullName(e.target.value)}
                   required
-                  className="w-full px-3 py-2 text-xs border rounded-xl"
+                  className="w-full px-3 py-2 text-xs border rounded-2xl"
                 />
               </div>
               <div>
@@ -1098,7 +1098,7 @@ function AccountDashboardContent() {
                   value={addrPhone}
                   onChange={(e) => setAddrPhone(e.target.value)}
                   required
-                  className="w-full px-3 py-2 text-xs border rounded-xl"
+                  className="w-full px-3 py-2 text-xs border rounded-2xl"
                 />
               </div>
               <div>
@@ -1108,7 +1108,7 @@ function AccountDashboardContent() {
                   value={addrHouseBuilding}
                   onChange={(e) => setAddrHouseBuilding(e.target.value)}
                   required
-                  className="w-full px-3 py-2 text-xs border rounded-xl"
+                  className="w-full px-3 py-2 text-xs border rounded-2xl"
                 />
               </div>
               <div>
@@ -1118,7 +1118,7 @@ function AccountDashboardContent() {
                   value={addrStreet}
                   onChange={(e) => setAddrStreet(e.target.value)}
                   required
-                  className="w-full px-3 py-2 text-xs border rounded-xl"
+                  className="w-full px-3 py-2 text-xs border rounded-2xl"
                 />
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -1128,7 +1128,7 @@ function AccountDashboardContent() {
                   value={addrCity}
                   onChange={(e) => setAddrCity(e.target.value)}
                   required
-                  className="px-3 py-2 text-xs border rounded-xl"
+                  className="px-3 py-2 text-xs border rounded-2xl"
                 />
                 <input
                   type="text"
@@ -1136,7 +1136,7 @@ function AccountDashboardContent() {
                   value={addrState}
                   onChange={(e) => setAddrState(e.target.value)}
                   required
-                  className="px-3 py-2 text-xs border rounded-xl"
+                  className="px-3 py-2 text-xs border rounded-2xl"
                 />
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -1146,12 +1146,12 @@ function AccountDashboardContent() {
                   value={addrPincode}
                   onChange={(e) => setAddrPincode(e.target.value)}
                   required
-                  className="px-3 py-2 text-xs border rounded-xl"
+                  className="px-3 py-2 text-xs border rounded-2xl"
                 />
                 <select
                   value={addrType}
                   onChange={(e) => setAddrType(e.target.value as 'HOME' | 'WORK' | 'OTHER')}
-                  className="px-3 py-2 text-xs border rounded-xl bg-white dark:bg-[#0e1a14]"
+                  className="px-3 py-2 text-xs border rounded-2xl bg-white dark:bg-[#0e1a14]"
                 >
                   <option value="HOME">Home</option>
                   <option value="WORK">Work</option>
@@ -1160,7 +1160,7 @@ function AccountDashboardContent() {
               </div>
               <button
                 type="submit"
-                className="w-full mt-2 py-3 bg-brand-700 text-white font-bold text-xs rounded-xl shadow"
+                className="w-full mt-2 py-3 bg-brand-800 text-white font-bold text-xs rounded-full shadow"
               >
                 Save Delivery Address
               </button>
@@ -1172,7 +1172,7 @@ function AccountDashboardContent() {
       {/* Review Dialog */}
       {isReviewModalOpen && selectedReviewProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 border border-neutral-200 dark:bg-[#0e1a14] dark:border-white/10">
+          <div className="relative w-full max-w-md bg-white rounded-[1.75rem] shadow-2xl p-6 border border-neutral-200 dark:bg-[#0e1a14] dark:border-white/10">
             <div className="flex items-center justify-between pb-3 border-b border-neutral-100 dark:border-white/10">
               <h3 className="text-base font-bold text-neutral-950 dark:text-white">Review {selectedReviewProduct.productName}</h3>
               <button onClick={() => setIsReviewModalOpen(false)}>
@@ -1204,7 +1204,7 @@ function AccountDashboardContent() {
                   value={revTitle}
                   onChange={(e) => setRevTitle(e.target.value)}
                   placeholder="Great product & fast shipping!"
-                  className="w-full px-3 py-2 text-xs border rounded-xl"
+                  className="w-full px-3 py-2 text-xs border rounded-2xl"
                 />
               </div>
 
@@ -1216,13 +1216,13 @@ function AccountDashboardContent() {
                   rows={3}
                   required
                   placeholder="Share details of your experience..."
-                  className="w-full px-3 py-2 text-xs border rounded-xl"
+                  className="w-full px-3 py-2 text-xs border rounded-2xl"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3 bg-brand-700 text-white font-bold text-xs rounded-xl shadow"
+                className="w-full py-3 bg-brand-800 text-white font-bold text-xs rounded-full shadow"
               >
                 Submit Verified Buyer Review
               </button>

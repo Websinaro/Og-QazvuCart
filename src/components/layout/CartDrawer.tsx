@@ -95,7 +95,7 @@ export function CartDrawer() {
 
           <div className="fixed inset-y-0 right-0 max-w-full flex pl-4 sm:pl-10">
             <motion.div
-              className="w-screen max-w-md bg-white dark:bg-[#0a150f] shadow-2xl flex flex-col sm:rounded-l-[2rem] overflow-hidden border-l border-neutral-900/5 dark:border-white/10"
+              className="w-screen max-w-md bg-[#f4f9f5] dark:bg-[#0a150f] shadow-2xl flex flex-col sm:rounded-l-[2rem] overflow-hidden border-l border-neutral-900/5 dark:border-white/10"
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
@@ -192,7 +192,7 @@ export function CartDrawer() {
                     <Link
                       href="/products"
                       onClick={closeCartDrawer}
-                      className="h-11 px-7 grid place-items-center rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-[13px] font-semibold hover:bg-brand-700 dark:hover:bg-brand-200 transition-colors hover:text-white dark:hover:text-neutral-950"
+                      className="h-11 px-7 grid place-items-center rounded-full bg-brand-800 dark:bg-brand-500 text-white dark:text-neutral-950 text-[13px] font-semibold hover:bg-brand-700 dark:hover:bg-brand-400 transition-colors hover:text-white dark:hover:text-neutral-950 shadow-glow"
                     >
                       Start shopping
                     </Link>
@@ -207,9 +207,9 @@ export function CartDrawer() {
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, x: 80, transition: { duration: 0.2 } }}
                         transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-                        className="flex gap-4 p-3 rounded-2xl border border-neutral-900/[0.06] dark:border-white/10 bg-neutral-900/[0.02] dark:bg-white/[0.03] overflow-hidden"
+                        className="flex gap-4 p-3 rounded-[1.25rem] border border-neutral-900/[0.05] dark:border-white/10 bg-white dark:bg-white/[0.03] shadow-soft overflow-hidden"
                       >
-                        <div className="relative w-[88px] h-[88px] rounded-xl bg-neutral-100 dark:bg-neutral-900 shrink-0 overflow-hidden">
+                        <div className="relative w-[88px] h-[88px] rounded-2xl bg-neutral-100 dark:bg-neutral-900 shrink-0 overflow-hidden">
                           <Image
                             src={item.productImage || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=900&q=80'}
                             alt={item.productName}
@@ -327,7 +327,7 @@ export function CartDrawer() {
                   <Link
                     href="/checkout"
                     onClick={closeCartDrawer}
-                    className="group w-full h-12 px-5 rounded-full bg-brand-700 hover:bg-brand-600 text-white font-semibold text-sm shadow-glow active:scale-[0.99] transition-all flex items-center justify-center gap-2"
+                    className="group w-full h-12 px-5 rounded-full bg-brand-800 hover:bg-brand-700 text-white font-semibold text-sm shadow-glow active:scale-[0.99] transition-all flex items-center justify-center gap-2"
                   >
                     Checkout
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" weight="bold" />

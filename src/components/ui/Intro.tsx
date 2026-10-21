@@ -60,16 +60,17 @@ export function Intro() {
       aria-hidden="true"
     >
       <div className="intro-stage">
-        <svg viewBox="0 0 64 64" className="intro-mark" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-          <circle className="intro-draw" cx="30" cy="30" r="16" pathLength={1} />
-          <path className="intro-draw intro-draw-tail" d="M41 41 L53 53" pathLength={1} />
+        <svg viewBox="0 0 64 64" className="intro-mark" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round">
+          <path className="intro-draw" d="M10 34c0-13 10-22 26-24 0 15-8 26-22 28-2 .3-4-1-4-4Z" pathLength={1} />
+          <path className="intro-draw intro-draw-tail" d="M22 38 L32 48 L54 18" pathLength={1} />
         </svg>
         <div className="intro-word">
           <span className="intro-word-inner">
-            Qazvu<span className="text-brand-300">Cart</span>
+            Qazvu<span className="text-brand-600 dark:text-brand-300">Cart</span>
           </span>
         </div>
-        <p className="intro-tag">Marketplace of verified sellers</p>
+        <p className="intro-tag">Better choices for a brighter you</p>
+        <span className="intro-cta">Get started &rarr;</span>
       </div>
       <span className="intro-line" />
     </div>

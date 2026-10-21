@@ -175,7 +175,7 @@ export function QuickViewModal({
                       <button
                         key={img.id}
                         onClick={() => setActiveImage(i)}
-                        className={`relative w-12 h-12 shrink-0 rounded-lg overflow-hidden border-2 cursor-pointer ${
+                        className={`relative w-12 h-12 shrink-0 rounded-xl overflow-hidden border-2 cursor-pointer ${
                           i === activeImage ? 'border-neutral-900 dark:border-white/30' : 'border-transparent'
                         }`}
                       >
@@ -192,7 +192,7 @@ export function QuickViewModal({
                 <h2 className="text-lg font-bold text-neutral-950 leading-snug mt-0.5 mb-2 dark:text-white">{product.name}</h2>
 
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="flex items-center gap-1 bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.5 rounded-md text-[11px] font-semibold dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/25">
+                  <div className="flex items-center gap-1 bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-full text-[11px] font-semibold dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/25">
                     <span>{Number(product.rating) > 0 ? Number(product.rating).toFixed(1) : 'New'}</span>
                     <Star className="w-3 h-3 fill-emerald-700 text-emerald-700 dark:text-emerald-300" />
                   </div>
@@ -252,7 +252,7 @@ export function QuickViewModal({
                   <button
                     onClick={handleAddToCart}
                     disabled={product.stock <= 0 || isCartLoading}
-                    className="flex-1 py-3 px-4 bg-brand-700 hover:bg-brand-600 text-white font-bold text-sm rounded-xl shadow-soft transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                    className="flex-1 py-3 px-4 bg-brand-800 hover:bg-brand-700 text-white font-bold text-sm rounded-full shadow-glow transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                   >
                     <ShoppingBag className="w-4 h-4" />
                     {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}

@@ -31,10 +31,10 @@ const linkCls = 'text-white/65 hover:text-white transition-colors inline-flex it
 
 export function Footer() {
   return (
-    <footer className="relative mt-24 bg-brand-950 text-white/70 overflow-hidden">
+    <footer className="relative mt-12 sm:mt-24 rounded-t-[2rem] bg-brand-950 text-white/70 overflow-hidden">
       {/* Trust pillars */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-12">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-8 pb-12 border-b border-white/10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-6 sm:gap-y-8 pb-8 sm:pb-12 border-b border-white/10">
           {PILLARS.map(({ Icon, title, copy }) => (
             <div key={title} className="flex items-start gap-3.5 min-w-0">
               <span className="grid place-items-center w-10 h-10 rounded-full bg-brand-500/15 text-brand-300 shrink-0">
@@ -50,7 +50,7 @@ export function Footer() {
       </div>
 
       {/* Links */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10 text-[13px]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-14 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 sm:gap-10 text-[13px]">
         <div className="col-span-2 space-y-5">
           <Link href="/" className="inline-flex items-center gap-2.5">
             <BrandMark className="w-9 h-9 ring-1 ring-white/25" />

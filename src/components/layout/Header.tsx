@@ -28,6 +28,7 @@ import {
   Flame,
   Shield,
   Store,
+  SlidersHorizontal,
 } from '@/src/components/ui/icons';
 import { formatINR } from '@/src/lib/date';
 
@@ -142,7 +143,7 @@ export function Header() {
     <>
       <header className="sticky top-0 z-40 w-full">
         {/* 1. Announcement bar */}
-        <div className="bg-brand-900 text-white">
+        <div className="hidden md:block bg-brand-900 text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 h-9 flex items-center justify-between gap-4 text-[12px]">
             <p className="flex items-center gap-2.5 min-w-0 text-white/75">
               <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-brand-500/25 px-2 py-0.5 text-[11px] font-semibold text-brand-200">
@@ -163,7 +164,7 @@ export function Header() {
         </div>
 
         {/* 2. Main bar */}
-        <div className="glass border-b border-neutral-900/5 dark:border-white/10">
+        <div className="glass border-b border-neutral-900/5 dark:border-white/10 rounded-b-[1.75rem] lg:rounded-none shadow-[0_8px_24px_-18px_rgb(20_80_36/0.35)] lg:shadow-none">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="flex items-center gap-3 sm:gap-5 h-[68px]">
               {/* Mobile menu + logo */}
@@ -182,7 +183,7 @@ export function Header() {
 
                 <Link href="/" className="flex items-center gap-2.5 group" aria-label="QazvuCart home">
                   <BrandMark className="w-9 h-9 group-hover:rotate-[-8deg] transition-transform duration-300" />
-                  <span className="hidden sm:block text-[19px] font-semibold tracking-tight text-neutral-950 dark:text-white">
+                  <span className="text-[19px] font-semibold tracking-tight text-neutral-950 dark:text-white">
                     Qazvu<span className="text-brand-700 dark:text-brand-300">Cart</span>
                   </span>
                 </Link>
@@ -200,7 +201,7 @@ export function Header() {
               {/* Search (md+) */}
               <form
                 onSubmit={handleSearchSubmit}
-                className="flex-1 max-w-2xl hidden md:flex items-center h-11 rounded-full bg-neutral-900/[0.045] dark:bg-white/[0.07] border border-transparent focus-within:border-brand-500/60 focus-within:bg-white dark:focus-within:bg-neutral-900 focus-within:ring-4 focus-within:ring-brand-500/15 transition-all overflow-hidden"
+                className="flex-1 max-w-2xl hidden md:flex items-center h-11 rounded-full bg-white dark:bg-white/[0.07] border border-neutral-900/10 dark:border-transparent focus-within:border-brand-500/60 focus-within:bg-white dark:focus-within:bg-neutral-900 focus-within:ring-4 focus-within:ring-brand-500/15 transition-all overflow-hidden"
               >
                 <select
                   value={selectedCategory}
@@ -226,7 +227,7 @@ export function Header() {
                 <button
                   type="submit"
                   aria-label="Search"
-                  className="m-1 h-9 w-9 lg:w-auto lg:px-4 grid lg:flex place-items-center gap-1.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-semibold hover:bg-brand-700 dark:hover:bg-brand-200 transition-colors hover:text-white dark:hover:text-neutral-950"
+                  className="m-1 h-9 w-9 lg:w-auto lg:px-4 grid lg:flex place-items-center gap-1.5 rounded-full bg-brand-800 dark:bg-white text-white dark:text-neutral-950 text-xs font-semibold hover:bg-brand-700 dark:hover:bg-brand-200 transition-colors hover:text-white dark:hover:text-neutral-950"
                 >
                   <Search className="w-4 h-4" weight="bold" />
                   <span className="hidden lg:inline">Search</span>
@@ -240,7 +241,7 @@ export function Header() {
                 <ThemeToggle className="hidden sm:grid" />
                 <NotificationBell />
 
-                <Link href="/account?tab=wishlist" className={iconBtn} title="My Wishlist" aria-label="My wishlist">
+                <Link href="/account?tab=wishlist" className={`${iconBtn} hidden lg:grid`} title="My Wishlist" aria-label="My wishlist">
                   <Heart className="w-[22px] h-[22px]" />
                   {wishlistItems.length > 0 && (
                     <span className="absolute top-1 right-0.5 min-w-[17px] h-[17px] px-1 grid place-items-center rounded-full bg-rose-600 text-white text-[10px] font-semibold ring-2 ring-white dark:ring-neutral-950">
@@ -367,10 +368,10 @@ export function Header() {
                 {/* Cart */}
                 <button
                   onClick={toggleCartDrawer}
-                  className="ml-1 flex items-center gap-2.5 h-10 pl-3 pr-3 sm:pr-4 rounded-full bg-brand-800 dark:bg-brand-500 text-white dark:text-neutral-950 hover:bg-brand-700 dark:hover:bg-brand-400 active:scale-95 shadow-soft transition hover:text-white dark:hover:text-neutral-950"
+                  className="ml-1 hidden lg:flex items-center gap-2.5 h-10 pl-3 pr-3 sm:pr-4 rounded-full bg-brand-800 dark:bg-brand-500 text-white dark:text-neutral-950 hover:bg-brand-700 dark:hover:bg-brand-400 active:scale-95 shadow-soft transition hover:text-white dark:hover:text-neutral-950"
                   aria-label="Open shopping cart"
                 >
-                  <span className="relative" id="header-cart-icon">
+                  <span className="relative" data-cart-target="">
                     <ShoppingBag className="w-[19px] h-[19px]" />
                     {cart.totalItems > 0 && (
                       <span className="absolute -top-2 -right-2.5 min-w-[17px] h-[17px] px-1 grid place-items-center rounded-full bg-white text-brand-800 text-[10px] font-semibold ring-2 ring-brand-800 dark:ring-brand-500">
@@ -386,10 +387,10 @@ export function Header() {
             {/* Mobile search */}
             <form
               onSubmit={handleSearchSubmit}
-              className="md:hidden pb-3 -mt-1 flex items-center gap-2"
+              className="md:hidden pb-3.5 -mt-1 flex items-center gap-2.5"
             >
-              <div className="flex-1 flex items-center gap-2 h-10 px-3.5 rounded-full bg-neutral-900/[0.05] dark:bg-white/[0.08] focus-within:ring-4 focus-within:ring-brand-500/15">
-                <Search className="w-4 h-4 text-neutral-400 shrink-0" />
+              <div className="flex-1 flex items-center gap-2.5 h-11 px-4 rounded-2xl bg-white dark:bg-white/[0.08] border border-neutral-900/[0.06] dark:border-white/10 shadow-soft focus-within:ring-4 focus-within:ring-brand-500/15">
+                <Search className="w-[18px] h-[18px] text-neutral-400 shrink-0" />
                 <input
                   type="text"
                   value={searchQuery}
@@ -398,8 +399,12 @@ export function Header() {
                   className="flex-1 min-w-0 bg-transparent text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 focus:outline-none"
                 />
               </div>
-              <button type="submit" className="h-10 px-4 rounded-full bg-brand-700 text-white text-xs font-semibold" aria-label="Search">
-                Go
+              <button
+                type="submit"
+                className="grid place-items-center size-11 rounded-2xl bg-white dark:bg-white/[0.08] border border-neutral-900/[0.06] dark:border-white/10 shadow-soft text-brand-800 dark:text-brand-300 active:scale-95 transition"
+                aria-label="Search"
+              >
+                <SlidersHorizontal className="w-[18px] h-[18px]" />
               </button>
             </form>
           </div>
@@ -410,7 +415,7 @@ export function Header() {
               <nav className="flex items-center gap-1 overflow-x-auto no-scrollbar text-[13px] font-medium" aria-label="Categories">
                 <Link
                   href="/products"
-                  className="flex items-center gap-1.5 px-3 h-8 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 font-semibold whitespace-nowrap hover:bg-brand-700 dark:hover:bg-brand-200 transition-colors hover:text-white dark:hover:text-neutral-950"
+                  className="flex items-center gap-1.5 px-3.5 h-8 rounded-full bg-brand-800 dark:bg-white text-white dark:text-neutral-950 font-semibold whitespace-nowrap hover:bg-brand-700 dark:hover:bg-brand-200 transition-colors hover:text-white dark:hover:text-neutral-950"
                 >
                   <Menu className="w-3.5 h-3.5" /> All products
                 </Link>
@@ -518,7 +523,7 @@ export function Header() {
                       setIsMobileMenuOpen(false);
                       openLogin();
                     }}
-                    className="w-full h-11 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-semibold text-[13px] shadow-glow transition-colors"
+                    className="w-full h-11 rounded-2xl bg-brand-800 hover:bg-brand-700 text-white font-semibold text-[13px] shadow-glow transition-colors"
                   >
                     Sign in to QazvuCart
                   </button>
