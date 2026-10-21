@@ -4,6 +4,8 @@ import { orders, orderItems, sellerOrders, questions, answers, products, users }
 import { NotFoundError, transitionSellerOrder } from '../orders/fulfilment';
 import { QuestionService } from '../questions/questionService';
 import { kickPendingRefunds } from '../payments/kickRefunds';
+import { isDelhiveryConfigured } from '@/src/lib/delhivery';
+import { DelhiveryService } from '../orders/delhiveryService';
 import { OrderTrackingService } from '../orders/orderTrackingService';
 
 /** Parcel states in which the buyer's address is needed (or still relevant). */
@@ -134,6 +136,11 @@ export class SellerOrderService {
     sellerOrderId: number,
     input: { status?: string; carrier?: string; trackingNumber?: string }
   ) {
+    // Delhivery books the shipment and supplies the waybill (outside the DB transaction).
+    if (input.status === 'SHIPPED' && !input.trackingNumber && isDelhiveryConfigured()) {
+      const waybill = await DelhiveryService.createShipmentForParcel(sellerId, sellerOrderId);
+      input = { ...input, carrier: 'Delhivery', trackingNumber: waybill };
+    }
     await db.transaction(async (tx) => {
       if (input.status) {
         if (input.status === 'SHIPPED') {

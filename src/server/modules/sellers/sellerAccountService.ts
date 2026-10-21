@@ -1,3 +1,4 @@
+import { assertPickupServiceable } from '@/src/lib/delhivery';
 import { and, asc, desc, eq, ilike, or, sql, SQL } from 'drizzle-orm';
 import { db } from '@/src/db';
 import { sellers, users, products, sellerOrders, categories } from '@/src/db/schema';
@@ -13,6 +14,9 @@ export interface SellerApplicationInput {
   supportEmail?: string;
   supportPhone?: string;
   businessAddress: string;
+  pickupCity: string;
+  pickupState: string;
+  pickupPincode: string;
   taxId?: string;
 }
 
@@ -56,6 +60,9 @@ function toSellerProfile(s: SellerRow) {
     supportEmail: s.supportEmail,
     supportPhone: s.supportPhone,
     businessAddress: s.businessAddress,
+    pickupCity: s.pickupCity,
+    pickupState: s.pickupState,
+    pickupPincode: s.pickupPincode,
     taxId: s.taxId,
     rating: Number(s.rating || 0),
     reviewCount: s.reviewCount,
@@ -106,6 +113,7 @@ export class SellerAccountService {
    * nobody can reach seller tools just by submitting a form.
    */
   static async apply(userId: number, input: SellerApplicationInput) {
+    await assertPickupServiceable(input.pickupPincode);
     const [user] = await db.select({ id: users.id, role: users.role }).from(users).where(eq(users.id, userId)).limit(1);
     if (!user) throw new Error('User not found');
     if (user.role === 'ADMIN') throw new Error('Admin accounts cannot apply as sellers.');
@@ -129,6 +137,9 @@ export class SellerAccountService {
           supportEmail: input.supportEmail ?? null,
           supportPhone: input.supportPhone ?? null,
           businessAddress: input.businessAddress,
+          pickupCity: input.pickupCity,
+          pickupState: input.pickupState,
+          pickupPincode: input.pickupPincode,
           taxId: input.taxId ?? null,
           status: 'PENDING',
           rejectionReason: null,
@@ -155,6 +166,9 @@ export class SellerAccountService {
           supportEmail: input.supportEmail ?? null,
           supportPhone: input.supportPhone ?? null,
           businessAddress: input.businessAddress,
+          pickupCity: input.pickupCity,
+          pickupState: input.pickupState,
+          pickupPincode: input.pickupPincode,
           taxId: input.taxId ?? null,
           // Explicit, so the DB default can never accidentally make a new store live.
           status: 'PENDING',
@@ -184,6 +198,7 @@ export class SellerAccountService {
   }
 
   static async updateProfile(sellerId: number, input: Partial<SellerApplicationInput>) {
+    if (input.pickupPincode !== undefined) await assertPickupServiceable(input.pickupPincode);
     const updates: Partial<typeof sellers.$inferInsert> = { updatedAt: new Date() };
 
     if (input.storeName !== undefined) {
@@ -197,6 +212,11 @@ export class SellerAccountService {
     if (input.supportEmail !== undefined) updates.supportEmail = input.supportEmail || null;
     if (input.supportPhone !== undefined) updates.supportPhone = input.supportPhone || null;
     if (input.businessAddress !== undefined) updates.businessAddress = input.businessAddress;
+    if (input.pickupCity !== undefined) updates.pickupCity = input.pickupCity;
+    if (input.pickupState !== undefined) updates.pickupState = input.pickupState;
+    if (input.pickupPincode !== undefined) updates.pickupPincode = input.pickupPincode;
+    // Address changed: the courier pickup location must be re-registered on next shipment.
+    if (input.businessAddress !== undefined || input.pickupPincode !== undefined) updates.delhiveryWarehouse = null;
     if (input.taxId !== undefined) updates.taxId = input.taxId || null;
 
     const [updated] = await db.update(sellers).set(updates).where(eq(sellers.id, sellerId)).returning();

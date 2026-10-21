@@ -10,6 +10,9 @@ export interface SellerProfile {
   supportEmail: string | null;
   supportPhone: string | null;
   businessAddress: string | null;
+  pickupCity: string | null;
+  pickupState: string | null;
+  pickupPincode: string | null;
   taxId: string | null;
   rating: number;
   reviewCount: number;

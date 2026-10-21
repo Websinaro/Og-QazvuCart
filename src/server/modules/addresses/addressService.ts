@@ -1,3 +1,4 @@
+import { assertDeliverable } from '@/src/lib/delhivery';
 import { and, eq, sql } from 'drizzle-orm';
 import { db } from '@/src/db';
 import { addresses } from '@/src/db/schema';
@@ -27,6 +28,7 @@ export class AddressService {
   }
 
   static async createAddress(userId: number, data: AddressData) {
+    await assertDeliverable(data.postalCode.trim());
     const existing = await db.select({ id: addresses.id }).from(addresses).where(eq(addresses.userId, userId));
     const makeDefault = Boolean(data.isDefault) || existing.length === 0;
 
@@ -66,6 +68,7 @@ export class AddressService {
   }
 
   static async updateAddress(userId: number, addressId: number, data: Partial<AddressData>) {
+    if (data.postalCode !== undefined) await assertDeliverable(data.postalCode.trim());
     const existing = await this.getAddressById(userId, addressId);
     if (!existing) throw new Error('Address not found');
 

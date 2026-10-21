@@ -23,11 +23,11 @@ export const sellerApplicationSchema = z.object({
   supportPhone: z
     .string()
     .trim()
-    .min(10, 'Support phone must be at least 10 digits')
-    .max(15, 'Support phone is too long')
-    .optional()
-    .or(z.literal('').transform(() => undefined)),
-  businessAddress: z.string().trim().min(10, 'Please provide your full business address').max(500),
+    .regex(/^(\+91)?[6-9]\d{9}$/, 'Enter a valid 10-digit mobile number (needed for courier pickup)'),
+  businessAddress: z.string().trim().min(10, 'Enter the full pickup address (building, street, area)').max(500),
+  pickupCity: z.string().trim().min(2, 'Pickup city is required').max(100),
+  pickupState: z.string().trim().min(2, 'Pickup state is required').max(100),
+  pickupPincode: z.string().trim().regex(/^[1-9]\d{5}$/, 'Enter a valid 6-digit pickup PIN code'),
   taxId: optionalText(30),
 });
 

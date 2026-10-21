@@ -102,6 +102,11 @@ export const sellers = pgTable('sellers', {
   supportEmail: varchar('support_email', { length: 255 }),
   supportPhone: varchar('support_phone', { length: 20 }),
   businessAddress: text('business_address'),
+  pickupCity: varchar('pickup_city', { length: 100 }),
+  pickupState: varchar('pickup_state', { length: 100 }),
+  pickupPincode: varchar('pickup_pincode', { length: 6 }),
+  // Name of the pickup location registered with Delhivery (set on first shipment).
+  delhiveryWarehouse: varchar('delhivery_warehouse', { length: 100 }),
   taxId: varchar('tax_id', { length: 30 }),
   // Per-seller commission override in basis points. NULL = category/platform default.
   commissionBps: integer('commission_bps'),

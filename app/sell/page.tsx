@@ -9,7 +9,7 @@ import { Store, CheckCircle2, Clock, AlertTriangle, ArrowRight } from '@/src/com
 import { api, Badge, Field, Spinner, inputCls, btnPrimary, cardCls } from '@/src/components/seller/ui';
 import type { SellerProfile } from '@/src/components/seller/types';
 
-const emptyStore = { storeName: '', businessAddress: '', supportEmail: '', supportPhone: '', taxId: '', description: '' };
+const emptyStore = { storeName: '', businessAddress: '', pickupCity: '', pickupState: '', pickupPincode: '', supportEmail: '', supportPhone: '', taxId: '', description: '' };
 const emptyAccount = { username: '', email: '', phone: '', password: '', confirmPassword: '' };
 
 export default function SellPage() {
@@ -26,7 +26,7 @@ export default function SellPage() {
     try {
       const { seller: s } = await api<{ seller: SellerProfile | null }>('/api/seller/me');
       setSeller(s);
-      if (s) setStore({ storeName: s.storeName, businessAddress: s.businessAddress || '', supportEmail: s.supportEmail || '', supportPhone: s.supportPhone || '', taxId: s.taxId || '', description: s.description || '' });
+      if (s) setStore({ storeName: s.storeName, businessAddress: s.businessAddress || '', pickupCity: s.pickupCity || '', pickupState: s.pickupState || '', pickupPincode: s.pickupPincode || '', supportEmail: s.supportEmail || '', supportPhone: s.supportPhone || '', taxId: s.taxId || '', description: s.description || '' });
     } catch { /* not signed in or transient: show the form */ }
     finally { setLoaded(true); }
   }, []);
@@ -118,9 +118,14 @@ export default function SellPage() {
             <Field label="Store name"><input required minLength={3} maxLength={60} className={inputCls} value={store.storeName} onChange={set('storeName')} /></Field>
             <Field label="GSTIN / Tax ID (optional)"><input className={inputCls} value={store.taxId} onChange={set('taxId')} /></Field>
             <Field label="Support email (optional)"><input type="email" className={inputCls} value={store.supportEmail} onChange={set('supportEmail')} /></Field>
-            <Field label="Support phone (optional)"><input className={inputCls} value={store.supportPhone} onChange={set('supportPhone')} /></Field>
+            <Field label="Phone (required for courier pickup)"><input required pattern="(\+91)?[6-9][0-9]{9}" className={inputCls} value={store.supportPhone} onChange={set('supportPhone')} /></Field>
           </div>
-          <Field label="Business address"><textarea required minLength={10} rows={2} className={inputCls} value={store.businessAddress} onChange={set('businessAddress')} /></Field>
+          <Field label="Pickup address (building, street, area)"><textarea required minLength={10} rows={2} className={inputCls} value={store.businessAddress} onChange={set('businessAddress')} /></Field>
+          <div className="grid sm:grid-cols-3 gap-3">
+            <Field label="City"><input required className={inputCls} value={store.pickupCity} onChange={set('pickupCity')} /></Field>
+            <Field label="State"><input required className={inputCls} value={store.pickupState} onChange={set('pickupState')} /></Field>
+            <Field label="PIN code"><input required pattern="[1-9][0-9]{5}" maxLength={6} className={inputCls} value={store.pickupPincode} onChange={set('pickupPincode')} /></Field>
+          </div>
           <Field label="About your store (optional)"><textarea rows={3} maxLength={1000} className={inputCls} value={store.description} onChange={set('description')} /></Field>
         </section>
 

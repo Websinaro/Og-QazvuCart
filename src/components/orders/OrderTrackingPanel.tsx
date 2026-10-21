@@ -72,7 +72,9 @@ export default function OrderTrackingPanel({ orderId, onChanged }: { orderId: nu
             <div className="space-y-1">
               {d.parcels.filter((p) => p.trackingNumber).map((p) => (
                 <p key={p.id} className="rounded-lg bg-white border border-neutral-200 p-2 dark:bg-[#17140b] dark:border-white/10">
-                  📦 {p.sellerName}: <b>{p.carrier || 'Carrier'}</b> · Tracking <b className="select-all">{p.trackingNumber}</b>
+                  📦 {p.sellerName}: <b>{p.carrier || 'Carrier'}</b> · Tracking <b className="select-all">{p.trackingNumber}</b>{p.carrier === 'Delhivery' && (
+                    <> · <a className="underline" target="_blank" rel="noreferrer" href={`https://www.delhivery.com/track-v2/package/${p.trackingNumber}`}>Track live</a></>
+                  )}
                 </p>
               ))}
             </div>

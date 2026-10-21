@@ -12,7 +12,7 @@ export default function SellerSettingsTab({ seller, canEdit, onChanged }: { sell
   const toast = useToast();
   const [profile, setProfile] = useState({
     storeName: seller.storeName, description: seller.description || '', supportEmail: seller.supportEmail || '',
-    supportPhone: seller.supportPhone || '', businessAddress: seller.businessAddress || '', taxId: seller.taxId || '',
+    supportPhone: seller.supportPhone || '', businessAddress: seller.businessAddress || '', pickupCity: seller.pickupCity || '', pickupState: seller.pickupState || '', pickupPincode: seller.pickupPincode || '', taxId: seller.taxId || '',
   });
   const [bank, setBank] = useState({ accountHolder: seller.payout.accountHolder || '', bankName: seller.payout.bankName || '', ifsc: seller.payout.ifsc || '', accountNumber: '', upiId: seller.payout.upiId || '', currentPassword: '' });
   const [busy, setBusy] = useState<'profile' | 'bank' | null>(null);
@@ -55,9 +55,14 @@ export default function SellerSettingsTab({ seller, canEdit, onChanged }: { sell
             <Field label="Store name"><input className={inputCls} value={profile.storeName} onChange={set('storeName')} /></Field>
             <Field label="GSTIN / Tax ID"><input className={inputCls} value={profile.taxId} onChange={set('taxId')} /></Field>
             <Field label="Support email"><input className={inputCls} value={profile.supportEmail} onChange={set('supportEmail')} /></Field>
-            <Field label="Support phone"><input className={inputCls} value={profile.supportPhone} onChange={set('supportPhone')} /></Field>
+            <Field label="Phone (required for pickup)"><input className={inputCls} value={profile.supportPhone} onChange={set('supportPhone')} /></Field>
           </div>
-          <Field label="Business address"><textarea rows={2} className={inputCls} value={profile.businessAddress} onChange={set('businessAddress')} /></Field>
+          <Field label="Pickup address (required — couriers collect parcels here)"><textarea rows={2} className={inputCls} value={profile.businessAddress} onChange={set('businessAddress')} /></Field>
+          <div className="grid sm:grid-cols-3 gap-3">
+            <Field label="City"><input className={inputCls} value={profile.pickupCity} onChange={set('pickupCity')} /></Field>
+            <Field label="State"><input className={inputCls} value={profile.pickupState} onChange={set('pickupState')} /></Field>
+            <Field label="PIN code"><input className={inputCls} maxLength={6} value={profile.pickupPincode} onChange={set('pickupPincode')} /></Field>
+          </div>
           <Field label="About your store"><textarea rows={3} className={inputCls} value={profile.description} onChange={set('description')} /></Field>
           {canEdit && <button className={btnPrimary} disabled={busy === 'profile'} onClick={saveProfile}>Save profile</button>}
         </fieldset>
