@@ -8,6 +8,7 @@ import { useAuth } from '@/src/context/AuthContext';
 import { useToast } from '@/src/context/ToastContext';
 import { authFetch } from '@/src/lib/api';
 import { formatINR } from '@/src/lib/date';
+import AdminInsightsPanel from '@/src/components/admin/AdminInsightsPanel';
 import { uploadImageToCloudinary, CloudinaryConfigError } from '@/src/lib/cloudinary';
 import { ALLOWED_TRANSITIONS } from '@/src/lib/orderStateMachine';
 import AdminSellersPanel from '@/src/components/admin/AdminSellersPanel';
@@ -1020,6 +1021,7 @@ export default function AdminDashboardPage() {
             <p className="text-xs font-bold text-neutral-500 dark:text-neutral-400">
               Platform commission earned on delivered orders: <span className="text-emerald-600">{formatINR(analytics?.platformCommissionEarned || 0)}</span>
             </p>
+            <AdminInsightsPanel />
             {/* Metric KPI Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-white rounded-2xl p-5 border border-neutral-200/90 shadow-soft dark:bg-[#17140b] dark:border-white/10">
