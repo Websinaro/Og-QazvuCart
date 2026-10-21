@@ -4,7 +4,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { authFetch } from '@/src/lib/api';
 import { formatINR } from '@/src/lib/date';
 
-interface Row { id: number; orderNumber: string; total: number; customer: string; reason: string; details: string | null; status: string; adminNote: string | null; createdAt: string }
+interface ReturnLine { orderItemId: number; productName: string; variantName: string | null; quantity: number; refundAmount: number }
+interface Row { id: number; orderNumber: string; total: number; customer: string; reason: string; details: string | null; status: string; adminNote: string | null; createdAt: string; sellerOrderId: number | null; sellerName: string | null; items: ReturnLine[]; refundAmount: number }
 
 export default function AdminReturnsPanel() {
   const [rows, setRows] = useState<Row[]>([]);
@@ -18,7 +19,7 @@ export default function AdminReturnsPanel() {
 
   const resolve = async (id: number, decision: 'APPROVE' | 'REJECT') => {
     const note = decision === 'REJECT' ? prompt('Reason shown to the customer (optional):') ?? '' : '';
-    if (decision === 'APPROVE' && !confirm('Approve this return? The order will be marked Returned and the refund started.')) return;
+    if (decision === 'APPROVE' && !confirm('Approve this return? Only the listed items from this seller are refunded; other sellers\' parcels are not affected.')) return;
     const j = await authFetch(`/api/admin/returns/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ decision, note }) }).then((r) => r.json());
     if (!j.success) setErr(j.error?.message || 'Failed'); else { setErr(''); load(); }
   };
@@ -32,6 +33,11 @@ export default function AdminReturnsPanel() {
         <div key={r.id} className="flex flex-wrap items-center justify-between gap-2 text-xs border-t border-neutral-100 pt-3 dark:border-white/10 text-neutral-800 dark:text-neutral-200">
           <div>
             <p className="font-bold">{r.orderNumber} · {formatINR(r.total)} · {r.customer}</p>
+            {r.sellerName && <p className="text-neutral-500 dark:text-neutral-400">Seller: {r.sellerName}</p>}
+            {r.items.map((i) => (
+              <p key={i.orderItemId} className="text-neutral-600 dark:text-neutral-300">{i.quantity} × {i.productName}{i.variantName ? ` (${i.variantName})` : ''} · refund {formatINR(i.refundAmount)}</p>
+            ))}
+            {r.items.length > 0 && <p className="font-bold">Refund total {formatINR(r.refundAmount)}</p>}
             <p className="text-neutral-500 dark:text-neutral-400">{r.reason.replace(/_/g, ' ').toLowerCase()}{r.details ? ` — ${r.details}` : ''}</p>
           </div>
           <div className="flex gap-2">

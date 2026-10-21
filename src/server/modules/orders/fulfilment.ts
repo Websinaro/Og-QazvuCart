@@ -183,13 +183,22 @@ export async function transitionSellerOrder(
       parcel.sellerEarning > 0
     ) {
       // Money already paid (or in flight): claw it back from the next payout.
-      await tx.insert(sellerAdjustments).values({
-        sellerId: parcel.sellerId,
-        sellerOrderId: parcel.id,
-        type: 'RETURN_CLAWBACK',
-        amount: -parcel.sellerEarning,
-        reason: `Order ${order.orderNumber} was returned after its earnings were paid out.`,
-      });
+      // Earlier partial returns on this parcel may already have clawed back
+      // part of it (negative RETURN_CLAWBACK rows), so only take the rest.
+      const [prior] = await tx
+        .select({ total: sql<number>`COALESCE(SUM(${sellerAdjustments.amount}), 0)::int` })
+        .from(sellerAdjustments)
+        .where(and(eq(sellerAdjustments.sellerOrderId, parcel.id), eq(sellerAdjustments.type, 'RETURN_CLAWBACK')));
+      const remaining = parcel.sellerEarning + (prior?.total ?? 0);
+      if (remaining > 0) {
+        await tx.insert(sellerAdjustments).values({
+          sellerId: parcel.sellerId,
+          sellerOrderId: parcel.id,
+          type: 'RETURN_CLAWBACK',
+          amount: -remaining,
+          reason: `Order ${order.orderNumber} was returned after its earnings were paid out.`,
+        });
+      }
     }
   }
 

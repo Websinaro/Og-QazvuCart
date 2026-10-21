@@ -701,11 +701,13 @@ export const sellerOrdersRelations = relations(sellerOrders, ({ one, many }) => 
 }));
 
 // =========================================================================
-// RETURN REQUESTS (customer asks, admin approves -> order moves to RETURNED)
+// RETURN REQUESTS (customer asks per seller parcel, admin approves -> that parcel's items are refunded)
 // =========================================================================
 export const returnRequests = pgTable('return_requests', {
   id: serial('id').primaryKey(),
   orderId: integer('order_id').notNull().references(() => orders.id, { onDelete: 'cascade' }),
+  // The seller parcel this request is about. NULL only on legacy whole-order requests.
+  sellerOrderId: integer('seller_order_id').references(() => sellerOrders.id, { onDelete: 'cascade' }),
   userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   reason: varchar('reason', { length: 40 }).notNull(),
   details: text('details'),
@@ -716,4 +718,21 @@ export const returnRequests = pgTable('return_requests', {
   resolvedAt: timestamp('resolved_at', { withTimezone: true }),
 }, (table) => ({
   orderIdx: index('return_requests_order_idx').on(table.orderId),
+  sellerOrderIdx: index('return_requests_seller_order_idx').on(table.sellerOrderId),
+}));
+
+// The order lines (and quantities) a return request covers, with the money
+// snapshotted when the request was made so approval never re-prices anything.
+export const returnItems = pgTable('return_items', {
+  id: serial('id').primaryKey(),
+  returnRequestId: integer('return_request_id').notNull().references(() => returnRequests.id, { onDelete: 'cascade' }),
+  orderItemId: integer('order_item_id').notNull().references(() => orderItems.id, { onDelete: 'cascade' }),
+  quantity: integer('quantity').notNull(),
+  lineAmount: integer('line_amount').notNull(),
+  refundAmount: integer('refund_amount').notNull(),
+  commissionAmount: integer('commission_amount').default(0).notNull(),
+  sellerEarning: integer('seller_earning').default(0).notNull(),
+}, (table) => ({
+  requestItemUniq: uniqueIndex('return_items_request_item_uniq').on(table.returnRequestId, table.orderItemId),
+  orderItemIdx: index('return_items_order_item_idx').on(table.orderItemId),
 }));
