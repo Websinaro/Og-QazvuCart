@@ -691,3 +691,21 @@ export const sellerOrdersRelations = relations(sellerOrders, ({ one, many }) => 
   seller: one(sellers, { fields: [sellerOrders.sellerId], references: [sellers.id] }),
   items: many(orderItems),
 }));
+
+// =========================================================================
+// RETURN REQUESTS (customer asks, admin approves -> order moves to RETURNED)
+// =========================================================================
+export const returnRequests = pgTable('return_requests', {
+  id: serial('id').primaryKey(),
+  orderId: integer('order_id').notNull().references(() => orders.id, { onDelete: 'cascade' }),
+  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  reason: varchar('reason', { length: 40 }).notNull(),
+  details: text('details'),
+  status: varchar('status', { length: 12 }).default('REQUESTED').notNull(),
+  adminNote: text('admin_note'),
+  resolvedBy: integer('resolved_by').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  resolvedAt: timestamp('resolved_at', { withTimezone: true }),
+}, (table) => ({
+  orderIdx: index('return_requests_order_idx').on(table.orderId),
+}));

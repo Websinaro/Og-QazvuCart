@@ -8,6 +8,7 @@ import {
   NotificationTarget,
 } from '@/src/db/schema';
 import { sendPushToTokens } from '@/src/lib/firebaseAdmin';
+import { sendEmail, sendSms } from '@/src/lib/messaging';
 
 export interface SendBroadcastInput {
   sentBy: number;
@@ -116,6 +117,18 @@ export class NotificationService {
       } catch (pushErr) {
         // Push is optional (Firebase may be unconfigured); the in-app row exists.
         console.error('[NotificationService] push to user failed:', pushErr);
+      }
+
+      // Order updates also go out by email + SMS when those providers are configured.
+      if (input.type === 'ORDER') {
+        try {
+          const [u] = await db.select({ email: users.email, phone: users.phone }).from(users).where(eq(users.id, userId)).limit(1);
+          if (u) {
+            await Promise.allSettled([sendEmail(u.email, input.title, input.body), sendSms(u.phone, `${input.title}: ${input.body}`)]);
+          }
+        } catch (msgErr) {
+          console.error('[NotificationService] email/sms failed:', msgErr);
+        }
       }
     } catch (err) {
       console.error('[NotificationService] notifyUser failed:', err);

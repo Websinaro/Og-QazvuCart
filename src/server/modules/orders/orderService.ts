@@ -28,6 +28,7 @@ import { canCustomerCancel } from '@/src/lib/fulfilmentStatus';
 import { PlatformSettingsService } from '../settings/platformSettingsService';
 import { enqueueRefundsForClosedOrder } from '../payments/refundLedger';
 import { kickPendingRefunds } from '../payments/kickRefunds';
+import { OrderTrackingService } from './orderTrackingService';
 import {
   confirmParcelsForOrder,
   notifySellersOfNewOrder,
@@ -759,6 +760,8 @@ export class OrderService {
         totalPrice: i.totalPrice,
       })),
       timeline: fullStepper,
+      ...(await OrderTrackingService.getExtras(order.id, order.status)),
+      canCancel: canCustomerCancel(parcelRows.map((p) => p.status)) && !['CANCELLED','RETURNED','DELIVERED'].includes(order.status),
       parcels: parcelRows.map((p) => ({
         id: p.id,
         sellerName: p.sellerName,
@@ -827,6 +830,7 @@ export class OrderService {
       return this.getOrderByIdWithTx(tx, userId, orderId);
     });
     kickPendingRefunds();
+    void OrderTrackingService.notifyProgress(orderId, 'CANCELLED');
     return result;
   }
 
@@ -859,14 +863,14 @@ export class OrderService {
         await transitionSellerOrder(tx, p.id, nextStatus, { type: 'ADMIN', userId: adminUserId });
       }
       return true;
-    }).then((r) => { kickPendingRefunds(); return r; });
+    }).then((r) => { kickPendingRefunds(); void OrderTrackingService.notifyProgress(orderId, nextStatus); return r; });
   }
 
   /** Admin status change for a single seller's parcel. */
   static async adminUpdateParcelStatus(sellerOrderId: number, nextStatus: string, adminUserId: number) {
     return db.transaction(async (tx) => {
       return transitionSellerOrder(tx, sellerOrderId, nextStatus, { type: 'ADMIN', userId: adminUserId });
-    }).then((r) => { kickPendingRefunds(); return r; });
+    }).then((r) => { kickPendingRefunds(); void OrderTrackingService.notifyProgress(r.orderId, nextStatus, sellerOrderId); return r; });
   }
 }
 

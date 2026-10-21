@@ -4,6 +4,7 @@ import { orders, orderItems, sellerOrders, questions, answers, products, users }
 import { NotFoundError, transitionSellerOrder } from '../orders/fulfilment';
 import { QuestionService } from '../questions/questionService';
 import { kickPendingRefunds } from '../payments/kickRefunds';
+import { OrderTrackingService } from '../orders/orderTrackingService';
 
 /** Parcel states in which the buyer's address is needed (or still relevant). */
 const ADDRESS_HIDDEN_STATUSES = ['PENDING_PAYMENT', 'PROCESSING', 'CANCELLED'];
@@ -135,6 +136,12 @@ export class SellerOrderService {
   ) {
     await db.transaction(async (tx) => {
       if (input.status) {
+        if (input.status === 'SHIPPED') {
+          const [cur] = await tx.select({ c: sellerOrders.carrier, t: sellerOrders.trackingNumber }).from(sellerOrders).where(and(eq(sellerOrders.id, sellerOrderId), eq(sellerOrders.sellerId, sellerId)));
+          const carrier = input.carrier ?? cur?.c;
+          const tracking = input.trackingNumber ?? cur?.t;
+          if (!carrier?.trim() || !tracking?.trim()) throw new Error('Add the carrier and tracking number before marking this order as shipped.');
+        }
         await transitionSellerOrder(
           tx,
           sellerOrderId,
@@ -167,6 +174,10 @@ export class SellerOrderService {
 
     // A cancellation that ended the whole order queued a refund: send it now.
     if (input.status === 'CANCELLED') kickPendingRefunds();
+    if (input.status) {
+      const [p] = await db.select({ orderId: sellerOrders.orderId }).from(sellerOrders).where(eq(sellerOrders.id, sellerOrderId)).limit(1);
+      if (p) void OrderTrackingService.notifyProgress(p.orderId, input.status, sellerOrderId);
+    }
 
     return this.get(sellerId, sellerOrderId);
   }

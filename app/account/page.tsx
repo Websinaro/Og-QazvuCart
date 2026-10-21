@@ -9,6 +9,7 @@ import { useWishlist } from '@/src/context/WishlistContext';
 import { useToast } from '@/src/context/ToastContext';
 import { AuthModal } from '@/src/components/auth/AuthModal';
 import { authFetch } from '@/src/lib/api';
+import OrderTrackingPanel from '@/src/components/orders/OrderTrackingPanel';
 import { payForOrder } from '@/src/lib/razorpayCheckout';
 import {
   User,
@@ -645,14 +646,6 @@ function AccountDashboardContent() {
                                 {payingOrderId === order.id ? 'Opening…' : order.paymentStatus === 'FAILED' ? 'Retry payment' : 'Pay now'}
                               </button>
                             )}
-                            {(order.status === 'PENDING' || order.status === 'CONFIRMED') && (
-                              <button
-                                onClick={() => handleCancelOrder(order.id)}
-                                className="text-xs font-bold text-red-600 hover:text-red-700 underline"
-                              >
-                                Cancel Order
-                              </button>
-                            )}
                           </div>
                         </div>
 
@@ -686,35 +679,7 @@ function AccountDashboardContent() {
                           ))}
                         </div>
 
-                        {/* Interactive Tracking Stepper */}
-                        {order.timeline && order.timeline.length > 0 && (
-                          <div className="p-5 bg-neutral-50/40 dark:bg-white/[0.03]">
-                            <h5 className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider mb-3 dark:text-neutral-400">
-                              Live Delivery Tracking
-                            </h5>
-                            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs">
-                              {order.timeline.map((stepItem, idx) => (
-                                <div
-                                  key={idx}
-                                  className={`p-2 rounded-xl border flex flex-col items-center justify-center ${
-                                    stepItem.completed
-                                      ? 'bg-emerald-50 border-emerald-200 text-emerald-900 font-bold dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/25'
-                                      : stepItem.current
-                                      ? 'bg-amber-50 border-amber-300 text-amber-900 font-bold dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/25'
-                                      : 'bg-white border-neutral-200 text-neutral-400 dark:bg-[#17140b] dark:border-white/10'
-                                  }`}
-                                >
-                                  {stepItem.completed ? (
-                                    <CheckCircle2 className="w-4 h-4 text-emerald-600 mb-1" />
-                                  ) : (
-                                    <Clock className="w-4 h-4 mb-1" />
-                                  )}
-                                  <span className="text-[10px] leading-tight">{stepItem.title}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                        <OrderTrackingPanel orderId={order.id} onChanged={fetchOrders} />
                       </div>
                     ))}
                   </div>
