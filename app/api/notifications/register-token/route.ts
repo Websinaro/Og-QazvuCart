@@ -23,6 +23,6 @@ export async function DELETE(req: NextRequest) {
   const token = typeof body.token === 'string' ? body.token.trim() : '';
   if (!token) return apiError('VALIDATION_ERROR', 'token is required', 422);
 
-  await NotificationService.removeDeviceToken(token);
+  await NotificationService.removeDeviceToken(authUser.userId, token);
   return apiSuccess({ ok: true });
 }
