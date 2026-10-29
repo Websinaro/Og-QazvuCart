@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/src/components/ui/SafeImage';
 import { motion, AnimatePresence } from 'motion/react';
 import { useCart } from '@/src/context/CartContext';
 import { useToast } from '@/src/context/ToastContext';

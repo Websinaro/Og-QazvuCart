@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/src/components/ui/SafeImage';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Star, Heart, ShoppingBag, Truck, Minus, Plus, ExternalLink } from '@/src/components/ui/icons';
 import { useCart } from '@/src/context/CartContext';

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/src/components/ui/SafeImage';
 import { motion } from 'motion/react';
 import { ProductCard, ProductCardProps } from '@/src/components/product/ProductCard';
 import { ProductGridSkeleton } from '@/src/components/product/ProductCardSkeleton';
@@ -91,10 +91,14 @@ export default function HomePage() {
       setIsLoading(true);
       setLoadFailed(false);
       try {
+        // A hung API (cold start, DB down) must not spin forever: give up after
+        // 20s and show the retry state instead.
+        const get = (url: string) =>
+          fetch(url, { signal: AbortSignal.timeout(20000) }).then((r) => r.json());
         const [catRes, dealsRes, featRes] = await Promise.all([
-          fetch('/api/categories').then((r) => r.json()),
-          fetch('/api/products?isDeal=true&limit=4').then((r) => r.json()),
-          fetch('/api/products?isFeatured=true&limit=8').then((r) => r.json()),
+          get('/api/categories').catch(() => ({ success: false })),
+          get('/api/products?isDeal=true&limit=4').catch(() => ({ success: false })),
+          get('/api/products?isFeatured=true&limit=8').catch(() => ({ success: false })),
         ]);
         if (cancelled) return;
         if (catRes.success) setCategories(catRes.data);
@@ -119,8 +123,8 @@ export default function HomePage() {
   const spotlightPool = [...deals, ...featured].filter(
     (p, idx, arr) => p.inStock && arr.findIndex((q) => q.id === p.id) === idx
   );
-  const spotlightA = isLoading ? undefined : spotlightPool[0];
-  const spotlightB = isLoading ? undefined : spotlightPool[1];
+  const heroProduct = isLoading ? undefined : spotlightPool[0];
+  const tiles = isLoading ? [] : spotlightPool.slice(1, 3);
 
   const getCategoryIcon = (slug: string) => {
     switch (slug) {
@@ -155,141 +159,149 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen pb-8">
-      {/* 1. Hero bento */}
+      {/* 1. Hero: headline plus live catalogue spotlight */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-5 sm:pt-7">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:col-span-2 relative isolate rounded-[2rem] bg-gradient-to-br from-brand-200 via-brand-300 to-brand-400 text-neutral-950 overflow-hidden p-7 sm:p-12 flex flex-col justify-between min-h-[420px] sm:min-h-[500px] shadow-lift"
+            className={`${
+              tiles.length > 0 || isLoading ? 'lg:col-span-2' : 'lg:col-span-3'
+            } relative isolate rounded-[2rem] bg-gradient-to-br from-brand-200 via-brand-300 to-brand-400 text-neutral-950 overflow-hidden p-7 sm:p-12 flex flex-col justify-between min-h-[420px] sm:min-h-[500px] shadow-lift`}
           >
-            {/* Backdrop: dotted grid + breathing white glows */}
             <div className="absolute inset-0 -z-10 pointer-events-none">
               <div className="absolute inset-0 bg-dots opacity-70 [mask-image:linear-gradient(135deg,black,transparent_65%)]" />
               <div className="absolute -left-24 -bottom-24 w-96 h-96 rounded-full bg-white/70 blur-[100px] animate-pulse-glow" />
               <div className="absolute right-1/4 -top-28 w-80 h-80 rounded-full bg-white/60 blur-[90px] animate-pulse-glow [animation-delay:2s]" />
             </div>
 
-            {/* Floating product photo (desktop) */}
-            <motion.div
-              initial={{ opacity: 0, x: 40, rotate: 6 }}
-              animate={{ opacity: 1, x: 0, rotate: 2 }}
-              transition={{ duration: 0.9, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className="hidden sm:block absolute right-8 top-8 bottom-8 w-[40%] -z-[5]"
-            >
-              <div className="relative h-full w-full rounded-[1.75rem] overflow-hidden ring-4 ring-white/80 shadow-lift animate-float-slow">
-                <Image
-                  src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=900&q=80"
-                  alt="SonicBlast Pro wireless headphones in studio light"
-                  fill
-                  priority
-                  sizes="(max-width: 1024px) 40vw, 28vw"
-                  className="object-cover"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-brand-500/25 via-transparent to-white/10" />
-              </div>
-            </motion.div>
-
             <div className="max-w-lg space-y-5 sm:max-w-[52%] lg:max-w-[55%]">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/75 backdrop-blur-md border border-neutral-950/10 px-3.5 py-1.5 text-[11px] font-semibold text-neutral-900">
-                <Flame className="w-3.5 h-3.5 text-brand-700" weight="fill" /> Limited edition launch
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/75 backdrop-blur-md border border-neutral-950/10 px-3.5 py-1.5 text-xs font-semibold text-neutral-900">
+                <Flame className="w-3.5 h-3.5 text-brand-700" weight="fill" /> Deals refreshed daily
               </span>
-              <h1 className="text-4xl sm:text-6xl font-semibold tracking-[-0.035em] leading-[1.02]">
-                Hear every{' '}
-                <span className="relative inline-block px-2.5 -mx-0.5 rounded-xl bg-white/85 text-neutral-950 -rotate-1 shadow-soft">
-                  detail.
-                </span>
-                <br />
-                Block the rest.
+              <h1 className="text-4xl sm:text-6xl font-semibold tracking-[-0.035em] leading-[1.04]">
+                Better prices from sellers you can trust.
               </h1>
               <p className="text-sm sm:text-base text-neutral-800/80 leading-relaxed max-w-md">
-                Studio-grade 40mm graphene drivers, 42 dB hybrid noise cancellation and a 60-hour battery, in one pair.
+                See your delivery date before you pay. Free delivery over ₹999 and easy 7-day returns.
               </p>
             </div>
 
-            <div className="pt-8 flex flex-wrap items-center gap-3">
+            {/* Product showcase: live data, so name, price and photo are always real */}
+            {heroProduct && (
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                className="relative mt-7 sm:mt-0 aspect-[16/10] sm:aspect-auto sm:absolute sm:right-8 sm:top-8 sm:bottom-8 sm:w-[40%] -z-[5] sm:-z-[5]"
+              >
+                <Link
+                  href={`/products/${heroProduct.slug}`}
+                  aria-label={`${heroProduct.name}, ${formatINR(heroProduct.discountPrice)}`}
+                  className="group relative block h-full w-full rounded-[1.5rem] overflow-hidden ring-4 ring-white/80 shadow-lift z-10"
+                >
+                  <Image
+                    src={heroProduct.primaryImage}
+                    alt={heroProduct.name}
+                    fill
+                    priority
+                    sizes="(max-width: 640px) 90vw, (max-width: 1024px) 40vw, 28vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-700"
+                    referrerPolicy="no-referrer"
+                  />
+                  <span className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-3 rounded-2xl glass px-3.5 py-2.5 text-neutral-950 dark:text-white">
+                    <span className="min-w-0">
+                      <span className="block text-xs font-semibold truncate">{heroProduct.name}</span>
+                      <span className="block text-xs text-neutral-600 dark:text-neutral-400 truncate">{heroProduct.brand}</span>
+                    </span>
+                    <span className="text-sm font-semibold tabular-nums shrink-0">{formatINR(heroProduct.discountPrice)}</span>
+                  </span>
+                </Link>
+              </motion.div>
+            )}
+
+            <div className="pt-8 flex flex-wrap items-center gap-3 relative z-10">
               <Link
-                href="/products/sonicblast-pro-wireless-headphones"
+                href="/products?isDeal=true"
                 className="group inline-flex items-center gap-2 h-12 px-6 rounded-full bg-neutral-950 text-white text-sm font-semibold hover:bg-neutral-800 hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-lg"
               >
-                Shop SonicBlast Pro
+                Shop today&apos;s deals
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" weight="bold" />
               </Link>
               <Link
-                href="/products?isDeal=true"
+                href="/products"
                 className="inline-flex items-center h-12 px-6 rounded-full bg-white/60 hover:bg-white backdrop-blur-md border border-neutral-950/10 text-sm font-semibold text-neutral-900 transition-colors"
               >
-                Explore mega deals
+                Browse all products
               </Link>
             </div>
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 sm:gap-5">
-            {[spotlightA, spotlightB].map((p, i) =>
-              p ? (
-                <motion.div
-                  key={p.id}
-                  initial={{ opacity: 0, y: 24 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.1 * (i + 1), ease: [0.16, 1, 0.3, 1] }}
-                  className={
-                    i === 0
-                      ? 'group relative isolate rounded-[2rem] p-6 sm:p-7 min-h-[220px] flex flex-col justify-between overflow-hidden bg-white dark:bg-[#17140b] border border-brand-700/10 dark:border-white/10 shadow-soft hover:shadow-lift hover:-translate-y-1 transition-all duration-300'
-                      : 'group relative isolate rounded-[2rem] p-6 sm:p-7 min-h-[220px] flex flex-col justify-between overflow-hidden bg-gradient-to-br from-brand-400 to-brand-500 text-neutral-950 shadow-glow hover:-translate-y-1 transition-transform duration-300'
-                  }
-                >
-                  <div
-                    className={`absolute w-44 h-44 rounded-full blur-2xl -z-10 group-hover:scale-125 transition-transform duration-700 ${
-                      i === 0 ? '-right-10 -top-10 bg-brand-300/70' : '-left-10 -bottom-12 bg-white/60'
-                    }`}
-                  />
-                  <div className="space-y-2.5">
-                    {p.discountPercent > 0 ? (
-                      <span className="inline-block rounded-full bg-rose-600 text-white px-2.5 py-1 text-xs font-semibold">
-                        {p.discountPercent}% off
-                      </span>
-                    ) : (
-                      <span className="inline-block rounded-full bg-neutral-950 text-brand-300 px-2.5 py-1 text-xs font-semibold">
-                        Featured
-                      </span>
-                    )}
-                    <h2 className="text-xl sm:text-2xl font-semibold leading-tight tracking-tight line-clamp-3">
-                      <Link href={`/products/${p.slug}`} className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-offset-4">
-                        {p.name}
-                      </Link>
-                    </h2>
-                    <p className={`text-xs ${i === 0 ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-900/75'}`}>
-                      {[p.brand, p.categoryName].filter(Boolean).join(' · ')}
-                    </p>
-                  </div>
-                  <div className="pt-5 flex items-end justify-between">
-                    <div>
-                      {p.basePrice > p.discountPrice && (
-                        <span className={`text-xs line-through tabular-nums ${i === 0 ? 'text-neutral-500 dark:text-neutral-400' : 'text-neutral-900/65'}`}>
-                          {formatINR(p.basePrice)}
-                        </span>
-                      )}
-                      <p className={`text-xl font-semibold tabular-nums ${i === 0 ? 'text-neutral-950 dark:text-white' : ''}`}>
-                        {formatINR(p.discountPrice)}
-                      </p>
-                    </div>
-                    <span
-                      aria-hidden="true"
-                      className={`grid place-items-center w-11 h-11 rounded-full group-hover:scale-110 transition ${
-                        i === 0 ? 'bg-brand-500 text-neutral-950 shadow-glow' : 'bg-neutral-950 text-brand-300'
-                      }`}
+          {(isLoading || tiles.length > 0) && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 sm:gap-5">
+              {isLoading
+                ? [0, 1].map((i) => <div key={i} className="shimmer-bg rounded-[2rem] min-h-[220px]" aria-hidden="true" />)
+                : tiles.map((p, i) => (
+                    <motion.div
+                      key={p.id}
+                      initial={{ opacity: 0, y: 24 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.8, delay: 0.1 * (i + 1), ease: [0.16, 1, 0.3, 1] }}
+                      className={
+                        i === 0
+                          ? 'group relative isolate rounded-[2rem] p-6 sm:p-7 min-h-[220px] flex flex-col justify-between overflow-hidden bg-white dark:bg-[#17140b] border border-brand-700/10 dark:border-white/10 shadow-soft hover:shadow-lift hover:-translate-y-1 transition-all duration-300'
+                          : 'group relative isolate rounded-[2rem] p-6 sm:p-7 min-h-[220px] flex flex-col justify-between overflow-hidden bg-gradient-to-br from-brand-400 to-brand-500 text-neutral-950 shadow-glow hover:-translate-y-1 transition-transform duration-300'
+                      }
                     >
-                      <ArrowRight className="w-4 h-4" weight="bold" />
-                    </span>
-                  </div>
-                </motion.div>
-              ) : (
-                <div key={`sk-${i}`} className="shimmer-bg rounded-[2rem] min-h-[220px]" aria-hidden="true" />
-              )
-            )}
-          </div>
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="space-y-2.5 min-w-0">
+                          {p.discountPercent > 0 ? (
+                            <span className="inline-block rounded-full bg-rose-600 text-white px-2.5 py-1 text-xs font-semibold">
+                              {p.discountPercent}% off
+                            </span>
+                          ) : (
+                            <span className="inline-block rounded-full bg-neutral-950 text-brand-300 px-2.5 py-1 text-xs font-semibold">
+                              Featured
+                            </span>
+                          )}
+                          <h2 className="text-lg sm:text-xl font-semibold leading-tight tracking-tight line-clamp-3">
+                            <Link href={`/products/${p.slug}`} className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-offset-4">
+                              {p.name}
+                            </Link>
+                          </h2>
+                          <p className={`text-xs ${i === 0 ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-900/75'}`}>
+                            {[p.brand, p.categoryName].filter(Boolean).join(' · ')}
+                          </p>
+                        </div>
+                        <div className="relative w-24 h-24 sm:w-28 sm:h-28 shrink-0 rounded-2xl overflow-hidden bg-brand-50 dark:bg-neutral-900 ring-1 ring-neutral-950/5">
+                          <Image src={p.primaryImage} alt="" fill sizes="112px" className="object-cover" referrerPolicy="no-referrer" />
+                        </div>
+                      </div>
+                      <div className="pt-5 flex items-end justify-between">
+                        <div>
+                          {p.basePrice > p.discountPrice && (
+                            <span className={`text-xs line-through tabular-nums ${i === 0 ? 'text-neutral-500 dark:text-neutral-400' : 'text-neutral-900/65'}`}>
+                              {formatINR(p.basePrice)}
+                            </span>
+                          )}
+                          <p className={`text-xl font-semibold tabular-nums ${i === 0 ? 'text-neutral-950 dark:text-white' : ''}`}>
+                            {formatINR(p.discountPrice)}
+                          </p>
+                        </div>
+                        <span
+                          aria-hidden="true"
+                          className={`grid place-items-center w-11 h-11 rounded-full group-hover:scale-110 transition ${
+                            i === 0 ? 'bg-brand-500 text-neutral-950 shadow-glow' : 'bg-neutral-950 text-brand-300'
+                          }`}
+                        >
+                          <ArrowRight className="w-4 h-4" weight="bold" />
+                        </span>
+                      </div>
+                    </motion.div>
+                  ))}
+            </div>
+          )}
         </div>
       </section>
 

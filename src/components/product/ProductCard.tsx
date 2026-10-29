@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/src/components/ui/SafeImage';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useCart } from '@/src/context/CartContext';
@@ -91,7 +91,7 @@ export function ProductCard({
     if (!inStock) return;
     try {
       await addToCart(id, null, 1);
-      if (imageRef.current) flyToCart(imageRef.current, validImage);
+      if (imageRef.current && validImage) flyToCart(imageRef.current, validImage);
       success(`Added ${name} to cart`);
       setJustAdded(true);
       if (addedTimer.current) clearTimeout(addedTimer.current);
@@ -102,10 +102,8 @@ export function ProductCard({
     }
   };
 
-  const validImage =
-    typeof primaryImage === 'string' && primaryImage.trim()
-      ? primaryImage.trim()
-      : 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=900&q=80';
+  // Empty/missing images fall through to SafeImage's neutral placeholder.
+  const validImage = typeof primaryImage === 'string' ? primaryImage.trim() : '';
 
   return (
     <div
