@@ -7,6 +7,7 @@ import { motion } from 'motion/react';
 import { ProductCard, ProductCardProps } from '@/src/components/product/ProductCard';
 import { ProductGridSkeleton } from '@/src/components/product/ProductCardSkeleton';
 import { AnimatedGrid } from '@/src/components/ui/AnimatedGrid';
+import { formatINR } from '@/src/lib/date';
 import { useDealCountdown } from '@/src/lib/dealCountdown';
 import { RecentlyViewedRail } from '@/src/components/product/RecentlyViewedRail';
 import { TrendingRail } from '@/src/components/product/TrendingRail';
@@ -57,7 +58,7 @@ function SectionHead({
         {icon}
         <div className="min-w-0">
           <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-neutral-950 dark:text-white">{title}</h2>
-          <p className="text-xs sm:text-[13px] text-neutral-500 dark:text-neutral-400 mt-0.5">{subtitle}</p>
+          <p className="text-xs sm:text-[13px] text-neutral-600 dark:text-neutral-400 mt-0.5">{subtitle}</p>
         </div>
       </div>
       {href && (
@@ -78,30 +79,48 @@ export default function HomePage() {
   const [deals, setDeals] = useState<ProductCardProps[]>([]);
   const [featured, setFeatured] = useState<ProductCardProps[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
   // Deal countdown — counts down to real end-of-day, see useDealCountdown().
   const timeLeft = useDealCountdown();
 
   useEffect(() => {
+    let cancelled = false;
     async function loadHomeData() {
+      setIsLoading(true);
+      setLoadFailed(false);
       try {
         const [catRes, dealsRes, featRes] = await Promise.all([
           fetch('/api/categories').then((r) => r.json()),
           fetch('/api/products?isDeal=true&limit=4').then((r) => r.json()),
           fetch('/api/products?isFeatured=true&limit=8').then((r) => r.json()),
         ]);
-
+        if (cancelled) return;
         if (catRes.success) setCategories(catRes.data);
         if (dealsRes.success) setDeals(dealsRes.data.products);
         if (featRes.success) setFeatured(featRes.data.products);
+        if (!catRes.success && !dealsRes.success && !featRes.success) setLoadFailed(true);
       } catch (err) {
         console.error('Failed to load homepage data:', err);
+        if (!cancelled) setLoadFailed(true);
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     }
     loadHomeData();
-  }, []);
+    return () => {
+      cancelled = true;
+    };
+  }, [attempt]);
+
+  // Spotlight tiles come from live catalogue data so prices, stock and links
+  // can never drift from what the product page shows.
+  const spotlightPool = [...deals, ...featured].filter(
+    (p, idx, arr) => p.inStock && arr.findIndex((q) => q.id === p.id) === idx
+  );
+  const spotlightA = isLoading ? undefined : spotlightPool[0];
+  const spotlightB = isLoading ? undefined : spotlightPool[1];
 
   const getCategoryIcon = (slug: string) => {
     switch (slug) {
@@ -162,7 +181,7 @@ export default function HomePage() {
               <div className="relative h-full w-full rounded-[1.75rem] overflow-hidden ring-4 ring-white/80 shadow-lift animate-float-slow">
                 <Image
                   src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=900&q=80"
-                  alt="SonicBlast Pro wireless headphones"
+                  alt="SonicBlast Pro wireless headphones in studio light"
                   fill
                   priority
                   sizes="(max-width: 1024px) 40vw, 28vw"
@@ -195,7 +214,7 @@ export default function HomePage() {
                 href="/products/sonicblast-pro-wireless-headphones"
                 className="group inline-flex items-center gap-2 h-12 px-6 rounded-full bg-neutral-950 text-white text-sm font-semibold hover:bg-neutral-800 hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-lg"
               >
-                Shop SonicBlast Pro · ₹1,499
+                Shop SonicBlast Pro
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" weight="bold" />
               </Link>
               <Link
@@ -208,67 +227,68 @@ export default function HomePage() {
           </motion.div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 sm:gap-5">
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="group relative isolate rounded-[2rem] p-6 sm:p-7 min-h-[220px] flex flex-col justify-between overflow-hidden bg-white dark:bg-[#17140b] border border-brand-700/10 dark:border-white/10 shadow-soft hover:shadow-lift hover:-translate-y-1 transition-all duration-300"
-            >
-              <div className="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-brand-300/70 blur-2xl -z-10 group-hover:scale-125 transition-transform duration-700" />
-              <div className="space-y-2.5">
-                <span className="inline-block rounded-full bg-neutral-950 text-brand-300 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]">
-                  Top seller
-                </span>
-                <h3 className="text-xl sm:text-2xl font-semibold leading-tight tracking-tight text-neutral-950 dark:text-white">
-                  AuraBook Max 15.6&quot; Ultra Laptop
-                </h3>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400">Intel Core i7 13th Gen · 16GB RAM · 512GB NVMe SSD</p>
-              </div>
-              <div className="pt-5 flex items-end justify-between">
-                <div>
-                  <span className="text-xs text-neutral-400 line-through tabular-nums">₹79,999</span>
-                  <p className="text-xl font-semibold tabular-nums text-neutral-950 dark:text-white">₹54,999</p>
-                </div>
-                <Link
-                  href="/products/aurabook-max-ultra-thin-laptop"
-                  aria-label="View AuraBook Max"
-                  className="grid place-items-center w-11 h-11 rounded-full bg-brand-500 text-neutral-950 shadow-glow hover:bg-brand-400 hover:scale-110 active:scale-95 transition"
+            {[spotlightA, spotlightB].map((p, i) =>
+              p ? (
+                <motion.div
+                  key={p.id}
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.1 * (i + 1), ease: [0.16, 1, 0.3, 1] }}
+                  className={
+                    i === 0
+                      ? 'group relative isolate rounded-[2rem] p-6 sm:p-7 min-h-[220px] flex flex-col justify-between overflow-hidden bg-white dark:bg-[#17140b] border border-brand-700/10 dark:border-white/10 shadow-soft hover:shadow-lift hover:-translate-y-1 transition-all duration-300'
+                      : 'group relative isolate rounded-[2rem] p-6 sm:p-7 min-h-[220px] flex flex-col justify-between overflow-hidden bg-gradient-to-br from-brand-400 to-brand-500 text-neutral-950 shadow-glow hover:-translate-y-1 transition-transform duration-300'
+                  }
                 >
-                  <ArrowRight className="w-4 h-4" weight="bold" />
-                </Link>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="group relative isolate rounded-[2rem] p-6 sm:p-7 min-h-[220px] flex flex-col justify-between overflow-hidden bg-gradient-to-br from-brand-400 to-brand-500 text-neutral-950 shadow-glow hover:-translate-y-1 transition-transform duration-300"
-            >
-              <div className="absolute -left-10 -bottom-12 w-48 h-48 rounded-full bg-white/60 blur-3xl -z-10 group-hover:scale-125 transition-transform duration-700" />
-              <div className="space-y-2.5">
-                <span className="inline-block rounded-full bg-rose-600 text-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]">
-                  50% off
-                </span>
-                <h3 className="text-xl sm:text-2xl font-semibold leading-tight tracking-tight">
-                  NovaPulse Series 7 AMOLED Smartwatch
-                </h3>
-                <p className="text-xs text-neutral-900/70">Always-on display · Bluetooth calling · IP68</p>
-              </div>
-              <div className="pt-5 flex items-end justify-between">
-                <div>
-                  <span className="text-xs text-neutral-900/55 line-through tabular-nums">₹5,999</span>
-                  <p className="text-xl font-semibold tabular-nums">₹2,999</p>
-                </div>
-                <Link
-                  href="/products/novapulse-smartwatch-series-7"
-                  aria-label="View NovaPulse Series 7"
-                  className="grid place-items-center w-11 h-11 rounded-full bg-neutral-950 text-brand-300 hover:scale-110 active:scale-95 transition"
-                >
-                  <ArrowRight className="w-4 h-4" weight="bold" />
-                </Link>
-              </div>
-            </motion.div>
+                  <div
+                    className={`absolute w-44 h-44 rounded-full blur-2xl -z-10 group-hover:scale-125 transition-transform duration-700 ${
+                      i === 0 ? '-right-10 -top-10 bg-brand-300/70' : '-left-10 -bottom-12 bg-white/60'
+                    }`}
+                  />
+                  <div className="space-y-2.5">
+                    {p.discountPercent > 0 ? (
+                      <span className="inline-block rounded-full bg-rose-600 text-white px-2.5 py-1 text-xs font-semibold">
+                        {p.discountPercent}% off
+                      </span>
+                    ) : (
+                      <span className="inline-block rounded-full bg-neutral-950 text-brand-300 px-2.5 py-1 text-xs font-semibold">
+                        Featured
+                      </span>
+                    )}
+                    <h2 className="text-xl sm:text-2xl font-semibold leading-tight tracking-tight line-clamp-3">
+                      <Link href={`/products/${p.slug}`} className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-offset-4">
+                        {p.name}
+                      </Link>
+                    </h2>
+                    <p className={`text-xs ${i === 0 ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-900/75'}`}>
+                      {[p.brand, p.categoryName].filter(Boolean).join(' · ')}
+                    </p>
+                  </div>
+                  <div className="pt-5 flex items-end justify-between">
+                    <div>
+                      {p.basePrice > p.discountPrice && (
+                        <span className={`text-xs line-through tabular-nums ${i === 0 ? 'text-neutral-500 dark:text-neutral-400' : 'text-neutral-900/65'}`}>
+                          {formatINR(p.basePrice)}
+                        </span>
+                      )}
+                      <p className={`text-xl font-semibold tabular-nums ${i === 0 ? 'text-neutral-950 dark:text-white' : ''}`}>
+                        {formatINR(p.discountPrice)}
+                      </p>
+                    </div>
+                    <span
+                      aria-hidden="true"
+                      className={`grid place-items-center w-11 h-11 rounded-full group-hover:scale-110 transition ${
+                        i === 0 ? 'bg-brand-500 text-neutral-950 shadow-glow' : 'bg-neutral-950 text-brand-300'
+                      }`}
+                    >
+                      <ArrowRight className="w-4 h-4" weight="bold" />
+                    </span>
+                  </div>
+                </motion.div>
+              ) : (
+                <div key={`sk-${i}`} className="shimmer-bg rounded-[2rem] min-h-[220px]" aria-hidden="true" />
+              )
+            )}
           </div>
         </div>
       </section>
@@ -286,7 +306,7 @@ export default function HomePage() {
           stagger={0.07}
           className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4"
         >
-          {categories.map((cat) => (
+          {(isLoading && categories.length === 0 ? [] : categories).map((cat) => (
             <Link
               key={cat.id}
               href={`/products?category=${cat.slug}`}
@@ -301,11 +321,36 @@ export default function HomePage() {
                 {getCategoryIcon(cat.slug)}
               </span>
               <h3 className="text-[13px] font-semibold text-neutral-900 dark:text-neutral-100">{cat.name}</h3>
-              <span className="text-[11px] text-neutral-500 mt-0.5">{cat.productCount} products</span>
+              <span className="text-xs text-neutral-600 dark:text-neutral-400 mt-0.5">{cat.productCount} {cat.productCount === 1 ? 'product' : 'products'}</span>
             </Link>
           ))}
         </AnimatedGrid>
+        {isLoading && categories.length === 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4" aria-hidden="true">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="shimmer-bg rounded-[1.25rem] h-[132px]" />
+            ))}
+          </div>
+        )}
       </motion.section>
+
+      {loadFailed && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10">
+          <div role="alert" className="surface flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 sm:p-6">
+            <div>
+              <p className="text-sm font-semibold text-neutral-950 dark:text-white">We couldn&apos;t load the latest products</p>
+              <p className="text-[13px] text-neutral-600 dark:text-neutral-400 mt-0.5">Check your connection and try again.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setAttempt((n) => n + 1)}
+              className="h-11 px-6 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-[13px] font-semibold hover:bg-brand-600 dark:hover:bg-brand-200 hover:text-neutral-950 transition-colors"
+            >
+              Try again
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 3. Deals of the day */}
       <motion.section {...fadeUp} className="max-w-7xl mx-auto px-4 sm:px-6 pt-14">
@@ -409,8 +454,8 @@ export default function HomePage() {
                   <Icon className="w-6 h-6" />
                 </span>
                 <div>
-                  <h4 className="text-base font-semibold mb-1.5">{title}</h4>
-                  <p className="text-[13px] text-neutral-700 dark:text-neutral-400 leading-relaxed">{copy}</p>
+                  <h3 className="text-base font-semibold mb-1.5">{title}</h3>
+                  <p className="text-[13px] text-neutral-700 dark:text-neutral-300 leading-relaxed">{copy}</p>
                 </div>
               </div>
             ))}

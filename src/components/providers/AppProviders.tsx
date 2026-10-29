@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { MotionConfig } from 'motion/react';
 import { AuthProvider } from '@/src/context/AuthContext';
 import { CartProvider } from '@/src/context/CartContext';
 import { WishlistProvider } from '@/src/context/WishlistContext';
@@ -13,14 +14,16 @@ import { CompareBar } from '@/src/components/product/CompareToggle';
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
+    <MotionConfig reducedMotion="user">
     <AuthProvider>
       <CartProvider>
         <WishlistProvider>
           <ToastProvider>
             <NotificationProvider>
               <div className="flex flex-col min-h-screen">
+                <a href="#main-content" className="skip-link">Skip to main content</a>
                 <Header />
-                <main className="flex-1">{children}</main>
+                <main id="main-content" tabIndex={-1} className="flex-1 outline-none">{children}</main>
                 <Footer />
                 <CartDrawer />
                 <CompareBar />
@@ -30,5 +33,6 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
         </WishlistProvider>
       </CartProvider>
     </AuthProvider>
+    </MotionConfig>
   );
 }

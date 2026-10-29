@@ -25,18 +25,28 @@ export const viewport: Viewport = {
   ],
 };
 
+const SITE_DESCRIPTION =
+  'Shop electronics, fashion, home and more from verified sellers. Live delivery dates, secure UPI and card payments, easy 7-day returns.';
+
 export const metadata: Metadata = {
-  title: 'QazvuCart - Multi-Vendor Marketplace',
-  description: 'A high-performance, production-ready multi-vendor e-commerce marketplace featuring product discovery, dynamic delivery estimations, authenticated carts, transactional checkout, orders tracking, and customer reviews.',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+  title: {
+    default: 'QazvuCart: shop from verified sellers',
+    template: '%s | QazvuCart',
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: 'QazvuCart',
   openGraph: {
-    title: 'QazvuCart - Multi-Vendor Marketplace',
-    description: 'A high-performance, production-ready multi-vendor e-commerce marketplace featuring product discovery, dynamic delivery estimations, authenticated carts, transactional checkout, orders tracking, and customer reviews.',
+    siteName: 'QazvuCart',
+    title: 'QazvuCart: shop from verified sellers',
+    description: SITE_DESCRIPTION,
     type: 'website',
+    locale: 'en_IN',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'QazvuCart - Multi-Vendor Marketplace',
-    description: 'A high-performance, production-ready multi-vendor e-commerce marketplace featuring product discovery, dynamic delivery estimations, authenticated carts, transactional checkout, orders tracking, and customer reviews.',
+    title: 'QazvuCart: shop from verified sellers',
+    description: SITE_DESCRIPTION,
   },
 };
 

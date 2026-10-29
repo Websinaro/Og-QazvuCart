@@ -101,7 +101,9 @@ function wrap(Base: Icon, name: string): AppIcon {
       else if (sw !== undefined && sw >= 2.5) w = 'bold';
       else w = 'regular';
     }
-    return <Base weight={w} className={className} {...rest} />;
+    // Icons are decorative unless the caller labels them.
+    const labelled = 'aria-label' in rest || 'aria-labelledby' in rest;
+    return <Base weight={w} className={className} aria-hidden={labelled ? undefined : true} {...rest} />;
   };
   Wrapped.displayName = `AppIcon(${name})`;
   return Wrapped;

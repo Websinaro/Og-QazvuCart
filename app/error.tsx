@@ -17,14 +17,19 @@ export default function ErrorPage({
 
   return (
     <div id="error-boundary-view" className="min-h-[80vh] flex items-center justify-center p-4">
-      <div id="error-card" className="surface max-w-md w-full rounded-[2rem] p-10 text-center shadow-lift">
+      <div id="error-card" role="alert" className="surface max-w-md w-full rounded-[2rem] p-10 text-center shadow-lift">
         <div className="grid place-items-center w-16 h-16 rounded-[1.25rem] bg-rose-500/10 text-rose-600 dark:text-rose-400 mx-auto mb-6">
           <AlertCircle className="w-8 h-8" />
         </div>
         <h2 className="text-2xl font-semibold tracking-tight text-neutral-950 dark:text-white mb-2">Something went wrong</h2>
         <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-8 leading-relaxed">
-          {error?.message || 'An unexpected error occurred while loading this page. Please try refreshing.'}
+          We couldn&apos;t load this page. Try again, or head back to the homepage. If it keeps happening, contact support and quote the reference below.
         </p>
+        {error?.digest && (
+          <p className="-mt-4 mb-8 text-[11px] text-neutral-500 dark:text-neutral-400">
+            Reference: <code className="font-mono select-all">{error.digest}</code>
+          </p>
+        )}
 
         <div className="flex flex-col sm:flex-row items-center gap-3">
           <button

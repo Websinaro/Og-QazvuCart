@@ -8,22 +8,14 @@ import { useCart } from '@/src/context/CartContext';
 import { useToast } from '@/src/context/ToastContext';
 import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, Truck, ShieldCheck } from '@/src/components/ui/icons';
 import { formatINR } from '@/src/lib/date';
+import { useDialogA11y } from '@/src/lib/useDialogA11y';
 
 export function CartDrawer() {
   const { cart, isCartDrawerOpen, closeCartDrawer, updateQuantity, removeItem, isLoading } = useCart();
   const { success, error } = useToast();
 
-  // Lock background scroll while the drawer is open, same rationale as the
-  // mobile nav drawer - avoids the page shifting behind the fixed overlay.
-  useEffect(() => {
-    if (isCartDrawerOpen) {
-      const previousOverflow = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
-      return () => {
-        document.body.style.overflow = previousOverflow;
-      };
-    }
-  }, [isCartDrawerOpen]);
+  // Escape, focus trap, focus restore and background scroll lock.
+  const dialogRef = useDialogA11y<HTMLDivElement>(isCartDrawerOpen, closeCartDrawer);
 
   // Celebrate the moment the person crosses the free-delivery threshold —
   // all hooks below must run on every render (rules of hooks), so the
@@ -76,7 +68,9 @@ export function CartDrawer() {
     <AnimatePresence>
       {isCartDrawerOpen && (
         <motion.div
-          className="fixed inset-0 z-50 overflow-hidden"
+          ref={dialogRef}
+          tabIndex={-1}
+          className="fixed inset-0 z-50 overflow-hidden outline-none"
           initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 1 }}

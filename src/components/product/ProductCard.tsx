@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { createPortal } from 'react-dom';
@@ -60,6 +60,12 @@ export function ProductCard({
 
   const isFav = isInWishlist(id);
 
+  // Clear the "Added" confirmation timer if the card unmounts mid-flight.
+  const addedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (addedTimer.current) clearTimeout(addedTimer.current);
+  }, []);
+
   // Feeds the pointer-follow yellow spotlight (see .card-spotlight in globals.css).
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (e.pointerType === 'touch') return;
@@ -88,7 +94,8 @@ export function ProductCard({
       if (imageRef.current) flyToCart(imageRef.current, validImage);
       success(`Added ${name} to cart`);
       setJustAdded(true);
-      setTimeout(() => setJustAdded(false), 1600);
+      if (addedTimer.current) clearTimeout(addedTimer.current);
+      addedTimer.current = setTimeout(() => setJustAdded(false), 1600);
     } catch (err: unknown) {
       const errObj = err as Error;
       error(errObj.message || 'Please sign in to add to cart');
@@ -137,7 +144,7 @@ export function ProductCard({
         <motion.button
           onClick={handleWishlistToggle}
           whileTap={{ scale: 0.82 }}
-          className={`absolute top-3 right-3 z-10 grid place-items-center w-9 h-9 rounded-full glass shadow-sm transition-colors ${
+          className={`absolute top-2.5 right-2.5 z-10 grid place-items-center w-11 h-11 sm:w-10 sm:h-10 rounded-full glass shadow-sm transition-colors ${
             isFav ? 'text-rose-600' : 'text-neutral-700 dark:text-neutral-200 hover:text-rose-600'
           }`}
           aria-label={isFav ? 'Remove from wishlist' : 'Add to wishlist'}
@@ -150,7 +157,7 @@ export function ProductCard({
             transition={{ type: 'spring', stiffness: 500, damping: 14 }}
             className="block"
           >
-            <Heart className="w-[18px] h-[18px]" weight={isFav ? 'fill' : 'regular'} />
+            <Heart className="w-5 h-5" aria-hidden="true" weight={isFav ? 'fill' : 'regular'} />
           </motion.span>
         </motion.button>
         <CompareToggle id={id} />
@@ -162,7 +169,8 @@ export function ProductCard({
             e.stopPropagation();
             setIsQuickViewOpen(true);
           }}
-          className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 h-8 px-3.5 rounded-full glass text-neutral-900 dark:text-white text-[11px] font-semibold shadow-lg opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 max-sm:hidden cursor-pointer hover:bg-white dark:hover:bg-neutral-800"
+          className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 h-8 px-3.5 rounded-full glass text-neutral-900 dark:text-white text-[11px] font-semibold shadow-lg opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 focus-visible:opacity-100 focus-visible:translate-y-0 transition-all duration-300 max-sm:hidden cursor-pointer hover:bg-white dark:hover:bg-neutral-800"
+          aria-label={`Quick view ${name}`}
         >
           <Eye className="w-3.5 h-3.5" /> Quick view
         </button>
@@ -180,7 +188,7 @@ export function ProductCard({
       <div className="p-3.5 sm:p-4 flex-1 flex flex-col">
         <div className="flex items-center justify-between gap-2 text-[10px] sm:text-[11px] mb-1.5">
           <span className="font-semibold uppercase tracking-[0.12em] text-brand-700 dark:text-brand-300 truncate">{brand}</span>
-          {categoryName && <span className="text-neutral-400 truncate shrink-0 max-w-[45%]">{categoryName}</span>}
+          {categoryName && <span className="text-neutral-500 dark:text-neutral-400 truncate shrink-0 max-w-[45%]">{categoryName}</span>}
         </div>
 
         <Link
@@ -190,13 +198,15 @@ export function ProductCard({
           {name}
         </Link>
 
-        <div className="flex items-center gap-1.5 mt-2">
-          <Star className="w-3.5 h-3.5 text-amber-400" weight="fill" />
-          <span className="text-xs font-semibold text-neutral-800 dark:text-neutral-200 tabular-nums">
-            {rating > 0 ? rating.toFixed(1) : '4.5'}
-          </span>
-          <span className="text-[11px] text-neutral-400">({reviewCount > 0 ? reviewCount : '128'})</span>
-        </div>
+        {reviewCount > 0 && rating > 0 ? (
+          <div className="flex items-center gap-1.5 mt-2" role="img" aria-label={`Rated ${rating.toFixed(1)} out of 5 from ${reviewCount} reviews`}>
+            <Star className="w-3.5 h-3.5 text-amber-400" weight="fill" aria-hidden="true" />
+            <span className="text-xs font-semibold text-neutral-800 dark:text-neutral-200 tabular-nums">{rating.toFixed(1)}</span>
+            <span className="text-[11px] text-neutral-500 dark:text-neutral-400 tabular-nums">({reviewCount.toLocaleString('en-IN')})</span>
+          </div>
+        ) : (
+          <p className="mt-2 text-[11px] font-medium text-neutral-500 dark:text-neutral-400">No reviews yet</p>
+        )}
 
         <div className="mt-auto pt-3">
           <div className="flex items-baseline gap-2 flex-wrap">
@@ -204,7 +214,7 @@ export function ProductCard({
               {formatINR(discountPrice)}
             </span>
             {basePrice > discountPrice && (
-              <span className="text-xs text-neutral-400 line-through tabular-nums">{formatINR(basePrice)}</span>
+              <span className="text-xs text-neutral-500 dark:text-neutral-400 line-through tabular-nums">{formatINR(basePrice)}</span>
             )}
           </div>
 
